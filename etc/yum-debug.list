@@ -1,0 +1,11 @@
+gcc
+gcc-c++
+git
+hostname
+iproute
+iputils
+make
+patch
+pkgconfig
+rpm-build
+tar
