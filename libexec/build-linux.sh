@@ -7,7 +7,7 @@ set -x
 . /cfg/build-env.sh
 
 # Need swap, because scipy build fails otherwise. Allow X11Forwarding
-if [[ $(VBoxControl --version 2>/dev/null) ]]; then
+if VBoxControl --version 2>/dev/null; then
     dd if=/dev/zero of=/swap bs=1M count=1024
     mkswap /swap
     chmod 600 /swap

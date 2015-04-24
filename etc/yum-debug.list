@@ -4,6 +4,7 @@ git
 hostname
 iproute
 iputils
+lsof
 make
 patch
 pkgconfig

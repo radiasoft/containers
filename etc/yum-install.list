@@ -13,6 +13,7 @@ iproute
 iputils
 lapack-devel
 libpng-devel
+lsof
 lzma-devel
 make
 openmotif-devel

@@ -10,18 +10,22 @@ cd $(dirname "$0")
 build_container_net=172.17.42
 . ../libexec/build-setup.sh
 
-image=radiasoft/radtrack
-if docker images | grep -s -q $image; then
-    docker
-    docker rmi $image
+image=radiasoft/fedora
+if docker images | grep -s -q "$image"; then
+    #TODO(robnagler) is this safe?
+    # Remove none running containers.
+    for f in $(docker ps -a | perl -n -e "m{^(\w+)\s.*\s\Q$image\E[\s:]} && print(qq{\$1\n})"); do
+        docker rm $f
+    done
+    docker rmi "$image"
 fi
 
 rm -f Dockerfile
 cat > Dockerfile <<'EOF'
 FROM fedora:21
-MAINTAINER RadTrack <docker@radtrack.org>
+MAINTAINER RadiaSoft <docker@radiasoft.net>
 ADD . /cfg
 RUN sh /cfg/build-linux.sh
 EOF
 
-docker build --rm=true --tag=$image .
+docker build --rm=true --tag="$image" .
