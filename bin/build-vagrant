@@ -28,7 +28,7 @@ if [[ $BIVIO_GIT_SERVER ]]; then
     ip=
     while (( $i < 255 )); do
         x=$build_container_net.$i
-        if ! ( echo > /dev/tcp/$x/22 ) >& /dev/null; then
+        if ! ( > /dev/tcp/$x/22 ) >& /dev/null; then
             ip=$x
             break
         fi
