@@ -1,1 +1,9 @@
-docker run -i -t -v $PWD:/vagrant -h docker radiasoft/fedora /bin/bash -l
+#!/bin/bash
+#
+# Run an interactive bash in new docker container
+#
+# Usage: $0 [image]
+#
+# Image defaults to radiasoft/fedora
+#
+exec docker run -i -t -v $PWD:/vagrant -h docker ${1-radiasoft/fedora} /bin/bash -l

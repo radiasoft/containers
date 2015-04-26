@@ -42,7 +42,7 @@ build_run() {
 
     cat > Vagrantfile <<EOF
 Vagrant.configure(2) do |config|
-  config.vm.box = "$base_vbox"
+  config.vm.box = "$build_base_vagrant"
   $private_net
   # Guest additions are out of date. Boot without shared folder,
   # because otherwise will get an error and slow down build

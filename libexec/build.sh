@@ -6,8 +6,9 @@
 # Called from a build script (container-conf/build)
 #
 #    #!/bin/bash
-#    build_base_box=radiasoft/fedora
-#    build_box=radiasoft/radtrack
+#    build_box=radiasoft/fedora
+#    build_base_docker=fedora:21
+#    build_base_vagrant=hansode/fedora-21-server-x86_64
 #    ../fedora-container/libexec/build.sh
 #
 # Don't forget to:
@@ -26,7 +27,7 @@
 #
 
 build_err() {
-    user_msg "$1"
+    build_msg "$1"
     exit 1
 }
 
@@ -56,6 +57,9 @@ build_env=$build_conf/$build_env_basename
 
 . $build_libexec_dir/build-env-$build_type.sh
 
+build_msg "Conf: $build_host_conf"
+build_msg "Build: $build_dir"
+
 if [[ -d $build_dir && $(type -t build_clean_dir) == function ]]; then
     (
         cd "$build_dir"
@@ -67,7 +71,6 @@ fi
 
 mkdir "$build_dir"
 cd "$build_dir"
-build_msg "Build: $build_dir"
 
 (
     set -e

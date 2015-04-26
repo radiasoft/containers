@@ -1,6 +1,13 @@
 #!/bin/bash
+#
+# Clean all docker stopped containers and dangling images
+#
+# Usage: $0 [-f]
+#
+# If -f is given, then force delete all containers (including running)
+#
 force=
-if [[ $1 = -f ]]; then
+if [[ $1 == -f ]]; then
     force=$1
 fi
 x=$(docker ps -a -q)

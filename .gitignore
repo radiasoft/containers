@@ -1,5 +1,5 @@
-docker
-vagrant
+docker-build
+vagrant-build
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
