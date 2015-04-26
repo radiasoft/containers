@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# Builds a Docker or Vagrant container running Fedora 21.
+#
+build_base_box=hansode/fedora-21-server-x86_64
+build_box=radiasoft/fedora
+
+. ../fedora-container/libexec/build.sh
