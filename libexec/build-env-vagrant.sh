@@ -49,18 +49,15 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
 end
 EOF
-
     vagrant up
-
     # Do not use bivio_vagrant_ssh, because something may go wrong with boot
     # We don't have tar with hansode/fedora-21-server-x86_64
-    find . -type f -maxdepth 1 | cpio -o \
-        | vagrant ssh -c "sudo bash -c 'mkdir $build_conf; cd $build_conf; cpio -i'"
-    vagrant up
+    find . -maxdepth 1 -type f | cpio -o \
+        | vagrant ssh -- -T "sudo bash -c 'mkdir $build_conf; cd $build_conf; cpio -i'"
     # Don't use bivio_vagrant_ssh, because we don't want to build
     # guest additions on the build machine. It's irrelevant, because
     # aren't sharing files between the two machines.
-    vagrant ssh -c "sudo build_env='$build_env' bash '$build_script'"
+    vagrant ssh -- -T "sudo build_env='$build_env' bash '$build_script'" < /dev/null
     vagrant halt
     vagrant package --output package.box
     vagrant box add "$build_vbox" package.box

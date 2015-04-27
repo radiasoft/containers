@@ -50,6 +50,7 @@ build_root=${build_root-$(pwd)}
 build_dir=$build_root/$build_type-build
 build_libexec_dir=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
 build_host_conf=$(cd $(dirname "$0") && pwd)
+# Cannot contains spaces, because ADD in Dockerfile can't quote the directory
 build_conf=/cfg
 build_script=$build_conf/build-fedora.sh
 build_env_basename=build-env.sh

@@ -56,4 +56,4 @@ chmod -R a+rX "$build_conf"
 # If you want to retry building vagrant, you start docker (above) and then repeat:
 # userdel -r vagrant; useradd -m vagrant; su - vagrant -c 'bash -x /user-vagrant.sh'
 
-su --login vagrant -c "bash $build_conf/user-vagrant.sh"
+su --login vagrant -c "build_env='$build_env' bash '$build_conf/user-vagrant.sh'"

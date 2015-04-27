@@ -28,7 +28,7 @@ build_run() {
     cat > Dockerfile <<EOF
 FROM $build_base_docker
 MAINTAINER RadiaSoft <docker@radiasoft.net>
-ADD . "$build_conf"
+ADD . $build_conf
 ENV "build_env=$build_env"
 RUN bash "$build_script"
 EOF
