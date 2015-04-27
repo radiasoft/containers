@@ -60,7 +60,7 @@ EOF
     vagrant ssh -- -T "sudo build_env='$build_env' bash '$build_script'" < /dev/null
     vagrant halt
     vagrant package --output package.box
-    vagrant box add "$build_vbox" package.box
+    vagrant box add "$build_box" package.box
     # Need to destroy VM because directory is emphemeral
     vagrant destroy -f
     rm -rf Vagrantfile .vagrant
