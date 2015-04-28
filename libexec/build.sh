@@ -3,7 +3,7 @@
 #
 # Build a vagrant or docker box.
 #
-# Called from a build script (container-conf/build)
+# Called from a build script (container-conf/builder)
 #
 #    #!/bin/bash
 #    build_box=radiasoft/fedora
@@ -13,8 +13,8 @@
 #
 # Don't forget to:
 #
-#    chmod +x container-conf/build
-#    git update-index --chmod=+x container-conf/build
+#    chmod +x container-conf/builder
+#    git update-index --chmod=+x container-conf/builder
 #
 # The build script lives in the conf directory (container-conf) and
 # must contain build-fedora.sh, # which will configure the Fedora

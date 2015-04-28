@@ -5,12 +5,12 @@ Builds Fedora 21 on Docker or Vagrant
 
 ```
 newgrp docker
-bin/build-docker
+bin/builder docker
 ```
 
 ```
 newgrp vboxusers
-bin/build-vagrant
+bin/builder vagrant
 ```
 
 #### Debugging

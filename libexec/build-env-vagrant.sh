@@ -59,8 +59,9 @@ EOF
     # aren't sharing files between the two machines.
     vagrant ssh -- -T "sudo build_env='$build_env' bash '$build_script'" < /dev/null
     vagrant halt
-    vagrant package --output package.box
-    vagrant box add "$build_box" package.box
+    out=${build_box//\//-}.box
+    vagrant package --output "$out"
+    vagrant box add "$build_box" "$out"
     # Need to destroy VM because directory is emphemeral
     vagrant destroy -f
     rm -rf Vagrantfile .vagrant
