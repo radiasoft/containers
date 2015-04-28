@@ -3,6 +3,10 @@
 # Vagrant functions and variables for build
 #
 
+if ! vagrant box list | grep -s -q "^$build_base_vagrant "; then
+    build_err "$build_base_vagrant: not in vagrant box list"
+fi
+
 build_container_net=10.10.10
 
 build_clean_dir() {
@@ -53,7 +57,7 @@ EOF
     # Do not use bivio_vagrant_ssh, because something may go wrong with boot
     # We don't have tar with hansode/fedora-21-server-x86_64
     find . -maxdepth 1 -type f | cpio -o \
-        | vagrant ssh -- -T "sudo bash -c 'mkdir $build_conf; cd $build_conf; cpio -i'"
+        | vagrant ssh -- -T "sudo bash -c 'rm -rf $build_conf; mkdir -p $build_conf; cd $build_conf; cpio -iu'"
     # Don't use bivio_vagrant_ssh, because we don't want to build
     # guest additions on the build machine. It's irrelevant, because
     # aren't sharing files between the two machines.

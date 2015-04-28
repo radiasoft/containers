@@ -3,6 +3,10 @@
 # Docker functions and variables for build
 #
 
+if ! docker images -a | grep -s -q "^$build_base_docker "; then
+    build_err "$build_base_docker: not in docker images -a"
+fi
+
 # Docker's hardwired container network
 build_container_net=172.17.42
 
@@ -11,7 +15,7 @@ build_clean_dir() {
 }
 
 build_clean_box() {
-    if ! docker images | grep -s -q "^$build_box "; then
+    if ! docker images -a | grep -s -q "^$build_box "; then
         return
     fi
     #TODO(robnagler) is this safe?
@@ -24,6 +28,9 @@ build_clean_box() {
 }
 
 build_run() {
+    if ! docker images -a | grep -s -q "^$build_box "; then
+        return
+    fi
     rm -f Dockerfile
     cat > Dockerfile <<EOF
 FROM $build_base_docker

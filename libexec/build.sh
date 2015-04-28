@@ -25,6 +25,12 @@
 #
 # All commands and variables begin with build.
 #
+set -e
+assert_subshell() {
+    # Subshells are strange with set -e so need to return $? after called to
+    # test false at outershell.
+    return $?
+}
 
 build_err() {
     build_msg "$1"
@@ -35,6 +41,10 @@ build_msg() {
     echo "$1" 1>&2
 }
 
+if [[ $PWD =~ container-conf ]]; then
+    build_err 'build from the base directory of the repo (where the .git dir is)'
+fi
+
 case $1 in
     docker|vagrant)
         build_type=$1
@@ -44,12 +54,12 @@ case $1 in
         ;;
 esac
 
-set -e
 
-build_root=${build_root-$(pwd)}
+
+build_root=${build_root-$PWD}
 build_dir=$build_root/$build_type-build
-build_libexec_dir=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
-build_host_conf=$(cd $(dirname "$0") && pwd)
+build_libexec_dir=$(cd $(dirname "${BASH_SOURCE[0]}"); pwd)
+build_host_conf=$(cd $(dirname "$0"); pwd)
 # Cannot contains spaces, because ADD in Dockerfile can't quote the directory
 build_conf=/cfg
 build_script=$build_conf/build-fedora.sh
@@ -66,7 +76,7 @@ if [[ -d $build_dir && $(type -t build_clean_dir) == function ]]; then
         cd "$build_dir"
         echo "Cleaning: $build_dir"
         build_clean_dir
-    )
+    ) || exit 1
     rm -rf "$build_dir"
 fi
 
@@ -74,7 +84,6 @@ mkdir "$build_dir"
 cd "$build_dir"
 
 (
-    set -e
     # TODO(robnagler) consider making local to git server
     echo "export BIVIO_FOSS_MIRROR=${BIVIO_FOSS_MIRROR-https://depot.radiasoft.org/foss}"
     echo "export build_conf='$build_conf'"
@@ -102,7 +111,8 @@ cd "$build_dir"
     }
 EOF
     echo
-) > "$build_env_basename" || return $?
+) > "$build_env_basename"
+assert_subshell
 
 . "./$build_env_basename"
 
