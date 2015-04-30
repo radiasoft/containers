@@ -9,7 +9,7 @@
 #    build_box=radiasoft/fedora
 #    build_base_docker=fedora:21
 #    build_base_vagrant=hansode/fedora-21-server-x86_64
-#    ../fedora-container/libexec/build.sh
+#    . "$(dirname "$0")"/../../../radiasoft/fedora-container/libexec/build.sh
 #
 # Don't forget to:
 #
@@ -44,10 +44,6 @@ build_msg() {
     echo "$1" 1>&2
 }
 
-if [[ $PWD =~ container-conf ]]; then
-    build_err 'build from the base directory of the repo (where the .git dir is)'
-fi
-
 case $1 in
     docker|vagrant)
         build_type=$1
@@ -57,12 +53,10 @@ case $1 in
         ;;
 esac
 
-
-
-build_root=${build_root-$PWD}
+build_host_conf=$(cd "$(dirname "$0")"; pwd)
+build_libexec=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)
+build_root=${build_root-$(cd "$build_host_conf/.."; pwd)}
 build_dir=$build_root/$build_type-build
-build_libexec=$(cd $(dirname "${BASH_SOURCE[0]}"); pwd)
-build_host_conf=$(cd $(dirname "$0"); pwd)
 # Cannot contains spaces, because ADD in Dockerfile can't quote the directory
 build_conf=/cfg
 build_script=$build_conf/build-fedora.sh

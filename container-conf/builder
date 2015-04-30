@@ -7,4 +7,4 @@ build_box=radiasoft/fedora
 build_base_docker=fedora:21
 build_base_vagrant=hansode/fedora-21-server-x86_64
 
-. ../../radiasoft/fedora-container/libexec/build.sh
+. "$(dirname "$0")"/../../../radiasoft/fedora-container/libexec/build.sh

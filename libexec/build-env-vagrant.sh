@@ -35,6 +35,11 @@ Vagrant.configure(2) do |config|
   # Guest additions are out of date. Boot without shared folder,
   # because otherwise will get an error and slow down build
   config.vm.synced_folder ".", "/vagrant", disabled: true
+  # https://github.com/mitchellh/vagrant/issues/5186
+  # Can't insert a private key, because would have to be packaged with
+  # the box. If you rebuild the original box, it will mess with the
+  # key.
+  config.ssh.insert_key = false
 end
 EOF
     vagrant up
@@ -50,6 +55,32 @@ EOF
     out=${build_box//\//-}.box
     vagrant package --output "$out"
     vagrant box add "$build_box" "$out"
+    # This doesn't work:
+    #
+    # vagrant box add --box-version "$(date +%Y%m%d.%H%M%S)" radiasoft/fedora file://$PWD/package.box
+    #
+    # Run vagrant up without adding the box manually using vagrant box add
+    #
+    # VERSION OF BOX; Store in box, too.
+    # https://github.com/hollodotme/Helpers/blob/master/Tutorials/vagrant/self-hosted-vagrant-boxes-with-versioning.md#4-using-a-box-catalog-for-versioning
+    #
+    # openssl sha1 ~/VagrantBoxes/devops_0.1.0.box
+    # {
+    #     "name": "devops",
+    #     "description": "This box contains Ubuntu 14.04.1 LTS 64-bit.",
+    #     "versions": [{
+    #         "version": "0.1.0",
+    #         "providers": [{
+    #                 "name": "virtualbox",
+    #                 "url": "file://~/VagrantBoxes/devops_0.1.0.box",
+    #                 "checksum_type": "sha1",
+    #                 "checksum": "d3597dccfdc6953d0a6eff4a9e1903f44f72ab94"
+    #         }]
+    #     }]
+    # }
+    #
+    # config.vm.box_url = "file://~/VagrantBoxes/devops.json"
+    #
     # Need to destroy VM because directory is emphemeral
     vagrant destroy -f
     rm -rf Vagrantfile .vagrant
