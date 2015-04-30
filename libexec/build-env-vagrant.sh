@@ -10,7 +10,7 @@ fi
 build_container_net=10.10.10
 
 build_clean_dir() {
-    vagrant destroy -f &> /dev/null
+    vagrant destroy -f &> /dev/null || true
 }
 
 build_clean_box() {
@@ -23,24 +23,8 @@ build_clean_box() {
 build_run() {
     local private_net=
     if [[ $BIVIO_GIT_SERVER ]]; then
-        # Must be different than install-user.sh (so can run two VMs simultaneously)
-        # Shouldn't collide with existing uses (1-60) either. Only important for
-        # the build if there is a git server
-        local -i i=$(perl -e 'print(int(rand(50)) + 60)')
-        local ip=
-        local x=
-        while (( $i < 255 )); do
-            x=$build_container_net.$i
-            if ! ( echo > /dev/tcp/$x/22 ) >& /dev/null; then
-                ip=$x
-                break
-            fi
-            i+=1
-        done
-        if [[ ! $ip ]]; then
-            echo "Unable to find a free IP address on $build_container_net" 1>&2
-            exit 1
-        fi
+        ip=$(perl $build_libexec_dir/find-available-ip.pl "$build_container_net")
+        assert_subshell
         private_net="config.vm.network \"private_network\", ip: \"$ip\""
     fi
 

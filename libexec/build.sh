@@ -25,6 +25,9 @@
 #
 # All commands and variables begin with build.
 #
+if [[ $debug ]]; then
+    set -x
+fi
 set -e
 assert_subshell() {
     # Subshells are strange with set -e so need to return $? after called to
@@ -58,7 +61,7 @@ esac
 
 build_root=${build_root-$PWD}
 build_dir=$build_root/$build_type-build
-build_libexec_dir=$(cd $(dirname "${BASH_SOURCE[0]}"); pwd)
+build_libexec=$(cd $(dirname "${BASH_SOURCE[0]}"); pwd)
 build_host_conf=$(cd $(dirname "$0"); pwd)
 # Cannot contains spaces, because ADD in Dockerfile can't quote the directory
 build_conf=/cfg
@@ -66,7 +69,7 @@ build_script=$build_conf/build-fedora.sh
 build_env_basename=build-env.sh
 build_env=$build_conf/$build_env_basename
 
-. $build_libexec_dir/build-env-$build_type.sh
+. $build_libexec/build-env-$build_type.sh
 
 build_msg "Conf: $build_host_conf"
 build_msg "Build: $build_dir"
@@ -79,6 +82,8 @@ if [[ -d $build_dir && $(type -t build_clean_dir) == function ]]; then
     ) || exit 1
     rm -rf "$build_dir"
 fi
+
+build_clean_box
 
 mkdir "$build_dir"
 cd "$build_dir"
