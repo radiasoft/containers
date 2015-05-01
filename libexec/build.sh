@@ -116,6 +116,6 @@ assert_subshell
 . "./$build_env_basename"
 
 shopt -s nullglob
-cp -a "$build_host_conf"/*.* "$build_dir"
+cp -a "$build_host_conf"/* "$build_dir"
 
 build_run
