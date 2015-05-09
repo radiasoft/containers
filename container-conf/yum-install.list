@@ -2,6 +2,7 @@ atlas-devel
 blas-devel
 bzip2-devel
 emacs-nox
+fftw2-devel
 gcc
 gcc-c++
 gd-devel
