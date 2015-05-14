@@ -97,6 +97,12 @@ cd "$build_dir"
     fi
 
     cat <<'EOF'
+    assert_subshell() {
+        # Subshells are strange with set -e so need to return $? after called to
+        # test false at outershell.
+        return $?
+    }
+
     build_home_env() {
         # Needs to be two lines to catch error on retrieval; bash doesn't complain
         # if an empty file ("false | bash" is true).
