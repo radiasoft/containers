@@ -10,7 +10,7 @@ numpy
 openpyxl
 pockets
 py
-pybivio
+pykern
 Pygments
 pyparsing
 pytest
