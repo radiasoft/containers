@@ -21,17 +21,9 @@ build_clean_box() {
 }
 
 build_run() {
-    local private_net=
-    if [[ $BIVIO_GIT_SERVER ]]; then
-        ip=$(perl $build_libexec_dir/find-available-ip.pl "$build_container_net")
-        assert_subshell
-        private_net="config.vm.network \"private_network\", ip: \"$ip\""
-    fi
-
     cat > Vagrantfile <<EOF
 Vagrant.configure(2) do |config|
   config.vm.box = "$build_base_vagrant"
-  $private_net
   # Guest additions are out of date. Boot without shared folder,
   # because otherwise will get an error and slow down build
   config.vm.synced_folder ".", "/vagrant", disabled: true

@@ -87,15 +87,6 @@ cd "$build_dir"
     echo "export BIVIO_FOSS_MIRROR=${BIVIO_FOSS_MIRROR-https://depot.radiasoft.org/foss}"
     echo "export build_conf='$build_conf'"
     echo "export build_env='$build_env'"
-    # Only for debug mode
-    port=$(bivio_git_server -port 2>/dev/null || true)
-    if [[ $port ]]; then
-        # Docker and vagrant always use .1 for host IP
-        url="http://$build_container_net.1:$port"
-        echo "export BIVIO_GIT_SERVER='$url'"
-        echo "*** DEVELOPMENT MODE: Downloads from $url ***" 1>&2
-    fi
-
     cat <<'EOF'
     assert_subshell() {
         # Subshells are strange with set -e so need to return $? after called to
@@ -110,7 +101,7 @@ cd "$build_dir"
         # only once.
         local x=$build_conf/home-env-install.sh
         if [[ ! -r $x ]]; then
-            curl -s -S -L "${BIVIO_GIT_SERVER-https://raw.githubusercontent.com}"/biviosoftware/home-env/master/install.sh > "$x"
+            curl -s -S -L https://raw.githubusercontent.com/biviosoftware/home-env/master/install.sh > "$x"
         fi
         no_perl=1 bash $x
     }

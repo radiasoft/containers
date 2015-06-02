@@ -39,3 +39,45 @@ cd ~/src
 cp "$build_conf/requirements.txt" .
 bivio_pyenv_local
 pyenv activate src
+
+mkdir -p ~/src/radiasoft
+cd ~/src/radiasoft
+pyenv activate src
+
+# TODO(robnagler) SDDS install from RPM directly? Pull from bundle?
+install -m 0644 "$build_conf"/sdds* $(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
+
+# TODO(robnagler) Specify commit version via date
+(
+    gcl SRW
+    cd SRW
+    # dependency
+    MPICC=/usr/lib64/openmpi/bin/mpicc pip install mpi4py
+    make
+    make install
+)
+assert_subshell
+
+(
+    gcl shadow3
+    cd shadow3
+    make
+    make libstatic
+    python setup.py install
+)
+assert_subshell
+
+(
+    . "$build_conf/installwarp.sh"
+)
+assert_subshell
+
+(
+    gcl radtrack-installer
+    gcl radtrack
+    cd radtrack
+    radtrack-installer radtrack
+    # Build radtrack
+    python setup.py develop
+)
+assert_subshell
