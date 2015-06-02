@@ -68,7 +68,7 @@ assert_subshell
 assert_subshell
 
 (
-    . "$build_conf/installwarp.sh"
+    . "$build_conf/install-warp.sh"
 )
 assert_subshell
 
@@ -76,8 +76,6 @@ assert_subshell
     gcl radtrack-installer
     gcl radtrack
     cd radtrack
-    radtrack-installer radtrack
-    # Build radtrack
     python setup.py develop
 )
 assert_subshell
