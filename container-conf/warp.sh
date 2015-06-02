@@ -2,6 +2,9 @@
 #
 # Install warp
 #
+set -e
+. ~/.bashrc
+pyenv activate src
 radiasoft=~/src/radiasoft
 mkdir -p "$radiasoft"
 cd "$radiasoft"
