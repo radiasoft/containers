@@ -25,6 +25,16 @@ if VBoxControl --version &>/dev/null; then
     ) >& /dev/null || true
 fi
 
+# Remove the VirtualBox guest additions here so that the
+# initial boot on the client machines goes faster, since
+# these are surely the wrong version.
+rpms=$(rpm -qa | grep VirtualBox || true)
+if [[ $rpms ]]; then
+    # Remove the virtual box RPMs
+    yum remove -y -q $rpms || true
+fi
+
+
 # https://bugzilla.redhat.com/show_bug.cgi?format=multiple&id=1171928
 # error: unpacking of archive failed on file /sys: cpio: chmod
 # error: filesystem-3.2-28.fc21.x86_64: install failed
