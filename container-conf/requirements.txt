@@ -1,4 +1,4 @@
-matplotlib
+matplotlib==1.4.2
 numpy
 pykern
 scipy
