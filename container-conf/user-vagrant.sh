@@ -49,7 +49,7 @@ install -m 0644 "$build_conf"/sdds* $(python -c 'from distutils.sysconfig import
 
 # TODO(robnagler) Specify commit version via date
 (
-    gcl SRW
+    git clone --depth 1 https://github.com/radiasoft/SRW
     cd SRW
     # dependency
     MPICC=/usr/lib64/openmpi/bin/mpicc pip install mpi4py
