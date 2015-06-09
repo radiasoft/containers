@@ -2,8 +2,12 @@
 #
 # Docker functions and variables for build
 #
+build_env_docker_image_exists() {
+    local img=$1
+    docker images -a | grep -s -q "^${img/:/ *} "
+}
 
-if ! docker images -a | grep -s -q "^$build_base_docker "; then
+if ! build_env_docker_image_exists "$build_base_docker"; then
     build_err "$build_base_docker: not in docker images -a"
 fi
 
@@ -15,7 +19,7 @@ build_clean_dir() {
 }
 
 build_clean_box() {
-    if ! docker images -a | grep -s -q "^$build_box "; then
+    if ! build_env_docker_image_exists "$build_box"; then
         return
     fi
     #TODO(robnagler) is this safe?
@@ -28,9 +32,6 @@ build_clean_box() {
 }
 
 build_run() {
-    if ! docker images -a | grep -s -q "^$build_box "; then
-        return
-    fi
     rm -f Dockerfile
     cat > Dockerfile <<EOF
 FROM $build_base_docker
