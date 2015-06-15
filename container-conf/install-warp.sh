@@ -26,14 +26,16 @@ cd ..
 
 gcl warp
 cd warp/pywarp90
+FARGS = --with_feenableexcept
+warpg
 make -f Makefile.Forthon \
-    DEBUG='-g --fargs -O0' \
+    DEBUG='-g --fargs "--with_feenableexcept -O0"' \
     SETUP_PY_DEBUG='-g' \
     clean install
 make -f Makefile.Forthon.pympi \
     MPIPARALLEL= \
     FCOMP='-F gfortran --fcompexec /usr/lib64/openmpi/bin/mpifort' \
-    DEBUG='-g --fargs -O0' \
+    DEBUG='-g --fargs "--with_feenableexcept -O0"' \
     SETUP_PY_DEBUG='-g' \
     clean install
 cd ../..
