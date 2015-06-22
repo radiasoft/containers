@@ -43,5 +43,6 @@ tk-devel
 wget
 xclock
 xpdf
+xterm
 yum-utils
 zlib-devel
