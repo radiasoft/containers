@@ -17,7 +17,7 @@
 #    git update-index --chmod=+x container-conf/builder
 #
 # The build script lives in the conf directory (container-conf) and
-# must contain build-fedora.sh, # which will configure the Fedora
+# must contain build-container.sh, # which will configure the Fedora
 # install. All files in the conf directory will be copied into the
 # $build_conf directory on guest.
 #
@@ -59,7 +59,7 @@ build_root=${build_root-$(cd "$build_host_conf/.."; pwd)}
 build_dir=$build_root/$build_type-build
 # Cannot contains spaces, because ADD in Dockerfile can't quote the directory
 build_conf=/cfg
-build_script=$build_conf/build-fedora.sh
+build_script=$build_conf/build-container.sh
 build_env_basename=build-env.sh
 build_env=$build_conf/$build_env_basename
 

@@ -3,8 +3,8 @@
 # Builds a Docker or Vagrant container running Fedora 21.
 #
 set -e
-build_box=radiasoft/fedora
-build_base_docker=fedora:21
-build_base_vagrant=hansode/fedora-21-server-x86_64
+build_box=radiasoft/beamsim
+build_base_docker=radiasoft/fedora21
+build_base_vagrant=radiasoft/fedora21
 
 . "$(dirname "$0")"/../../../radiasoft/fedora-container/libexec/build.sh

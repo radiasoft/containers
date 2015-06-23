@@ -44,9 +44,6 @@ yum --assumeyes --exclude='filesystem*' update
 # DEBUG: Can subtitute "yum-install.list" with "yum-debug.list" below:
 yum --assumeyes install $(cat $build_conf/yum-install.list)
 
-# elegant and SDDS
-yum install -y "$build_conf"/*.rpm
-
 # DEBUG: Uncomment this:
 # exit
 #
