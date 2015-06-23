@@ -26,7 +26,6 @@ cd ..
 
 gcl warp
 cd warp/pywarp90
-FARGS = --with_feenableexcept
 make -f Makefile.Forthon \
     DEBUG='-g --fargs "--with_feenableexcept -O0"' \
     SETUP_PY_DEBUG='-g' \
