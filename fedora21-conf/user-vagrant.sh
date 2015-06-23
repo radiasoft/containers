@@ -38,4 +38,4 @@ mkdir -p ~/src
 cd ~/src
 cp "$build_conf/requirements.txt" .
 bivio_pyenv_local
-pyenv activate src
+mv .python-version ~

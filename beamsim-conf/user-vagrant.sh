@@ -7,6 +7,17 @@ set -e
 
 . "$build_env"
 
+. ~/.bashrc
+
+cd
+# TODO(robnagler) Remove once fedora21 does this
+if [[ -f ~/src/.python-version ]]; then
+    mv ~/src/.python-version ~
+fi
+
+
+pyenv activate src
+
 mkdir -p ~/src/radiasoft
 cd ~/src/radiasoft
 pyenv activate src
