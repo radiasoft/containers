@@ -6,12 +6,12 @@ set -e
 umask 022
 
 set -x
+date
 
 . "$build_env"
 
 # Need swap, because scipy build fails otherwise. Allow X11Forwarding
 if VBoxControl --version &>/dev/null; then
-    systemctl restart
     cat >> /etc/NetworkManager/dispatcher.d/fix-slow-dns <<EOF
 #!/bin/bash
 # Fix slow DNS by updating resolve.conf
@@ -52,9 +52,11 @@ fi
 # error: filesystem-3.2-28.fc21.x86_64: install failed
 # DEBUG: Don't run update so comment this line:
 yum --assumeyes --exclude='filesystem*' update
+date
 
 # DEBUG: Can subtitute "yum-install.list" with "yum-debug.list" below:
 yum --assumeyes install $(cat $build_conf/yum-install.list)
+date
 
 # DEBUG: Uncomment this:
 # exit
@@ -64,6 +66,7 @@ yum --assumeyes install $(cat $build_conf/yum-install.list)
 #
 
 . "$build_conf/user-root.sh"
+date
 
 rm -f /etc/localtime
 # Not ideal, but where is the user really?
@@ -79,3 +82,4 @@ chmod -R a+rX "$build_conf"
 # userdel -r vagrant; useradd -m vagrant; su - vagrant -c 'bash -x /user-vagrant.sh'
 
 su --login vagrant -c "build_env='$build_env' bash '$build_conf/user-vagrant.sh'"
+date
