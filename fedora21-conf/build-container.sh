@@ -11,6 +11,18 @@ set -x
 
 # Need swap, because scipy build fails otherwise. Allow X11Forwarding
 if VBoxControl --version &>/dev/null; then
+    systemctl restart
+    cat >> /etc/NetworkManager/dispatcher.d/fix-slow-dns <<EOF
+#!/bin/bash
+# Fix slow DNS by updating resolve.conf
+# http://fedoraforum.org/forum/showthread.php?t=238593
+# https://github.com/mitchellh/vagrant/issues/1172#issuecomment-42263664
+# https://github.com/chef/bento/blob/master/scripts/fedora/fix-slow-dns.sh
+echo 'options single-request-reopen' >> /etc/resolv.conf
+EOF
+    chmod 550 /etc/NetworkManager/dispatcher.d/fix-slow-dns
+    systemctl restart NetworkManager
+EOF
     dd if=/dev/zero of=/swap bs=1M count=1024
     mkswap /swap
     chmod 600 /swap
