@@ -32,6 +32,10 @@ Vagrant.configure(2) do |config|
   # the box. If you rebuild the original box, it will mess with the
   # key.
   config.ssh.insert_key = false
+  # https://github.com/mitchellh/vagrant/issues/1172#issuecomment-9444659
+  # This allows two DNS resolvers, not just one (the proxy)
+  config.vm.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
+  config.vm.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
 end
 EOF
     vagrant up
