@@ -22,7 +22,6 @@ echo 'options single-request-reopen' >> /etc/resolv.conf
 EOF
     chmod 550 /etc/NetworkManager/dispatcher.d/fix-slow-dns
     systemctl restart NetworkManager
-EOF
     dd if=/dev/zero of=/swap bs=1M count=1024
     mkswap /swap
     chmod 600 /swap
