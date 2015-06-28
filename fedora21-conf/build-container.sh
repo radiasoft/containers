@@ -11,7 +11,9 @@ date
 . "$build_env"
 
 # Need swap, because scipy build fails otherwise. Allow X11Forwarding
+is_vagrant=
 if VBoxControl --version &>/dev/null; then
+    is_vagrant=1
     cat >> /etc/NetworkManager/dispatcher.d/fix-slow-dns <<EOF
 #!/bin/bash
 # Fix slow DNS by updating resolve.conf
@@ -57,9 +59,11 @@ date
 yum --assumeyes install $(cat $build_conf/yum-install.list)
 date
 
-# install docker from docker.com so get latest version
-yum --assumeyes install https://get.docker.com/rpm/1.7.0/fedora-21/RPMS/x86_64/docker-engine-1.7.0-1.fc21.x86_64.rpm
-systemctl enable docker
+if [[ $is_vagrant ]]; then
+    # install docker from docker.com so get latest version
+    yum --assumeyes install https://get.docker.com/rpm/1.7.0/fedora-21/RPMS/x86_64/docker-engine-1.7.0-1.fc21.x86_64.rpm
+    systemctl enable docker
+fi
 
 # DEBUG: Uncomment this:
 # exit
