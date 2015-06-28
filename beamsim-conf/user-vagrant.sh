@@ -16,11 +16,9 @@ if [[ -f ~/src/.python-version ]]; then
 fi
 
 
-pyenv activate src
-
 mkdir -p ~/src/radiasoft
 cd ~/src/radiasoft
-pyenv activate src
+pyenv activate
 
 # TODO(robnagler) SDDS install from RPM directly? Pull from bundle?
 install -m 0644 "$build_conf"/sdds* $(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
