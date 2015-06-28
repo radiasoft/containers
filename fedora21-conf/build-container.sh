@@ -57,6 +57,10 @@ date
 yum --assumeyes install $(cat $build_conf/yum-install.list)
 date
 
+# install docker from docker.com so get latest version
+yum --assumeyes install https://get.docker.com/rpm/1.7.0/fedora-21/RPMS/x86_64/docker-engine-1.7.0-1.fc21.x86_64.rpm
+systemctl enable docker
+
 # DEBUG: Uncomment this:
 # exit
 #
@@ -71,7 +75,13 @@ rm -f /etc/localtime
 # Not ideal, but where is the user really?
 ln -s /usr/share/zoneinfo/UCT /etc/localtime
 
-id -u vagrant &>/dev/null || useradd --create-home vagrant
+if ! id vagrant &>/dev/null; then
+    if ! getent group vagrant &>/dev/null; then
+        groupadd -g 1000 vagrant
+    fi
+    useradd --create-home -g vagrant -u 1000 vagrant
+fi
+
 chmod -R a+rX "$build_conf"
 
 # DEBUG: Uncomment this:
