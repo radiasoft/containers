@@ -40,5 +40,7 @@ ADD . $build_conf
 ENV "build_env=$build_env"
 RUN bash "$build_script"
 EOF
-    docker build --rm=true --tag="$build_box" .
+    local version=$(date -u +%Y%m%d.%H%M%S)
+    docker build --rm=true --tag="$build_box:$version" .
+    docker tag -f "$build_box:$version" "$build_box:latest"
 }

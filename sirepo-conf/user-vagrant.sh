@@ -31,7 +31,7 @@ pyenv activate
 cd pykern
 git pull
 python setup.py develop
-cd ../pykern
+cd ..
 
 # Install sirepo
 gcl sirepo
