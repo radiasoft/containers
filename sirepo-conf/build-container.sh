@@ -9,9 +9,6 @@ set -x
 
 . "$build_env"
 
-# elegant and SDDS
-yum install -y "$build_conf"/*.rpm
-
 #TODO(robnagler) remove once rebuild fedora21
 if ! id vagrant &>/dev/null; then
     if ! getent group vagrant &>/dev/null; then
