@@ -43,4 +43,5 @@ EOF
     local version=$(date -u +%Y%m%d.%H%M%S)
     docker build --rm=true --tag="$build_box:$version" .
     docker tag -f "$build_box:$version" "$build_box:latest"
+    echo "Built: $build_box:$version"
 }
