@@ -7,6 +7,13 @@ the following codes:
 * SRW
 * Elegant
 
+### Building containers
+
+You will need Docker and/or Vagrant/VirtualBox installed.
+
+
+```bash
+cd sire
 
 ### Install on Windows
 
