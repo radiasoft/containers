@@ -7,10 +7,8 @@ python_version=2.7.10
 run_as_root() {
     yum --color=never update -y
     yum --color=never install -y $(cat rpm-list.txt)
-    yum --color=never clean all
     mkdir "$PYENV_ROOT"
     chown vagrant:vagrant "$PYENV_ROOT"
-    exit 0
 }
 
 run_as_vagrant() {
@@ -28,4 +26,6 @@ EOF
     eval "$(pyenv init -)"
     pyenv install "$python_version"
     pyenv global "$python_version"
+    build_radiasoft_pykern
+    pip install matplotlib
 }

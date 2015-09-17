@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+#
+# Forked https://github.com/docker/docker/blob/master/contrib/mkimage.sh
+#
+# Specific version:
+# https://github.com/docker/docker/blob/397de38ae68ed580dccae1421bd02bfedd4ababa/contrib/mkimage.sh
+#
 set -e
 
 mkimg="$(basename "$0")"
@@ -14,7 +20,7 @@ usage() {
 	exit 1
 }
 
-scriptDir="$(dirname "$(readlink -f "$BASH_SOURCE")")/mkimage"
+scriptDir=$(dirname "$(readlink -f "$BASH_SOURCE")")
 
 optTemp=$(getopt --options '+d:t:c:hC' --longoptions 'dir:,tag:,compression:,no-compression,help' --name "$mkimg" -- "$@")
 eval set -- "$optTemp"
