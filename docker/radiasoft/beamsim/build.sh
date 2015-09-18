@@ -1,11 +1,11 @@
 #!/bin/bash
-build_tag_base=radiasoft/python2
+build_image_base=radiasoft/python2
 
 run_as_root() {
     :
 }
 
-run_as_vagrant() {
+run_as_exec_user() {
     mkdir -p ~/src/radiasoft
     (
         cd ~/src/radiasoft

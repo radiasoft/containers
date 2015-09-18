@@ -1,5 +1,5 @@
 #!/bin/bash
-build_tag_base=fedora:21
+build_image_base=fedora:21
 
 export PYENV_ROOT=/pyenv
 python_version=2.7.10
@@ -8,10 +8,10 @@ run_as_root() {
     yum --color=never update -y
     yum --color=never install -y $(cat rpm-list.txt)
     mkdir "$PYENV_ROOT"
-    chown vagrant:vagrant "$PYENV_ROOT"
+    chown "$build_exec_user:$build_exec_user" "$PYENV_ROOT"
 }
 
-run_as_vagrant() {
+run_as_exec_user() {
     export PATH="$PYENV_ROOT/bin:$PATH"
     curl -L -S -s https://raw.githubusercontent.com/radiasoft/pyenv-installer/master/bin/pyenv-installer | bash
     {
