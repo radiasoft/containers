@@ -10,6 +10,8 @@ gd-devel
 ghostscript
 git
 gsl-devel
+hdf5-devel
+hdf5-openmpi
 hostname
 iproute
 iputils
