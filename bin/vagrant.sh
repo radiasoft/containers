@@ -1,22 +1,7 @@
 #!/bin/bash
 #
-# See ../lib.sh for usage
+# See ./build for usage
 #
-
-. ../lib.sh
-
-build_bashrc() {
-    local bashrc=$1/.bashrc
-    if [[ $(readlink -f $bashrc) =~ /home-env/ ]]; then
-        return 0
-    fi
-    local user=$(basename "$1")
-    local x=$build_guest_conf/home-env-install.sh
-    if [[ ! -r $x ]]; then
-        curl -s -S -L https://raw.githubusercontent.com/biviosoftware/home-env/master/install.sh > "$x"
-    fi
-    no_perl=1 bash "$x"
-}
 
 build_image() {
     cat > Vagrantfile <<EOF
@@ -100,25 +85,55 @@ build_image_exists() {
     return 1
 }
 
-build_run() {
-    cd "$(dirname "$0")"
-    build_init
-    if [[ $UID == 0 ]]; then
-        build_fedora_patch
-        # Need these to build home environment
-        yum install -y git tar
-        build_bashrc ~
-        run_as_root
-        # Run again, because of update or yum install may reinstall pkgs
-        build_fedora_patch
-        chown -R "$build_exec_user:$build_exec_user" .
-        su "$build_exec_user" "$0"
-        build_fedora_clean
-    else
-        build_bashrc ~
-        . ~/.bashrc
-        run_as_exec_user
-    fi
+build_init_type() {
+    build_is_vagrant=1
+    build_type=vagrant
 }
 
-build_main "$@"
+build_root_setup() {
+    local x=/etc/NetworkManager/dispatcher.d/fix-slow-dns
+    if [[ ! -r $x ]]; then
+        cat >> "$x" <<'EOF'
+#!/bin/bash
+# Fix slow DNS by updating resolve.conf
+# http://fedoraforum.org/forum/showthread.php?t=238593
+# https://github.com/mitchellh/vagrant/issues/1172#issuecomment-42263664
+# https://github.com/chef/bento/blob/master/scripts/fedora/fix-slow-dns.sh
+echo 'options single-request-reopen' >> /etc/resolv.conf
+EOF
+        chmod 550 "$x"
+        systemctl restart NetworkManager
+    fi
+    x=/swap
+    if [[ ! -e $x ]]; then
+        dd if=/dev/zero of="$x" bs=1M count=1024
+        mkswap "$x"
+        chmod 600 "$x"
+        swapon "$x"
+        echo "$x none swap sw 0 0" >> /etc/fstab
+    fi
+    perl -pi -e 's{^(X11Forwarding) no}{$1 yes}' /etc/ssh/sshd_config
+    systemctl restart sshd.service
+    # Containers are protected by their hosts
+    (
+        systemctl stop firewalld.service
+        systemctl disable firewalld.service
+    ) >& /dev/null || true
+    # Remove the VirtualBox guest additions here so that the
+    # initial boot on the client machines goes faster, since
+    # these are surely the wrong version.
+    x=( $(rpm -qa | grep VirtualBox || true) )
+    if [[ $x ]]; then
+        # Remove the virtual box RPMs
+        build_yum "${x[@]}" || true
+    fi
+    x=~vagrant/.ssh/authorized_keys
+    if ! grep -s -q insecure "$x"; then
+        local d="$(dirname "$x")"
+        if [[ ! -d $d ]]; then
+            mkdir "$d"
+        fi
+        build_curl https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub >> "$x"
+        chmod -R og-rwx "$d"
+    fi
+}

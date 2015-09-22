@@ -1,18 +1,7 @@
 #!/bin/bash
 #
-# See ../lib.sh for usage
+# See ./build for usage
 #
-
-. ../lib.sh
-
-build_bashrc() {
-    local user=$(basename "$1")
-    local bashrc=$1/.bashrc
-    if ! grep -s -q TERM=dumb "$bashrc"; then
-        local x=$(cat "$bashrc")
-        printf "export TERM=dumb\n$x\n" > "$bashrc"
-    fi
-}
 
 build_image() {
     rm -f Dockerfile
@@ -62,28 +51,13 @@ build_image_exists() {
     [[ -n $build_image_exists ]]
 }
 
-build_run() {
-    cd "$(dirname "$0")"
-    build_init
-    if [[ $UID == 0 ]]; then
-        build_fedora_patch
-        export HOME=/root
-        build_user_root
-        build_exec_user
-        run_as_root
-        # Run again, because of update or yum install may reinstall pkgs
-        build_fedora_patch
-        chown -R "$build_exec_user:$build_exec_user" .
-        su "$build_exec_user" "$0"
-        build_fedora_clean
-    else
-        build_bashrc ~
-        . ~/.bashrc
-        run_as_exec_user
-    fi
+build_init_type() {
+    build_is_docker=1
+    build_type=docker
 }
 
-build_user_root() {
+build_root_setup() {
+    export HOME=/root
     if [[ ! -f /.bashrc ]]; then
         cat > /.bashrc << 'EOF'
 export HOME=/root
@@ -94,14 +68,14 @@ EOF
     if [[ ! -f /root/.bash_profile ]]; then
         cp -a /etc/skel/.??* /root
     fi
-    build_bashrc /root
-}
-
-build_exec_user() {
     if ! id -u $build_exec_user >& /dev/null; then
         groupadd -g 1000 $build_exec_user
         useradd -m -g $build_exec_user -u 1000 $build_exec_user
     fi
+    local x=/etc/sudoers.d/$build_exec_user
+    if [[ ! -f $x ]]; then
+        build_yum install sudo
+        echo "$build_exec_user ALL=(ALL) NOPASSWD: ALL" > "$x"
+        chmod 440 "$x"
+    fi
 }
-
-build_main "$@"

@@ -1,7 +1,7 @@
 #!/bin/bash
 codes_dependencies pygist pyMPI Forthon
-gcl warp
-cd warp/pywarp90
+codes_download warp
+cd pywarp90
 
 if [[ $BUILD_WARP_DEBUG ]]; then
     make -f Makefile.Forthon \
@@ -22,5 +22,3 @@ else
         FCOMP='-F gfortran --fcompexec /usr/lib64/openmpi/bin/mpifort' \
         clean install
 fi
-
-cd ../..

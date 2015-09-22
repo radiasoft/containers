@@ -1,0 +1,16 @@
+https://get.docker.com/rpm/1.7.0/fedora-21/RPMS/x86_64/docker-engine-1.7.0-1.fc21.x86_64.rpm
+biosdevname
+emacs-nox
+hostname
+iproute
+iputils
+leafpad
+lsof
+rpm-build
+scite
+tk-devel
+xauth
+xclock
+xpdf
+xterm
+yum-utils

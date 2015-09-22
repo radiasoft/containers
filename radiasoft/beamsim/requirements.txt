@@ -1,0 +1,7 @@
+# Needed by everything, pretty much; Not in pykern
+matplotlib
+# pip install fails if the following are not already installed
+# shadow3
+numpy
+# h5py
+Cython
