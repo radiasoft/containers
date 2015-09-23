@@ -2,6 +2,8 @@
 build_image_base=radiasoft/python2
 
 run_as_exec_user() {
-    pyenv activate py2
+    cd
+    pyenv activate
+    cd "$build_guest_conf"
     . ./codes.sh
 }

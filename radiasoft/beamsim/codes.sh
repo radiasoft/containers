@@ -46,7 +46,7 @@ codes_download() {
         *.tar\.gz)
             local b=$(basename "$repo" .tar.gz)
             local t=tarball-$RANDOM
-            curl -o "$t" -S -s "$repo"
+            curl -s -S -L -o "$t" "$repo"
             tar xzf "$t"
             rm -f "$t"
             # It may unpack into a different directory (genesis does)
@@ -72,6 +72,7 @@ codes_install() {
         return 0
     fi
     codes_installed[$module]=1
+    local prev=$(pwd)
     local dir=${TMPDIR:-/var/tmp}/codes-$module-$UID-$RANDOM
     rm -rf "$dir"
     mkdir "$dir"
@@ -80,20 +81,12 @@ codes_install() {
         # (some special name) 'foo/bar/code1.sh'
         sh=$CODES_DIR/$module.sh
     fi
-    (
-        codes_msg "Build: $module"
-        codes_msg "Directory: $dir"
-        set -e
-        cd "$dir"
-        . "$sh"
-    )
-    local res=$?
-    if [[ $res == 0 ]]; then
-        rm -rf "$dir"
-    else
-        codes_msg "ERROR: $repo build failed"
-    fi
-    return $?
+    codes_msg "Build: $module"
+    codes_msg "Directory: $dir"
+    cd "$dir"
+    . "$sh"
+    cd "$prev"
+    rm -rf "$dir"
 }
 
 codes_install_loop() {
@@ -112,7 +105,7 @@ codes_main() {
 }
 
 codes_msg() {
-    echo "$1" 1>&2
+    echo "$@" 1>&2
 }
 
 if [[ $0 == ${BASH_SOURCE[0]} ]]; then

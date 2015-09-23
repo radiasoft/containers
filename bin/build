@@ -234,7 +234,7 @@ build_run_yum() {
     local -a rpms=()
     local f
     for f in git tar; do
-        if [[ ! $(rpm --quiet -q "$f") ]]; then
+        if ! rpm --quiet -q "$f"; then
             rpms+=($f)
         fi
     done
