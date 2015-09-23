@@ -10,7 +10,7 @@
 #
 # Optionally define:
 #
-# $build_maintainer - default: RadiaSoft <docker@radiasoft.net>
+# $build_maintainer - default: RadiaSoft <(vagrant|docker)@radiasoft.net>
 #
 
 build_curl() {
@@ -93,18 +93,21 @@ build_fedora_patch() {
 }
 
 build_home_env() {
-    # Needs to be two lines to catch error on retrieval; bash doesn't complain
-    # if an empty file ("false | bash" is true).
-    # Root downloads but user and vagrant execute so need to download
-    # only once.
-    if [[ -d ~/src/biviosoftware/home-env ]]; then
-        return 0
+    if [[ ! -d ~/src/biviosoftware/home-env ]]; then
+        # Needs to be two lines to catch error on retrieval; bash doesn't complain
+        # if an empty file ("false | bash" is true).
+        # Root downloads but user and vagrant execute so need to download
+        # only once.
+        local x=$build_guest_conf/home-env-install.sh
+        if [[ ! -f $x ]]; then
+            build_curl https://raw.githubusercontent.com/biviosoftware/home-env/master/install.sh > "$x"
+        fi
+        no_perl=1 bash "$x"
+        if [[ $build_is_docker ]]; then
+            echo 'export TERM=dumb' > ~/.pre_bivio_bashrc
+        fi
     fi
-    local x=$build_guest_conf/home-env-install.sh
-    if [[ ! -r $x ]]; then
-        build_curl https://raw.githubusercontent.com/biviosoftware/home-env/master/install.sh > "$x"
-    fi
-    no_perl=1 bash "$x"
+    . ~/.bashrc
 }
 
 build_init() {
@@ -130,11 +133,11 @@ build_main_args() {
             . "$(dirname "$0")/$1.sh"
             ;;
         *)
-            build_err "usage: $0 (vagrant|docker) image/name"
+            build_err 'usage: bin/build (vagrant|docker) image/name'
             ;;
     esac
     if ! [[ $build_image_name =~ ^([-_[:alnum:]]+)/([-_[:alnum:]]+)$ ]]; then
-        build_err "$build_image_name: invalid or missing image/name\nusage: $0 <image/name>\n  -- <image/name> must be a directory"
+        build_err "$build_image_name: invalid or missing image/name directory"
     fi
     build_image_name_as_file=${BASH_REMATCH[1]}-${BASH_REMATCH[2]}
     build_script=$build_image_name/build.sh
@@ -152,9 +155,9 @@ build_main_init() {
             build_err "\$$v: variable must defined in $build_script"
         fi
     done
-    : ${build_maintainer:='RadiaSoft <docker@radiasoft.net>'}
+    : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
     build_exec_user=vagrant
-    for v in run_as_root run_as_exec_user; do
+    for v in run_as_exec_user; do
         if ! declare -f "$v" >& /dev/null; then
             build_err "$v(): function must be defined in $build_script"
         fi
@@ -203,25 +206,45 @@ build_run() {
     cd "$(dirname "$0")"
     build_init
     if [[ $UID == 0 ]]; then
-###        build_yum update --exclude='filesystem*'
-        # git and tar are needed to build home_env
-        build_yum install git tar $(cat rpms.txt "rpms-$build_type.txt" | grep -v '^#')
+        build_run_yum
         build_root_setup
         build_fedora_patch
         build_home_env
-        . ~/.bashrc
+        cd "$build_guest_conf"
+        chown -R "$build_exec_user:$build_exec_user" .
+        su "$build_exec_user" "$0"
+        build_fedora_clean
+        cd /
+        rm -rf "$build_guest_conf"
+    else
+        build_home_env
+        run_as_exec_user
+    fi
+}
+
+build_run_yum() {
+    if grep -s -q '^# *yum.update' rpms.txt; then
         # https://bugzilla.redhat.com/show_bug.cgi?format=multiple&id=1171928
         # error: unpacking of archive failed on file /sys: cpio: chmod
         # error: filesystem-3.2-28.fc21.x86_64: install failed
         # DEBUG: Don't run update so comment this line:
-        # Run again, because of update or yum install may reinstall pkgs
-        chown -R "$build_exec_user:$build_exec_user" .
-        su "$build_exec_user" "$0"
-        build_fedora_clean
-    else
-        build_home_env
-        . ~/.bashrc
-        run_as_exec_user
+        build_yum update --exclude='filesystem*'
+    fi
+    # git and tar are needed to build home_env
+    local -a rpms=()
+    local f
+    for f in git tar; do
+        if [[ ! $(rpm --quiet -q "$f") ]]; then
+            rpms+=($f)
+        fi
+    done
+    for f in rpms.txt "rpms-$build_type.txt"; do
+        if [[ -f $f ]]; then
+            rpms+=( $(grep -v '^#' "$f" || true) )
+        fi
+    done
+    if [[ $rpms ]]; then
+        build_yum install "${rpms[@]}"
     fi
 }
 

@@ -12,8 +12,8 @@
 #
 set -e
 
-# Subdir where the codes are
-: ${CODES_DIR:=$(dirname "${BASH_SOURCE[0]}")/codes}
+# Build scripts directory
+: ${CODES_DIR:=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)/codes}
 
 # Where to install binaries (needed by genesis.sh)
 codes_bin_dir=$(dirname "$(pyenv which python)")
@@ -29,6 +29,7 @@ codes_dependencies() {
 }
 
 codes_download() {
+    # If download is an rpm, also installs
     local repo=$1
     if [[ ! $repo =~ / ]]; then
         repo=radiasoft/$repo
@@ -71,7 +72,7 @@ codes_install() {
         return 0
     fi
     codes_installed[$module]=1
-    local dir=${TMPDIR:+/var/tmp}/codes-$module-$UID-$RANDOM
+    local dir=${TMPDIR:-/var/tmp}/codes-$module-$UID-$RANDOM
     rm -rf "$dir"
     mkdir "$dir"
     if [[ ! -f $sh ]]; then
@@ -103,7 +104,7 @@ codes_install_loop() {
 }
 
 codes_main() {
-    local -A codes=$@
+    local -a codes=$@
     if [[ ! $codes ]]; then
         codes=( "$CODES_DIR"/*.sh )
     fi

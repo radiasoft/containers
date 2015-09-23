@@ -1,0 +1,21 @@
+#DEBUG: put #DEBUG in front of the next line
+#DEBUG #yum update
+bzip2-devel
+gcc
+gcc-c++
+gd-devel
+ghostscript
+git
+gsl-devel
+libpng-devel
+llvm-libs
+lzma-devel
+make
+openssl-devel
+patch
+pkgconfig
+readline-devel
+sqlite-devel
+tar
+wget
+zlib-devel

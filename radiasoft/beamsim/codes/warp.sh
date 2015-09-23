@@ -1,5 +1,5 @@
 #!/bin/bash
-codes_dependencies pygist pyMPI Forthon
+codes_dependencies pygist pyMPI Forthon h5py
 codes_download warp
 cd pywarp90
 
