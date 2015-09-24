@@ -1,5 +1,5 @@
 #!/bin/bash
-codes_dependencies common-rpms
+codes_dependencies common
 codes_yum install fftw2-devel
 codes_dependencies mpi4py
 #Too slow. git repo has too much junk:

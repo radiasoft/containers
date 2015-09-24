@@ -15,6 +15,13 @@ Vagrant.configure(2) do |config|
   # the box. If you rebuild the original box, it will mess with the
   # key.
   config.ssh.insert_key = false
+  # Avoids xauthority file showing up
+  config.ssh.forward_x11 = false
+  # Need enough memory and CPU to compile synergia
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 4096
+    v.cpus = 2
+  end
 end
 EOF
     vagrant up
@@ -27,13 +34,44 @@ EOF
     # aren't sharing files between the two machines.
     vagrant ssh -- -T "sudo bash '$build_run'" < /dev/null
     vagrant halt
-    out=${build_image_name//\//-}.box
+    out=$build_start_dir/${build_image_name//\//-}-$build_version.box
     vagrant package --output "$out"
     vagrant box add "$build_image_name" "$out"
+    local uri=$build_vagrant_uri/$(basename "$out")
+    local -a x=( ${build_image_name//\// } )
     cat <<EOF
-Built: $build_image_name:$build_version
-To push to the vagrant hub:
-    vagrant push '$build_image_name'
+You need to copy the box:
+    $out
+to:
+    $uri
+
+Then, go to:
+    https://atlas.hashicorp.com/${x[0]}/boxes/${x[1]}/versions/new
+
+Enter the version:
+    $build_version
+
+and a description which includes the base image:
+    $build_image_base
+
+Click "Create version".
+
+Click "Create new provider". Select the provider:
+    virtualbox
+
+Sselect "URL" and fill "HTTP URL"
+    $uri
+
+Click "Create provider".
+
+Click "Edit" to the left of "v$build_version" button:
+    https://atlas.hashicorp.com/${x[0]}/boxes/${x[1]}/versions/$build_version/edit
+
+Clieck "Release version"
+
+Test on another machine:
+    vagrant init $build_image_name
+    vagrant up
 EOF
     # This doesn't work:
     #
@@ -66,7 +104,6 @@ EOF
     rm -rf Vagrantfile .vagrant
     cd /
     rm -rf "$build_dir"
-    echo 'See README.md to upload'
 }
 
 build_image_clean() {

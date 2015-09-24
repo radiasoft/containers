@@ -13,6 +13,8 @@
 # $build_maintainer - default: RadiaSoft <(vagrant|docker)@radiasoft.net>
 #
 
+build_start_dir=$(pwd)
+
 build_curl() {
     curl -s -S -L "$@"
 }
@@ -36,7 +38,7 @@ build_fedora_clean() {
     if ps 1 | grep -s -q /systemd/; then
         # journald: stop until everything cleared
         systemd=1
-        systemctl stop systemd-journald
+        systemctl stop systemd-journald || true
     fi
     # Logs
     rm -f /var/log/{VBoxGuestAdditions,vboxadd}*.log
@@ -65,7 +67,7 @@ build_fedora_clean() {
         # journald: config for small logs and start
         perl -pi -e 's/^#(RuntimeMaxUse=|SystemMaxUse=)/${1}1M/' \
              /etc/systemd/journald.conf
-        systemctl start systemd-journald
+        systemctl start systemd-journald || true
     fi
     # Tmp
     rm -rf /var/tmp/* /tmp/*
@@ -159,6 +161,7 @@ build_main_init() {
         build_err "build_image_base: variable must defined in $build_script"
     fi
     : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
+    : ${build_vagrant_uri:="https://depot.radiasoft.org/foss"}
     build_exec_user=vagrant
     for v in run_as_exec_user; do
         if ! declare -f "$v" >& /dev/null; then

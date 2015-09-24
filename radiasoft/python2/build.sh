@@ -1,11 +1,14 @@
 #!/bin/bash
-if [[ $build_is_docker ]]; then
-    build_image_base=fedora:21
-else
+if [[ $build_is_vagrant ]]; then
     build_image_base=hansode/fedora-21-server-x86_64
+else
+    build_image_base=fedora:21
 fi
 
 run_as_exec_user() {
+    if [[ $build_is_vagrant ]]; then
+        sudo useradd -G docker vagrant || true
+    fi
     cd
     # This line stops a warning from the pyenv installer
     bivio_path_insert ~/.pyenv/bin 1

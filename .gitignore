@@ -1,3 +1,4 @@
+*.box
 docker-build
 vagrant-build
 
