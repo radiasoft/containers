@@ -1,7 +1,5 @@
+# elegant?
 atlas-devel
 blas-devel
-fftw2-devel
-hdf5-devel
-hdf5-openmpi
 lapack-devel
 openmpi-devel

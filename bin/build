@@ -76,12 +76,14 @@ build_fedora_clean() {
     # The original Fedora container does not have a locale-archive file, perhaps
     # that's right, but we recrate a small one here after removing all the other
     # locales and charmaps we don't need.
-    ls -d /usr/share/i18n/locales/* | grep -v en_US | xargs rm -rf
-    ls -d /usr/share/i18n/charmaps/* | egrep -v '/(ISO-8859|UTF)' | xargs rm -rf
-    ls -d /usr/share/locale/* | egrep -v '/(en_US|locale.alias)$' | xargs rm -rf
-    rm -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
-    localedef --add-to-archive --inputfile=en_US --charmap=UTF-8 \
-                      --alias-file=/usr/share/locale/locale.alias
+    localedef --list | grep -v --text ^en_US | xargs localedef --delete-from-archive
+    mv /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
+    build-locale-archive
+    find /usr/share/i18n/locales -type f ! -name en\* | xargs rm -rf
+    find /usr/share/i18n/charmaps -type f ! -name ISO-8859\* ! -name UTF\* | xargs rm -rf
+    find /usr/share/locale ! -name locale -type d -prune ! -name en\* | xargs rm -rf
+    # This should recreate the archive, but there are missing charmaps and such
+    # localedef --force --inputfile=en_US --charmap=UTF-8 en_US.UTF-8
     # User (vagrant) caches and junk
     rm -rf /home/*/.{cache,tox,python-eggs,*.old,.Xauthority}
 }

@@ -24,6 +24,10 @@ codes_lib_dir=$(python -c 'from distutils.sysconfig import get_python_lib as x; 
 # Avoids dependency loops
 declare -A codes_installed
 
+codes_curl() {
+    curl -s -S -L "$@"
+}
+
 codes_dependencies() {
     codes_install_loop "$@"
 }
@@ -46,7 +50,7 @@ codes_download() {
         *.tar\.gz)
             local b=$(basename "$repo" .tar.gz)
             local t=tarball-$RANDOM
-            curl -s -S -L -o "$t" "$repo"
+            codes_curl -o "$t" "$repo"
             tar xzf "$t"
             rm -f "$t"
             # It may unpack into a different directory (genesis does)
@@ -106,6 +110,11 @@ codes_main() {
 
 codes_msg() {
     echo "$@" 1>&2
+}
+
+codes_yum() {
+    codes_msg "yum $@"
+    sudo yum --color=never -y -q "$@"
 }
 
 if [[ $0 == ${BASH_SOURCE[0]} ]]; then

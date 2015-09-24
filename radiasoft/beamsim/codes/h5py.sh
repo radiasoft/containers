@@ -1,4 +1,6 @@
 #!/bin/bash
-# Need to install Cython first
+codes_dependencies common-rpms
+codes_yum install  hdf5-devel hdf5-openmpi
+# Need to install Cython first, or h5py build fails
 pip install --upgrade Cython
 pip install --upgrade h5py
