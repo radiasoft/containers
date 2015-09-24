@@ -74,14 +74,16 @@ build_fedora_clean() {
     # Locale
     # Locale is huge (+100MB) so compress. http://unix.stackexchange.com/a/90016
     # The original Fedora container does not have a locale-archive file, perhaps
-    # that's right.
-    localedef --list | grep -v -i ^en_US | xargs localedef --delete-from-archive
-    mv /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
-    build-locale-archive
+    # that's right, but we recrate a small one here after removing all the other
+    # locales and charmaps we don't need.
     ls -d /usr/share/i18n/locales/* | grep -v en_US | xargs rm -rf
-    ls -d /usr/share/i18n/charmaps/* | grep -v ISO-8859 | xargs rm -rf
-    # User (vagrant) caches/junk
-    rm -rf /home/*/.{cache,tox,python-eggs,*.old}
+    ls -d /usr/share/i18n/charmaps/* | egrep -v '/(ISO-8859|UTF)' | xargs rm -rf
+    ls -d /usr/share/locale/* | egrep -v '/(en_US|locale.alias)$' | xargs rm -rf
+    rm -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
+    localedef --add-to-archive --inputfile=en_US --charmap=UTF-8 \
+                      --alias-file=/usr/share/locale/locale.alias
+    # User (vagrant) caches and junk
+    rm -rf /home/*/.{cache,tox,python-eggs,*.old,.Xauthority}
 }
 
 build_fedora_patch() {
@@ -148,13 +150,12 @@ build_main_args() {
 }
 
 build_main_init() {
+    build_init_type
     . "./$build_script"
     local v=
-    for v in build_image_base; do
-        if [[ ! -v $v ]]; then
-            build_err "\$$v: variable must defined in $build_script"
-        fi
-    done
+    if [[ ! $build_image_base ]]; then
+        build_err "build_image_base: variable must defined in $build_script"
+    fi
     : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
     build_exec_user=vagrant
     for v in run_as_exec_user; do

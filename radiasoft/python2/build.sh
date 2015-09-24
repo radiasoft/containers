@@ -1,9 +1,9 @@
 #!/bin/bash
-build_image_base=fedora:21
-
-run_as_root() {
-    : n/a
-}
+if [[ $build_is_docker ]]; then
+    build_image_base=fedora:21
+else
+    build_image_base=hansode/fedora-21-server-x86_64
+fi
 
 run_as_exec_user() {
     cd

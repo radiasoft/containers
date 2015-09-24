@@ -6,7 +6,7 @@
 build_image() {
     cat > Vagrantfile <<EOF
 Vagrant.configure(2) do |config|
-  config.vm.box = "$build_base_vagrant"
+  config.vm.box = "$build_image_base"
   # Guest additions are out of date. Boot without shared folder,
   # because otherwise will get an error and slow down build
   config.vm.synced_folder ".", "/vagrant", disabled: true
@@ -20,8 +20,8 @@ EOF
     vagrant up
     # Do not use bivio_vagrant_ssh, because something may go wrong with boot
     # We don't have tar with hansode/fedora-21-server-x86_64
-    (cd "$build_host_conf"; find . -maxdepth 1 -type f | cpio -o) \
-        | vagrant ssh -- -T "sudo bash -c 'rm -rf $build_guest_conf; mkdir -p $build_guest_conf; cd $build_guest_conf; cpio -iu'"
+    (cd "$build_dir"; find . -name .vagrant -prune -o -type f -print | cpio -o) \
+        | vagrant ssh -- -T "sudo bash -c 'rm -rf $build_guest_conf; mkdir -p $build_guest_conf; cd $build_guest_conf; cpio -iud'"
     # Don't use bivio_vagrant_ssh, because we don't want to build
     # guest additions on the build machine. It's irrelevant, because
     # aren't sharing files between the two machines.
@@ -33,8 +33,7 @@ EOF
     cat <<EOF
 Built: $build_image_name:$build_version
 To push to the vagrant hub:
-    vagrant push '$tag'
-    vagrant push '$latest'
+    vagrant push '$build_image_name'
 EOF
     # This doesn't work:
     #
@@ -79,7 +78,7 @@ build_image_clean() {
 
 build_image_exists() {
     local img=$1
-    if [[ vagrant box list | grep -s -q "^$img " ]]; then
+    if vagrant box list | grep -s -q "^$img "; then
         return 0
     fi
     return 1
