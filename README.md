@@ -89,8 +89,16 @@ cd ~/src/radiasoft
 git clone https://github.com/radiasoft/containers
 cd containers/radiasoft/beamsim
 bash codes.sh <code1> <code2> ...
+pyenv rehash
 ```
 
 If you do not pass a list of codes to `codes.sh`,
 it will try to install them all.  The list of available codes
 are: elegant genesis shadow3 srw synergia warp.
+
+If you are developing PyKern, after the install, you'll need to:
+
+```bash
+cd ~/src/radiasoft/pykern
+python setup.py develop
+```
