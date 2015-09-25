@@ -1,5 +1,0 @@
-# elegant?
-atlas-devel
-blas-devel
-lapack-devel
-openmpi-devel
