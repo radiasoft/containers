@@ -1,5 +1,5 @@
 #DEBUG: put #DEBUG in front of the next line
-#DEBUG #yum update
+#yum update
 bzip2-devel
 gcc
 gcc-c++
