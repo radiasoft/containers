@@ -59,7 +59,13 @@ codes_download() {
             fi
             ;;
         *.rpm)
-            sudo yum --color=never -y -q install "$repo"
+            local b=$(basename "$repo")
+            # FRAGILE: works for current set of RPMs
+            if rpm --quiet -q "${b//-*/}"; then
+                echo "$b already installed"
+            else
+                sudo yum --color=never -y -q install "$repo"
+            fi
             ;;
         *)
             codes_msg "$repo: unknown repository format; must end in .git, .rpm, .tar.gz"
