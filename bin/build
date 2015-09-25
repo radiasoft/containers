@@ -73,14 +73,19 @@ build_fedora_clean() {
     rm -rf /var/tmp/* /tmp/*
     # Doc
     rm -rf /usr/share/{man,info}
-    # Locale
-    # Locale is huge (+100MB) so compress. http://unix.stackexchange.com/a/90016
-    # The original Fedora container does not have a locale-archive file, perhaps
-    # that's right, but we recrate a small one here after removing all the other
-    # locales and charmaps we don't need.
-    localedef --list | grep -v --text ^en_US | xargs localedef --delete-from-archive
-    mv /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
-    build-locale-archive
+    # Locales
+    if [[ $(find /usr/lib/locale/locale-archive -size +5M) ]]; then
+        # Need to protect this, because running twice will cause bus error
+        # (kicking out of login shell, too). build-locale-archive has a bug.
+        #
+        # Locale is huge (+100MB) so compress. http://unix.stackexchange.com/a/90016
+        # The original Fedora container does not have a locale-archive file, perhaps
+        # that's right, but we recrate a small one here after removing all the other
+        # locales and charmaps we don't need.
+        localedef --list | grep -v --text ^en_US | xargs localedef --delete-from-archive
+        mv -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
+        build-locale-archive
+    fi
     find /usr/share/i18n/locales -type f ! -name en\* | xargs rm -rf
     find /usr/share/i18n/charmaps -type f ! -name ISO-8859\* ! -name UTF\* | xargs rm -rf
     find /usr/share/locale ! -name locale -type d -prune ! -name en\* | xargs rm -rf
