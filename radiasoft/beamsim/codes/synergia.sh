@@ -92,8 +92,8 @@ synergia_install() {
     # openmpi should be added automatically (/etc/ld.so.conf.d), but there's
     # a conflict with hdf5, which has same library name as in /usr/lib64 as in
     # /usr/lib64/openmpi/lib.
-    perl -p -e 's{(?=ldpathadd ")}{ldpathadd /usr/lib64/openmpi/lib\n}s' install/bin/synergia
-    local d=$(python -c 'import sys; sys.stdout.write(sys.executable')
+    perl -pi -e 's{(?=ldpathadd ")}{ldpathadd /usr/lib64/openmpi/lib\n}s' install/bin/synergia
+    local d=$(python -c 'import sys; sys.stdout.write(sys.executable)')
     d=$(dirname "$(dirname "$d")")
     (cd install && cp -a bin include lib "$d")
     return $?
