@@ -141,7 +141,7 @@ build_main_args() {
     build_image_name=$2
     case "$1" in
         vagrant|docker)
-            . "$(dirname "$0")/$1.sh"
+            . "$(dirname "$0")/build-$1.sh"
             ;;
         *)
             build_err 'usage: bin/build (vagrant|docker) image/name'
