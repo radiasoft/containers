@@ -95,6 +95,8 @@ synergia_install() {
     perl -pi -e 's{(?=ldpathadd ")}{ldpathadd /usr/lib64/openmpi/lib\n}s' install/bin/synergia
     local d=$(python -c 'import sys; sys.stdout.write(sys.executable)')
     d=$(dirname "$(dirname "$d")")
+    # Synergia installer doesn't set modes correctly in all cases
+    chmod -R a+rX install
     (cd install && cp -a bin include lib "$d")
     return $?
 }
