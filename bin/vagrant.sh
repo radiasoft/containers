@@ -67,7 +67,7 @@ Click "Create provider".
 Click "Edit" to the left of "v$build_version" button:
     https://atlas.hashicorp.com/${x[0]}/boxes/${x[1]}/versions/$build_version/edit
 
-Clieck "Release version"
+Click "Release version"
 
 Test on another machine:
     vagrant init $build_image_name
