@@ -53,13 +53,15 @@ Enter the version:
 
 and a description which includes the base image:
     $build_image_base
+and source:
+    https://github.com/radiasoft/containers/tree/master/$build_image_name
 
 Click "Create version".
 
 Click "Create new provider". Select the provider:
     virtualbox
 
-Sselect "URL" and fill "HTTP URL"
+Select "URL" and fill "HTTP URL"
     $uri
 
 Click "Create provider".
