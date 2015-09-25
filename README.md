@@ -3,17 +3,11 @@
 Fedora 21 on Docker or Vagrant with Python development environment including
 the following codes:
 
-* WARP
-* SRW
 * Elegant
-
-### Building containers
-
-You will need Docker and/or Vagrant/VirtualBox installed.
-
-
-```bash
-cd sire
+* SRW
+* Shadow3
+* Synergia
+* WARP
 
 ### Install on Windows
 
@@ -39,7 +33,7 @@ Then create a file in `vagrant` folder:
 
 ```ruby
 Vagrant.configure(2) do |config|
-  config.vm.box = "radiasoft/develop"
+  config.vm.box = "radiasoft/beamsim"
   config.vm.hostname = "rsdev"
   config.ssh.forward_x11 = true
   config.vm.synced_folder ".", "/vagrant", disabled: true
@@ -88,16 +82,15 @@ vagrant ssh
 You will need to add `DISPLAY=localhost:0` to your environment so that you don't
 have to type the `set` command each time.
 
-#### Build
+### Installing accelerator codes manually (in RadiaSoft containers):
 
-```
-newgrp docker
-bin/builder docker
-```
-
-```
-newgrp vboxusers
-bin/builder vagrant
+```bash
+cd ~/src/radiasoft
+git clone https://github.com/radiasoft/containers
+cd containers/radiasoft/beamsim
+bash codes.sh <code1> <code2> ...
 ```
 
-#### Debugging
+If you do not pass a list of codes to `codes.sh`,
+it will try to install them all.  The list of available codes
+are: elegant genesis shadow3 srw synergia warp.
