@@ -8,6 +8,7 @@ fi
 run_as_exec_user() {
     if [[ $build_is_vagrant ]]; then
         sudo useradd -G docker vagrant || true
+        sudo systemctl enable docker.service || true
     fi
     cd
     # This line stops a warning from the pyenv installer
