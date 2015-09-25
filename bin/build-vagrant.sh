@@ -3,6 +3,8 @@
 # See ./build for usage
 #
 
+build_image_add='vagrant box add'
+
 build_image() {
     cat > Vagrantfile <<EOF
 Vagrant.configure(2) do |config|

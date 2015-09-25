@@ -3,6 +3,8 @@
 # See ./build for usage
 #
 
+build_image_add='docker pull'
+
 build_image() {
     rm -f Dockerfile
     cat > Dockerfile <<EOF

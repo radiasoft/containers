@@ -47,6 +47,11 @@
 #       self._sslobj.do_handshake()
 #     IOError: [Errno socket error] [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:590)
 #
+# Synergia's internal hdf5 does not compile so have to use hdf5 from Fedora.
+#     h5tools_dump.c:635:9: error: expected expression before '/' token
+#        //HGOTO_ERROR(dimension_break, H5E_tools_min_id_g, "Could not allocate[...]
+#
+#
 # So copied to apa11, download the file and install in depot/foss
 #     wget --no-check-certificate https://compacc.fnal.gov/projects/attachments/download/20/tables-2.1.2.tar.gz
 #     chmod 444 tables-2.1.2.tar.gz
@@ -55,7 +60,9 @@
 # The "git clone --depth 1" doesn't work in this case:
 #     fatal: dumb http transport does not support --depth
 
-codes_dependencies mpi4py
+# h5py also installs hdf5 RPMs, which is what's needed (see above)
+codes_dependencies mpi4py h5py
+
 codes_yum install flex cmake eigen3-devel glib2-devel
 pip install pyparsing nose
 git clone -q http://cdcvs.fnal.gov/projects/contract-synergia2
