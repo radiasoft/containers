@@ -75,15 +75,19 @@ synergia_configure() {
     # Turn off parallel make
     local f
     local -a x=()
-    local cpus=2
+    # Don't be greedy, use half the cores
+    local cores=$(( $(grep -c '^core id *:' /proc/cpuinfo) / 2 ))
+    if [[ $cores -lt 1 ]]; then
+        cores=1
+    fi
     for f in bison chef-libs fftw3 freeglut libpng nlopt qutexmlrpc qwt synergia2; do
-        x+=( "$f"/make_use_custom_parallel=1 "$f"/make_custom_parallel="$cpus")
+        x+=( "$f"/make_use_custom_parallel=1 "$f"/make_custom_parallel="$cores")
     done
     for f in bison fftw3 libpng nlopt; do
         x+=( "$f"_internal=1 )
     done
     x+=(
-        #NOT in master: boost/parallel="$cpus"
+        #NOT in master: boost/parallel="$cores"
         chef-libs/repo=https://github.com/radiasoft/accelerator-modeling-chef.git
         #chef-libs/branch=5277ecbbdec02e9394eca4e079a651053b6a0ab4
         chef-libs/branch=radiasoft-devel

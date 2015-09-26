@@ -262,7 +262,11 @@ build_run_yum() {
 
 build_yum() {
     build_msg "yum $@"
-    yum --color=never -y -q "$@"
+    local sudo
+    if [[ $UID != 0 ]]; then
+        sudo=sudo
+    fi
+    $sudo yum --color=never -y -q "$@"
 }
 
 build_main "$@"

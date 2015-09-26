@@ -3,7 +3,7 @@ set -e
 run_dir=$1
 port=$2
 . ~/.bashrc
-# probably isn't need (non-interactive shell),
+# probably isn't needed for non-interactive shells (like this one),
 # but ensures pyenv doesn't deactivate on cd "$run_dir"
 unset PROMPT_COMMAND
 pyenv activate

@@ -7,8 +7,10 @@ fi
 
 run_as_exec_user() {
     if [[ $build_is_vagrant ]]; then
-        sudo useradd -G docker vagrant || true
-        sudo systemctl enable docker.service || true
+        sudo rpm --import https://yum.dockerproject.org/gpg
+        build_yum install docker-engine
+        sudo useradd -G docker vagrant
+        sudo systemctl enable docker.service
     fi
     cd
     # This line stops a warning from the pyenv installer
