@@ -8,8 +8,9 @@ fi
 run_as_exec_user() {
     if [[ $build_is_vagrant ]]; then
         sudo rpm --import https://yum.dockerproject.org/gpg
+        sudo cp docker.repo /etc/yum.repos.d/docker.repo
         build_yum install docker-engine
-        sudo useradd -G docker vagrant
+        sudo usermod -a -G docker vagrant
         sudo systemctl enable docker.service
     fi
     cd
