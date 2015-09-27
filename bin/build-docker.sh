@@ -17,6 +17,7 @@ CMD /bin/bash
 EOF
     local tag=$build_image_name:$build_version
     local latest=$build_image_name:latest
+    local alpha=$build_image_name:alpha
     docker build --rm=true --tag="$tag" .
     docker tag -f "$tag" "$latest"
     # Can't push multiple tags at once:
@@ -26,6 +27,10 @@ Built: $build_image_name:$build_version
 To push to the docker hub:
     docker push '$tag'
     docker push '$latest'
+
+After some testing, tag it for the alpha channel:
+    docker tag '$tag' '$alpha'
+    docker push '$alpha'
 EOF
     cd /
     rm -rf "$build_dir"
