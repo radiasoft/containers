@@ -2,6 +2,8 @@
 set -e
 run_dir=$1
 port=$2
+# Must be in home directory to activate
+cd
 . ~/.bashrc
 # probably isn't needed for non-interactive shells (like this one),
 # but ensures pyenv doesn't deactivate on cd "$run_dir"
