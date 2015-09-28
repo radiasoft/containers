@@ -92,7 +92,7 @@ build_fedora_clean() {
     # This should recreate the archive, but there are missing charmaps and such
     # localedef --force --inputfile=en_US --charmap=UTF-8 en_US.UTF-8
     # User (vagrant) caches and junk
-    rm -rf /home/*/.{cache,tox,python-eggs,*.old,.Xauthority}
+    rm -rf /home/*/.{cache,tox,python-eggs,*.old,Xauthority}
 }
 
 build_fedora_patch() {
