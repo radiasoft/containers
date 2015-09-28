@@ -7,16 +7,20 @@
 # If -f is given, then force delete all containers (including running)
 #
 force=
+filter=
 if [[ $1 == -f ]]; then
     force=$1
+else
+    filter='--filter status=exited'
 fi
-x=$(docker ps -a -q)
+x=( $(docker ps -a -q $filter) )
 if [[ $x ]]; then
-    echo Containers: $x
-    docker rm $force $x
+    echo Containers: "${x[@]}"
+    docker rm "$force" "${x[@]}"
 fi
-x=$(docker images --filter dangling=true -q)
+
+x=( $(docker images --filter dangling=true -q) )
 if [[ $x ]]; then
-    echo Images: $x
-    docker rmi $force $x
+    echo Images: "${x[@]}"
+    docker rmi "$force" "${x[@]}"
 fi
