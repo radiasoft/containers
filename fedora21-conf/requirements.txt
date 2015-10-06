@@ -1,7 +1,0 @@
-matplotlib==1.4.2
-numpy
-pykern
-scipy
-# This dependency needs to be installed manually. It's picked up
-# by the bivio_pyenv_local installer
-#PyQt4
