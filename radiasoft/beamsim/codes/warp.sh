@@ -1,24 +1,9 @@
 #!/bin/bash
 codes_dependencies pygist pyMPI Forthon h5py
-codes_download warp
+codes_download https://depot.radiasoft.org/foss/warp-20150823.tar.gz
 cd pywarp90
-
-if [[ $BUILD_WARP_DEBUG ]]; then
-    make -f Makefile.Forthon \
-        DEBUG='-g --fargs -O0' \
-        FARGS=--with_feenableexcept \
-        SETUP_PY_DEBUG='-g' \
-        clean install
-    make -f Makefile.Forthon.pympi \
-        DEBUG='-g --fargs -O0' \
-        FARGS=--with_feenableexcept \
-        FCOMP='-F gfortran --fcompexec /usr/lib64/openmpi/bin/mpifort' \
-        MPIPARALLEL= \
-        SETUP_PY_DEBUG='-g' \
-        clean install
-else
-    make -f Makefile.Forthon clean install
-    make -f Makefile.Forthon.pympi \
-        FCOMP='-F gfortran --fcompexec /usr/lib64/openmpi/bin/mpifort' \
-        clean install
-fi
+# INSTALLOPTIONS= turns off INSTALLOPTIONS=--user in Makefile.Forthon
+make -f Makefile.Forthon INSTALLOPTIONS= clean install
+make -f Makefile.Forthon.pympi \
+     FCOMP='-F gfortran --fcompexec /usr/lib64/openmpi/bin/mpifort' \
+     clean install
