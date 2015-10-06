@@ -9,6 +9,9 @@ containers to support scientific computing:
 * [radiasoft/beamsim](https://github.com/radiasoft/containers/tree/master/radiasoft/beamsim)
   is a physics container for particle accelerator and free electron laser (FEL) simulations.
 
+* [radiasoft/sirepo](https://github.com/radiasoft/containers/tree/master/radiasoft/sirepo)
+  is an application framework to simplify the execution of scientific codes.
+
 ### Vagrant Invocation
 
 Code is installed within the
@@ -162,4 +165,29 @@ If you are developing PyKern, after the install, you'll need to:
 ```bash
 cd ~/src/radiasoft/pykern
 python setup.py develop
+```
+
+### Docker deployment
+
+Deploy via a channel: alpha, beta, or stable.
+
+```bash
+docker tag -f <container>:<date.version> <container>:<channel>
+docker push <container>:<channel>
+```
+
+The `-f` forces the tag update. Docker doesn't have a way of deleting tags.
+
+Once
+
+#### Querying Docker Registry
+
+The `docker` command doesn't have many features to query the docker registry.
+The web GUI is even worse. You can't know from the interface which image is
+associate with which tag.
+
+To query all the tags in the registry, you use curl, e.g. for `radiasoft/beasim`:
+
+```bash
+curl https://registry.hub.docker.com/v1/repositories/radiasoft/beamsim/tags
 ```
