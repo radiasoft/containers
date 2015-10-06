@@ -16,9 +16,9 @@
 # To run the tests in a pyenv virtualenv, you have to install pyMPI. If
 # you run ./pyMPI, it will fail:
 #
-#   [py2;@v pyMPI]$ ./pyMPI unittest/popen.py
-#   ImportError: numpy.core.multiarray4444 failed to import
-#   ImportError: ('Internal failure', <type 'exceptions.ImportError'>, 'numpy.core.multiarray5555 failed to import')
+#     [py2;@v pyMPI]$ ./pyMPI unittest/popen.py
+#     ImportError: numpy.core.multiarray failed to import
+#     ImportError: ('Internal failure', <type 'exceptions.ImportError'>, 'numpy.core.multiarray failed to import')
 #
 # This one was tough to figure out, but the wrong "site" is being imported
 # so sys.path is using the pyenv 2.7.10, not the virtualenv (py2).
