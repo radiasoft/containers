@@ -3,7 +3,9 @@
 #TODO(robnagler) not completely working with pyenv.
 #
 # setup() is not pulling up augmentedMakefile. See
+#
 #     mpirun -np 1 pyMPI unittest/extension.py
+#
 # distutils.sysconfig.get_makefile_filename is being monkey patched correctly,
 # but I suspect that makefile is not being pulled in by setup to do the build.
 # There's another get_makefile_filename in sysconfig, which may be used by
@@ -13,8 +15,11 @@
 #
 # To run the tests in a pyenv virtualenv, you have to install pyMPI. If
 # you run ./pyMPI, it will fail:
+#
 #   [py2;@v pyMPI]$ ./pyMPI unittest/popen.py
-#    bash: ./pyMPI: No such file or directory
+#   ImportError: numpy.core.multiarray4444 failed to import
+#   ImportError: ('Internal failure', <type 'exceptions.ImportError'>, 'numpy.core.multiarray5555 failed to import')
+#
 # This one was tough to figure out, but the wrong "site" is being imported
 # so sys.path is using the pyenv 2.7.10, not the virtualenv (py2).
 #
