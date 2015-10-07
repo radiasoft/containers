@@ -24,11 +24,13 @@ EOF
     # https://github.com/docker/docker/issues/7336
     cat <<EOF
 Built: $build_image_name:$build_version
-To push to the docker hub:
-    docker push '$tag'
-    docker push '$latest'
+
+To run it, you can then:
+
+    docker run -i -t $tag
 
 After some testing, tag it for the alpha channel:
+
     docker tag '$tag' '$alpha'
     docker push '$alpha'
 EOF
