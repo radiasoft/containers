@@ -167,16 +167,17 @@ cd ~/src/radiasoft/pykern
 python setup.py develop
 ```
 
-### Docker deployment
+### Build
 
-Deploy via a channel: alpha, beta, or stable.
+To build docker or vagrant images, you have to:
 
 ```bash
-docker tag -f <container>:<date.version> <container>:<channel>
-docker push <container>:<channel>
+cd containers
+bin/build docker radiasoft/python2
 ```
 
-The `-f` forces the tag update. Docker doesn't have a way of deleting tags.
+The command should finish with instructions how to get the images
+into the vagrant or docker hub.
 
 Once
 
