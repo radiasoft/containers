@@ -138,9 +138,6 @@ if [[ $0 == ${BASH_SOURCE[0]} ]]; then
         eval "$(pyenv init -)"
         eval "$(pyenv virtualenv-init -)"
     fi
-    if [[ ! $PYENV_ACTIVATE ]]; then
-        pyenv activate
-    fi
     codes_main "$@"
 else
     codes_main

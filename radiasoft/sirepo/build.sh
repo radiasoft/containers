@@ -2,8 +2,6 @@
 build_image_base=radiasoft/beamsim
 
 run_as_exec_user() {
-    cd
-    pyenv activate
     cd "$build_guest_conf"
     local m
     for m in pykern sirepo; do
