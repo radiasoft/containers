@@ -43,37 +43,49 @@ EOF
     local -a x=( ${build_image_name//\// } )
     cat <<EOF
 You need to copy the box:
+
     $out
+
 to:
+
     $uri
 
 Then, go to:
+
     https://atlas.hashicorp.com/${x[0]}/boxes/${x[1]}/versions/new
 
 Enter the version:
+
     $build_version
 
 and a description which includes the base image:
+
     $build_image_base
+
 and source:
-    https://github.com/radiasoft/containers/tree/master/$build_image_name
+
+    https://github.com/${x[0]}/containers/tree/master/$build_image_name
 
 Click "Create version".
 
 Click "Create new provider". Select the provider:
+
     virtualbox
 
 Select "URL" and fill "HTTP URL"
+
     $uri
 
 Click "Create provider".
 
 Click "Edit" to the left of "v$build_version" button:
+
     https://atlas.hashicorp.com/${x[0]}/boxes/${x[1]}/versions/$build_version/edit
 
 Click "Release version"
 
 Test on another machine:
+
     vagrant init $build_image_name
     vagrant up
 EOF

@@ -16,9 +16,12 @@ RUN "$build_run"
 CMD /bin/bash
 EOF
     local tag=$build_image_name:$build_version
-    local latest=$build_image_name:latest
     local alpha=$build_image_name:alpha
+    local latest=$build_image_name:latest
     docker build --rm=true --tag="$tag" .
+    # We have to tab latest, because docker pulls that on
+    # builds if you don't specify a version. Since build_image_base
+    # is without a version, we'll have to keep latest.
     docker tag -f "$tag" "$latest"
     # Can't push multiple tags at once:
     # https://github.com/docker/docker/issues/7336
@@ -27,11 +30,13 @@ Built: $build_image_name:$build_version
 
 To run it, you can then:
 
-    docker run -i -t $tag
+    docker run -i -t $tag su - $build_exec_user
 
 After some testing, tag it for the alpha channel:
 
     docker tag '$tag' '$alpha'
+    docker push '$tag'
+    docker push '$latest'
     docker push '$alpha'
 EOF
     cd /

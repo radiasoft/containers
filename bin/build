@@ -10,7 +10,9 @@
 #
 # Optionally define:
 #
-# $build_maintainer - default: RadiaSoft <(vagrant|docker)@radiasoft.net>
+# $build_exec_user - application runs as this user [vagrant]
+# $build_maintainer - identify author of image [RadiaSoft <(vagrant|docker)@radiasoft.net>]
+# $build_vagrant_uri - for help message on how to install in vagrant hub [https://depot.radiasoft.org/foss]
 #
 
 build_start_dir=$(pwd)
@@ -166,8 +168,8 @@ build_main_init() {
         build_err "build_image_base: variable must defined in $build_script"
     fi
     : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
-    : ${build_vagrant_uri:="https://depot.radiasoft.org/foss"}
-    build_exec_user=vagrant
+    : ${build_vagrant_uri:=https://depot.radiasoft.org/foss}
+    : ${build_exec_user:=vagrant}
     for v in run_as_exec_user; do
         if ! declare -f "$v" >& /dev/null; then
             build_err "$v(): function must be defined in $build_script"
