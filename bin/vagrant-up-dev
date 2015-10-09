@@ -4,65 +4,154 @@
 # bash.
 #
 set -e
-if [[ $1 ]]; then
-    cat <<-EOF 1>&2
-    curl -L https://raw.githubusercontent.com/radiasoft/containers/master/bin/vagrant-up-dev | [vars] bash
-    You can optionally set:
-        host=rb -- name of the host
-        ip=10.10.10.10 -- private network
-        box=radiasoft/beamsim -- box to install
-EOF
-    exit 1
-fi
 
-if [[ -f Vagrantfile -o -f .vagrant ]]; then
-    echo 'remove Vagrantfile and/or .vagrant directory first' 1>&2
-    exit 1
-fi
+rcfiles_tar=rcfiles.tar
 
-: ${box:=radiasoft/beamsim}
-: ${host:=rb}
-: ${ip:=10.10.10.10}
+boot_and_install() {
+    # bivio_vagrant_ssh does the boot and guest addition fixup
+    curl -s -S -L https://raw.githubusercontent.com/biviosoftware/home-env/master/bin/bivio_vagrant_ssh \
+        | bash -s "
+    set -e;
+    cd;
+    tar xf /vagrant/$rcfiles_tar;
+    echo Cloning pykern and sirepo
+    mkdir -p ~/src/radiasoft;
+    cd ~/src/radiasoft;
+    git clone -q https://github.com/radiasoft/pykern;
+    cd pykern;
+    pip install -q -e .;
+    cd ..;
+    git clone -q https://github.com/radiasoft/sirepo;
+    cd sirepo;
+    pip install -q -e .;
+    "
+    rm "$rcfiles_tar"
+}
 
-type -a rcfiles
-type -a rcfiles_msg
-for f in ~/.docker ~/.gitconfig ~/.hgrc ~/.netrc ~/.pypirc; do
-    if [[ -r $f ]]; then
-        rcfiles_msg+=( $(basename "$f") )
-        rcfiles+=( /vagrant/$(basename "$f") )
-        cp -a "$f" .
+check_rcfiles() {
+    local f
+    local -a rcfiles
+    for f in ~/.docker ~/.gitconfig ~/.hgrc ~/.netrc ~/.pypirc; do
+        if [[ -r $f ]]; then
+            rcfiles+=( $(basename "$f") )
+        fi
+    done
+    # Something really strange was happening on Mac with cp -R
+    # of files. Getting this in guest:
+    #    [2.7.10;@v2 ~]$ ls -al /vagrant/
+    #    ls: cannot access /vagrant/.gitconfig: No such file or directory
+    #    ls: cannot access /vagrant/.hgrc: No such file or directory
+    #    ls: cannot access /vagrant/.netrc: No such file or directory
+    #    ls: cannot access /vagrant/.pypirc: No such file or directory
+    #    total 8
+    #    drwxr-x---   1 vagrant vagrant  306 Oct  9 18:07 .
+    #    dr-xr-xr-x. 19 root    root    4096 Oct  9 17:25 ..
+    #    ???????????  ? ?       ?          ?            ? .gitconfig
+    #    ???????????  ? ?       ?          ?            ? .hgrc
+    #    ???????????  ? ?       ?          ?            ? .netrc
+    #    ???????????  ? ?       ?          ?            ? .pypirc
+    #    drwxr-x---   1 vagrant vagrant  102 Oct  9 17:30 src
+    #    drwxr-x---   1 vagrant vagrant  136 Oct  9 17:48 .vagrant
+    #    -rw-r-----   1 vagrant vagrant  359 Oct  9 17:23 Vagrantfile
+    #
+    # So switched to tar, which seems to work
+    (cd; tar cf - "${rcfiles[@]}") > "$rcfiles_tar"
+    test $? || exit $?
+    msg "Will install: ${rcfiles[*]}"
+}
+
+check_usage() {
+    if [[ $1 ]]; then
+        err "Usage:
+curl -L https://raw.githubusercontent.com/radiasoft/containers/master/bin/vagrant-up-dev | [vars] bash
+
+You can optionally set thest environment vars:
+
+    host=rs -- name of the host
+    ip=10.10.10.10 -- private network
+    box=radiasoft/beamsim -- box to boot
+"
     fi
-done
-echo "Will install: ${rcfiles_msg[@]}"
+    if [[ $(ls .vagrant/machines/default/virtualbox 2>/dev/null) ]]; then
+        err 'Virtual machine exists, remove with: vagrant destroy -f'
+    fi
+    local x=( $(ls -A) )
+    if [[ $x ]]; then
+        err "Current directory non-empty, clear with: rm -r ${x[*]}"
+    fi
+}
 
-cat > Vagrantfile<<EOF
-# -*- mode: ruby -*-
-Vagrant.configure(2) do |config|
-    config.vm.box = "$box"
-    config.vm.hostname = "$host"
-    config.vm.synced_folder ".", "/vagrant", disabled: true
-    config.ssh.insert_key = false
-    config.ssh.forward_x11 = false
-end
-EOF
-if vagrant box list | grep -s -q "^$box[[:space:]]"; then
-    vagrant box update
-else
-    vagrant box add "$box"
-fi
+err() {
+    msg "$@"
+    exit 1
+}
 
-cat > Vagrantfile-actual <<EOF
-# -*- mode: ruby -*-
-Vagrant.configure(2) do |config|
-    config.vm.box = "$box"
-    config.vm.hostname = "$host"
-    config.vm.network "private_network", ip: "$ip"
-    config.ssh.forward_x11 = true
-    config.vm.provider "virtualbox" do |v|
-        v.memory = 4096
-        v.cpus = 2
+init_params() {
+    : ${box:=radiasoft/beamsim}
+    : ${host:=rs}
+    : ${ip:=10.10.10.10}
+    if ! perl -MIO::Socket -e \
+         "exit(IO::Socket::INET->new(PeerAddr=>'$ip', PeerPort=>'22', Proto => 'tcp', Timeout => 1) && 1)"
+    then
+        err "$ip: IP address is not available"
+    fi
+}
+
+init_vagrantfile() {
+    # Boot without synced folders, because guest additions may not be right.
+    # Don't insert the private key yet either.
+    cat > Vagrantfile<<EOF
+    # -*- mode: ruby -*-
+    Vagrant.configure(2) do |config|
+        config.vm.box = "$box"
+        config.vm.hostname = "$host"
+        config.vm.synced_folder ".", "/vagrant", disabled: true
+        config.ssh.insert_key = false
+        config.ssh.forward_x11 = false
     end
-end
 EOF
+    # Too bad "update" doesn't just "add" if not installed...
+    if vagrant box list | grep -s -q "^$box[[:space:]]"; then
+        vagrant box update || true
+    else
+        vagrant box add "$box"
+    fi
+    # The final Vagrantfile, which will be "fixed up" by bivio_vagrant_ssh
+    cat > Vagrantfile-actual <<EOF
+    # -*- mode: ruby -*-
+    Vagrant.configure(2) do |config|
+        config.vm.box = "$box"
+        config.vm.hostname = "$host"
+        config.vm.network "private_network", ip: "$ip"
+        config.ssh.forward_x11 = true
+        config.vm.provider "virtualbox" do |v|
+            v.memory = 4096
+            v.cpus = 2
+        end
+    end
+EOF
+    export vagrantfile_fixup='mv -f Vagrantfile-actual Vagrantfile'
+}
 
-vagrantfile_fixup='cp -f Vagrantfile-actual Vagrantfile' bivio_vagrant_ssh "mv -f ${rcfiles[@]} ~"
+main() {
+    check_usage "$@"
+    init_params
+    check_rcfiles
+    init_vagrantfile
+    boot_and_install
+    msg "Done installing.
+
+ssh'ing to $host
+"
+    if [[ $(type -t bivio_vagrant_ssh) ]]; then
+        exec bivio_vagrant_ssh
+    else
+        exec vagrant ssh
+    fi
+}
+
+msg() {
+    echo "$@" 1>&2
+}
+
+main

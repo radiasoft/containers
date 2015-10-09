@@ -146,6 +146,28 @@ This will "tunnel" X11 so you can display plots and such in Windows from your VM
 You can also add `DISPLAY=localhost:0` to your user environment in the Control Panel
 so that you don't have to type the `set` command each time.
 
+### Installing RadiaSoft development VM on Unix-like systems
+
+To create a development VM on your Mac or Linux (Cygwin untested at this time), you
+can do the following:
+
+```sh
+curl -s -S -L https://raw.githubusercontent.com/radiasoft/containers/master/bin/vagrant-up-dev | bash
+```
+
+This will create the VM, updated the guest additions to match the host sytem,
+copy in certain dot files (.docker, .gitconfig, .hgrc, .netrc, and/or .pypirc)
+from the host user's (your) home directory to the guest user's home. It will
+also clone and install [pykern](https://github.com/radiasoft/pykern)
+and [sirepo](https://github.com/radiasoft/sirepo).
+
+The following environment variables can be set in advance:
+
+* host -- hostname for the virtual machine [default: rs]
+* ip -- local private network address [default: 10.10.10.10]
+* box -- vagrant box name [default: radiasoft/beamsim]
+
+
 ### Installing accelerator codes manually (in RadiaSoft containers):
 
 ```bash
