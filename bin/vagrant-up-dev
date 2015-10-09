@@ -1,0 +1,68 @@
+#!/bin/bash
+#
+# Initialize a vagrant machine properly. Assumes you are running on something that supports
+# bash.
+#
+set -e
+if [[ $1 ]]; then
+    cat <<-EOF 1>&2
+    curl -L https://raw.githubusercontent.com/radiasoft/containers/master/bin/vagrant-up-dev | [vars] bash
+    You can optionally set:
+        host=rb -- name of the host
+        ip=10.10.10.10 -- private network
+        box=radiasoft/beamsim -- box to install
+EOF
+    exit 1
+fi
+
+if [[ -f Vagrantfile -o -f .vagrant ]]; then
+    echo 'remove Vagrantfile and/or .vagrant directory first' 1>&2
+    exit 1
+fi
+
+: ${box:=radiasoft/beamsim}
+: ${host:=rb}
+: ${ip:=10.10.10.10}
+
+type -a rcfiles
+type -a rcfiles_msg
+for f in ~/.docker ~/.gitconfig ~/.hgrc ~/.netrc ~/.pypirc; do
+    if [[ -r $f ]]; then
+        rcfiles_msg+=( $(basename "$f") )
+        rcfiles+=( /vagrant/$(basename "$f") )
+        cp -a "$f" .
+    fi
+done
+echo "Will install: ${rcfiles_msg[@]}"
+
+cat > Vagrantfile<<EOF
+# -*- mode: ruby -*-
+Vagrant.configure(2) do |config|
+    config.vm.box = "$box"
+    config.vm.hostname = "$host"
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+    config.ssh.insert_key = false
+    config.ssh.forward_x11 = false
+end
+EOF
+if vagrant box list | grep -s -q "^$box[[:space:]]"; then
+    vagrant box update
+else
+    vagrant box add "$box"
+fi
+
+cat > Vagrantfile-actual <<EOF
+# -*- mode: ruby -*-
+Vagrant.configure(2) do |config|
+    config.vm.box = "$box"
+    config.vm.hostname = "$host"
+    config.vm.network "private_network", ip: "$ip"
+    config.ssh.forward_x11 = true
+    config.vm.provider "virtualbox" do |v|
+        v.memory = 4096
+        v.cpus = 2
+    end
+end
+EOF
+
+vagrantfile_fixup='cp -f Vagrantfile-actual Vagrantfile' bivio_vagrant_ssh "mv -f ${rcfiles[@]} ~"
