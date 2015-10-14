@@ -15,4 +15,5 @@ run_as_exec_user() {
         cd ..
     done
     install -m 555 sirepo-in-docker.sh ~/bin/sirepo-in-docker
+    install -m 555 docker-setup.sh ~/bin/docker-setup
 }
