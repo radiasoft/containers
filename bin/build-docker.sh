@@ -34,7 +34,7 @@ To run it, you can then:
 
 After some testing, tag it for the alpha channel:
 
-    docker tag '$tag' '$alpha'
+    docker tag -f '$tag' '$alpha'
     docker push '$tag'
     docker push '$latest'
     docker push '$alpha'
