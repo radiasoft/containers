@@ -79,6 +79,27 @@ cd $HOME
 . /root/.bash_profile
 EOF
     fi
+    if [[ ! -x /su-vagrant ]]; then
+        cat > /su-vagrant << 'EOF'
+#!/bin/bash
+uid=$1
+gid=$2
+cmd=$3
+if [[ ! $cmd ]]; then
+    echo "usage: $(basename "$0") <uid> <gid> <command>" 1>&2
+    exit 1
+fi
+if (( $uid != $(id -u vagrant) )); then
+    usermod -u "$uid" vagrant
+fi
+if (( $gid != $(id -g vagrant) )); then
+    groupmod -g "$gid" vagrant
+    chgrp -R "$gid" ~vagrant
+fi
+exec su - vagrant -c "$cmd"
+EOF
+        chmod 555 /su-vagrant
+    fi
     if [[ ! -f /root/.bash_profile ]]; then
         cp -a /etc/skel/.??* /root
     fi
