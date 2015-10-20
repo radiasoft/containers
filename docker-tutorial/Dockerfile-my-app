@@ -1,0 +1,5 @@
+FROM busybox
+MAINTAINER Rob Nagler
+ADD . /cfg
+RUN chmod +x /cfg/hello-world.sh
+CMD /cfg/hello-world.sh

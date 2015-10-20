@@ -1,0 +1,14 @@
+# Build from our previous box
+FROM my-app
+MAINTAINER Radiasoft <docker@radiasoft.net>
+# Environment variables are persisted
+ENV HTTPD_USER=www-data
+ENV HTTPD_ROOT=/www
+# Need a different directory so that we don't overwrite my-app's /cfg
+ADD . /cfg2
+RUN sh /cfg2/provision-httpd.sh
+# -f is very important, because it tells the httpd not to run in daemon mode
+# If it runs in daemon mode, then the docker container will terminate
+# right after the httpd command exits, because in daemon mode it detaches.
+# If you want to daemonize a docker application, you pass -d to docker run.
+CMD httpd -f -h $HTTPD_ROOT -u $HTTPD_USER:$HTTPD_USER -p $HTTPD_PORT
