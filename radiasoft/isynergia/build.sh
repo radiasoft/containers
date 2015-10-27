@@ -9,7 +9,7 @@ run_as_exec_user() {
     cp -a job_manager.py ~/.pyenv/versions/2.7.10/lib/synergia_workflow/job_manager.py
     ipython -c '%install_ext https://raw.githubusercontent.com/rasbt/watermark/master/watermark.py'
     pip install tables
-    cat <<'EOF' > bin/synergia-ipython-beamsim
+    cat <<'EOF' > ~/bin/synergia-ipython-beamsim
 #!/bin/bash
 cd /vagrant
 if [[ ! -d beamsim ]]; then
@@ -17,5 +17,5 @@ if [[ ! -d beamsim ]]; then
 fi
 exec synergia --ipython notebook
 EOF
-    chmod +x bin/synergia-ipython-beamsim
+    chmod +x ~/bin/synergia-ipython-beamsim
 }
