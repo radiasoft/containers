@@ -17,12 +17,6 @@ run_as_exec_user() {
         python setup.py install
         cd ..
     done
-    install -m 555 sirepo-in-docker.sh ~/bin/sirepo-in-docker
-    ln -s /vagrant/RadTrack ~/RadTrack
-    cat > ~/bin/radtrack-on-vagrant <<'EOF'
-#!/bin/bash
-cd ~/RadTrack
-radtrack --beta-test < /dev/null 1>&2
-EOF
-    chmod +x ~/bin/radtrack-on-vagrant
+    ln -s /vagrant ~/RadTrack
+    install -m 555 radtrack-on-vagrant.sh ~/bin/radtrack-on-vagrant
 }
