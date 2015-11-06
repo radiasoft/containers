@@ -1,21 +1,25 @@
 ### Docker and Vagrant Containers for Scientific Codes
 
 RadiaSoft provides the following Vagrant (VirtualBox) and Docker
-containers to support scientific computing:
-
-* [radiasoft/beamsim](https://github.com/radiasoft/containers/tree/master/radiasoft/beamsim)
-  is a physics container for particle accelerator and free electron laser (FEL) simulations.
-
-* [radiasoft/python2](https://github.com/radiasoft/containers/tree/master/radiasoft/python2)
-  is a basic Python2 (currently 2.7.10) pyenv with matplotlib and numpy.
-
-* [radiasoft/sirepo](https://github.com/radiasoft/containers/tree/master/radiasoft/sirepo)
-  is an web application to simplify the execution of scientific codes.
+containers to support scientific computing.
 
 #### Installation
 
 The best way to install is to use our
 [automated downloader](https://github.com/radiasoft/download).
+
+#### Image List
+
+The follow container images are available:
+
+* [radiasoft/beamsim](https://github.com/radiasoft/containers/tree/master/radiasoft/beamsim)
+  is a physics container for particle accelerator and free electron laser (FEL) simulations.
+* [radiasoft/python2](https://github.com/radiasoft/containers/tree/master/radiasoft/python2)
+  is a basic Python2 (currently 2.7.10) pyenv with matplotlib and numpy.
+* [radiasoft/radtrack](https://github.com/radiasoft/containers/tree/master/radiasoft/radtrack)
+  is an desktop to simplify the execution of accelerator codes
+* [radiasoft/sirepo](https://github.com/radiasoft/containers/tree/master/radiasoft/sirepo)
+  is an web application to simplify the execution of scientific codes.
 
 ### Installing RadiaSoft development VM on Unix-like systems
 
@@ -37,7 +41,6 @@ The following environment variables can be set in advance:
 * host -- hostname for the virtual machine [default: rs]
 * ip -- local private network address [default: 10.10.10.10]
 * box -- vagrant box name [default: radiasoft/beamsim]
-
 
 ### Installing accelerator codes manually (in RadiaSoft containers):
 
