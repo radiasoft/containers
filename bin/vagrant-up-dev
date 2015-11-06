@@ -144,7 +144,7 @@ main() {
 ssh'ing to $host
 "
     if [[ $(type -t bivio_vagrant_ssh) ]]; then
-        exec bivio_vagrant_ssh
+        bivio_vagrant_ssh
     else
         exec vagrant ssh
     fi
