@@ -5,10 +5,10 @@ if [[ $1 == http ]]; then
     proto=$1
     shift
 fi
-run_dir=$1
+db_dir=$1
 port=$2
-if [[ ! -d $run_dir ]]; then
-    echo "$run_dir: run_dir doesn't exist" 1>&2
+if [[ ! -d $db_dir ]]; then
+    echo "$db_dir: db_dir doesn't exist" 1>&2
     exit 1
 fi
 if [[ ! $port =~ ^[0-9]{2,5}$ ]]; then
@@ -17,6 +17,6 @@ if [[ ! $port =~ ^[0-9]{2,5}$ ]]; then
 fi
 . ~/.bashrc
 export PYTHONUNBUFFERED=1
-mkdir -p "$run_dir"
-cd "$run_dir"
-sirepo service $proto --run-dir "$run_dir" --port "$port" >& start.log
+mkdir -p "$db_dir"
+cd "$db_dir"
+sirepo service $proto --db-dir "$db_dir" --port "$port" >& start.log
