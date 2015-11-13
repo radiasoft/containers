@@ -1,7 +1,7 @@
 #!/bin/bash
 build_image_base=radiasoft/beamsim
 
-run_as_exec_user() {
+build_as_run_user() {
     cd "$build_guest_conf"
     local m
     for m in pykern radtrack; do
@@ -18,5 +18,5 @@ run_as_exec_user() {
         cd ..
     done
     ln -s /vagrant ~/RadTrack
-    install -m 555 radtrack-on-vagrant.sh ~/bin/radtrack-on-vagrant
+    install -m 555 radia-run-radtrack.sh ~/bin/radia-run-radtrack
 }

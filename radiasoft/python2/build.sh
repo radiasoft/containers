@@ -1,11 +1,7 @@
 #!/bin/bash
-if [[ $build_is_vagrant ]]; then
-    build_image_base=hansode/fedora-21-server-x86_64
-else
-    build_image_base=fedora:21
-fi
+build_fedora_base_image
 
-run_as_exec_user() {
+build_as_run_user() {
     if [[ $build_is_vagrant ]]; then
         sudo rpm --import https://yum.dockerproject.org/gpg
         sudo cp docker.repo /etc/yum.repos.d/docker.repo

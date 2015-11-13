@@ -1,7 +1,7 @@
 #!/bin/bash
 build_image_base=radiasoft/beamsim
 
-run_as_exec_user() {
+build_as_run_user() {
     cd "$build_guest_conf"
     local m
     for m in pykern sirepo; do

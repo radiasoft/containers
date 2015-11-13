@@ -1,10 +1,5 @@
 #!/bin/bash
 set -e
-proto='uwsgi --docker'
-if [[ $1 == http ]]; then
-    proto=$1
-    shift
-fi
 db_dir=$1
 port=$2
 if [[ ! -d $db_dir ]]; then
@@ -19,4 +14,5 @@ fi
 export PYTHONUNBUFFERED=1
 mkdir -p "$db_dir"
 cd "$db_dir"
-sirepo service $proto --db-dir "$db_dir" --port "$port" >& start.log
+echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') sirepo service http --db-dir '$db_dir' --port '$port'" > start.log
+sirepo service http --db-dir "$db_dir" --port "$port" >>& start.log

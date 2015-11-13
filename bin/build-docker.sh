@@ -5,6 +5,12 @@
 
 build_image_add='docker pull'
 
+build_clean() {
+    if [[ $build_sudo_remove ]]; then
+        rm -f "$build_sudo_remove"
+    fi
+}
+
 build_image() {
     rm -f Dockerfile
     cat > Dockerfile <<EOF
@@ -30,7 +36,7 @@ Built: $build_image_name:$build_version
 
 To run it, you can then:
 
-    docker run -i -t $tag su - $build_exec_user
+    docker run -i -t $tag su - $build_run_user
 
 After some testing, tag it for the alpha channel:
 
@@ -79,9 +85,21 @@ cd $HOME
 . /root/.bash_profile
 EOF
     fi
-    if [[ ! -x /su-vagrant ]]; then
-        cat > /su-vagrant << 'EOF'
+    if [[ ! -f /root/.bash_profile ]]; then
+        cp -a /etc/skel/.??* /root
+    fi
+    if ! id -u $build_run_user >& /dev/null; then
+        groupadd -g "$build_run_uid" "$build_run_user"
+        useradd -m -g "$build_run_user" -u "$build_run_uid" "$build_run_user"
+    fi
+    local run=/radia-run
+    if [[ ! -x $run ]]; then
+        cat > "$run" << "EOF"
 #!/bin/bash
+user='$build_run_user'
+EOF
+        cat >> "$run" << 'EOF'
+while [[ $#
 uid=$1
 gid=$2
 cmd=$3
@@ -89,28 +107,24 @@ if [[ ! $cmd ]]; then
     echo "usage: $(basename "$0") <uid> <gid> <command>" 1>&2
     exit 1
 fi
-if (( $uid != $(id -u vagrant) )); then
-    usermod -u "$uid" vagrant
+if (( $uid != $(id -u $user) )); then
+    usermod -u "$uid" "$user"
 fi
-if (( $gid != $(id -g vagrant) )); then
-    groupmod -g "$gid" vagrant
-    chgrp -R "$gid" ~vagrant
+if (( $gid != $(id -g $user) )); then
+    groupmod -g "$gid" "$user"
+    eval home=~"$user"
+    chgrp -R "$gid" "$home"
 fi
-exec su - vagrant -c "$cmd"
+exec su - "$user" -c "$cmd"
 EOF
-        chmod 555 /su-vagrant
+        chmod 555 "$run"
     fi
-    if [[ ! -f /root/.bash_profile ]]; then
-        cp -a /etc/skel/.??* /root
-    fi
-    if ! id -u $build_exec_user >& /dev/null; then
-        groupadd -g 1000 $build_exec_user
-        useradd -m -g $build_exec_user -u 1000 $build_exec_user
-    fi
-    local x=/etc/sudoers.d/$build_exec_user
+    local x=/etc/sudoers.d/$build_run_user
     if [[ ! -f $x ]]; then
         build_yum install sudo
-        echo "$build_exec_user ALL=(ALL) NOPASSWD: ALL" > "$x"
+        echo "$build_run_user ALL=(ALL) NOPASSWD: ALL" > "$x"
         chmod 440 "$x"
+        # Only needed for the build, removed after
+        build_sudo_remove=$x
     fi
 }

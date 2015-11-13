@@ -8,7 +8,7 @@ particle accelerator codes.
 Inside container, you can start RadTrack with:
 
 ```bash
-radtrack-on-vagrant
+radia-run-radtrack
 ```
 
 ### Build Info

@@ -6,16 +6,31 @@
 # script "build.sh" must reside in image/name, and define the following:
 #
 # $build_image_base - starting image name
-# run_as_exec_user() - executed after above as $build_exec_user
+# build_as_run_user() - executed after above as $build_run_user
 #
 # Optionally define:
 #
-# $build_exec_user - application runs as this user [vagrant]
 # $build_maintainer - identify author of image [RadiaSoft <(vagrant|docker)@radiasoft.net>]
 # $build_vagrant_uri - for help message on how to install in vagrant hub [https://depot.radiasoft.org/foss]
 #
+# You could, but probably don't want to change these:
+#
+# $build_run_user - application runs as this user [vagrant]
+# $build_run_uid - application user is this uid [1000]
 
 build_start_dir=$(pwd)
+
+build_as_root() {
+    : Executes as root after root setup complete
+}
+
+build_as_run_user() {
+    : Executes as $run_user after root is built and home env setup
+}
+
+build_clean() {
+    : container specific cleaner after root and user finished
+}
 
 build_curl() {
     curl -s -S -L "$@"
@@ -30,6 +45,14 @@ build_debug() {
 build_err() {
     build_msg "$@"
     exit 1
+}
+
+build_fedora_base_image() {
+    if [[ $build_is_vagrant ]]; then
+        build_image_base=hansode/fedora-21-server-x86_64
+    else
+        build_image_base=fedora:21
+    fi
 }
 
 build_fedora_clean() {
@@ -115,7 +138,7 @@ build_home_env() {
         if [[ ! -f $x ]]; then
             build_curl https://raw.githubusercontent.com/biviosoftware/home-env/master/install.sh > "$x"
         fi
-        no_perl=1 bash "$x"
+        bash "$x"
         if [[ $build_is_docker ]]; then
             echo 'export TERM=dumb' > ~/.pre_bivio_bashrc
         fi
@@ -169,8 +192,9 @@ build_main_init() {
     fi
     : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
     : ${build_vagrant_uri:=https://depot.radiasoft.org/foss}
-    : ${build_exec_user:=vagrant}
-    for v in run_as_exec_user; do
+    : ${build_run_user:=vagrant}
+    : ${build_run_uid:=1000}
+    for v in build_as_run_user; do
         if ! declare -f "$v" >& /dev/null; then
             build_err "$v(): function must be defined in $build_script"
         fi
@@ -200,9 +224,10 @@ build_main_conf_dir() {
         done
         cat <<EOF
 build_debug='$build_debug'
-build_exec_user='$build_exec_user'
 build_guest_conf='$build_guest_conf'
 build_maintainer='$build_maintainer'
+build_run_uid='$build_run_uid'
+build_run_user='$build_run_user'
 build_version='$build_version'
 . "$build_guest_script"
 build_run
@@ -224,15 +249,16 @@ build_run() {
         build_root_setup
         build_fedora_patch
         build_home_env
-        cd "$build_guest_conf"
-        chown -R "$build_exec_user:$build_exec_user" .
-        su "$build_exec_user" "$0"
+        build_as_root
+        chown -R "$build_run_user:$build_run_user" "$build_guest_conf"
+        su "$build_run_user" "$0"
+        build_clean
         build_fedora_clean
         cd /
         rm -rf "$build_guest_conf"
     else
         build_home_env
-        run_as_exec_user
+        build_as_run_user
     fi
 }
 
