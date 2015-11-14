@@ -15,4 +15,4 @@ export PYTHONUNBUFFERED=1
 mkdir -p "$db_dir"
 cd "$db_dir"
 echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') sirepo service http --db-dir '$db_dir' --port '$port'" > start.log
-sirepo service http --db-dir "$db_dir" --port "$port" >>& start.log
+sirepo service http --db-dir "$db_dir" --port "$port" >> start.log 2>&1

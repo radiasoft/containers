@@ -14,5 +14,5 @@ build_as_run_user() {
         python setup.py install
         cd ..
     done
-    install -m 555 sirepo-in-docker.sh ~/bin/sirepo-in-docker
+    install -m 555 radia-run-sirepo.sh ~/bin/radia-run-sirepo
 }

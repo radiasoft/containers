@@ -25,9 +25,9 @@ EOF
     local alpha=$build_image_name:alpha
     local latest=$build_image_name:latest
     docker build --rm=true --tag="$tag" .
-    # We have to tab latest, because docker pulls that on
+    # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version. Since build_image_base
-    # is without a version, we'll have to keep latest.
+    # is without a version, we are always building with latest.
     docker tag -f "$tag" "$latest"
     # Can't push multiple tags at once:
     # https://github.com/docker/docker/issues/7336
@@ -36,7 +36,7 @@ Built: $build_image_name:$build_version
 
 To run it, you can then:
 
-    docker run -i -t $tag su - $build_run_user
+    docker run --rm -i -t '$tag'
 
 After some testing, tag it for the alpha channel:
 
@@ -94,12 +94,16 @@ EOF
     fi
     local run=/radia-run
     if [[ ! -x $run ]]; then
-        cat > "$run" << "EOF"
+        cat > "$run" <<EOF
 #!/bin/bash
-user='$build_run_user'
+#
+# Adjust uid and gid of $build_run_user to match uid and gid
+# of host user. This allows us to run as $build_run_user
+# instead of root.
+#
+user=$build_run_user
 EOF
-        cat >> "$run" << 'EOF'
-while [[ $#
+        cat >> "$run" <<'EOF'
 uid=$1
 gid=$2
 cmd=$3
