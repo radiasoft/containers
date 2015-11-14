@@ -128,7 +128,7 @@ build_image_clean() {
     fi
     local v
     for v in $(vagrant box list \
-        | perl -n -e "m{^$build_image_name"' .*,( 20\d+\.\d+)} && print($1)')
+        | perl -n -e "m{^$build_image_name"' .*,( [\d+\.]+)} && print($1)')
     do
         vagrant box remove --box-version "$v" "$build_image_name"
     done
