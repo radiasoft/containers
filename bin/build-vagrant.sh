@@ -126,7 +126,12 @@ build_image_clean() {
     if ! build_image_exists "$build_image_name"; then
         return 0
     fi
-    vagrant box remove "$build_image_name"
+    local v
+    for v in $(vagrant box list \
+        | perl -n -e "m{^$build_image_name"' .*,( 20\d+\.\d+)} && print($1)')
+    do
+        vagrant box remove --box-version "$v" "$build_image_name"
+    done
 }
 
 build_image_exists() {
