@@ -105,10 +105,11 @@ user=$build_run_user
 EOF
         cat >> "$run" <<'EOF'
 uid=$1
+shift
 gid=$2
-cmd=$3
-if [[ ! $cmd ]]; then
-    echo "usage: $(basename "$0") <uid> <gid> <command>" 1>&2
+shift
+if [[ ! $@ ]]; then
+    echo "usage: $(basename "$0") <uid> <gid> <command> ..." 1>&2
     exit 1
 fi
 if (( $uid != $(id -u $user) )); then
@@ -119,7 +120,7 @@ if (( $gid != $(id -g $user) )); then
     eval home=~"$user"
     chgrp -R "$gid" "$home"
 fi
-exec su - "$user" -c "$cmd"
+exec su - "$user" -c "$*"
 EOF
         chmod 555 "$run"
     fi
