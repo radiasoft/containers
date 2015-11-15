@@ -15,4 +15,5 @@ build_as_run_user() {
         cd ..
     done
     install -m 555 radia-run-sirepo.sh ~/bin/radia-run-sirepo
+    install -m 555 radia-run-celery-sirepo.sh ~/bin/radia-run-celery-sirepo
 }

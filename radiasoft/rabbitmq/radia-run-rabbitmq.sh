@@ -16,7 +16,9 @@ cat <<EOF > "$RABBITMQ_CONFIG_FILE.config"
 [{rabbit, [{loopback_users, []}]}].
 EOF
 mkdir -p "$RABBITMQ_LOG_BASE" "$RABBITMQ_MNESIA_BASE"
-
+cd "$RADIA_RUN_DIR"
 # /usr/sbin/rabbitmq-server script hardwires the rabbit user to be root or rabbit
 # so we execute it directly after setting up the environment
-exec /usr/lib/rabbitmq/bin/rabbitmq-server
+echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') /usr/lib/rabbitmq/bin/rabbitmq-server" > start.log
+env >> start.log
+exec /usr/lib/rabbitmq/bin/rabbitmq-server 2>&1 >> start.log

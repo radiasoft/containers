@@ -92,9 +92,9 @@ EOF
         groupadd -g "$build_run_uid" "$build_run_user"
         useradd -m -g "$build_run_user" -u "$build_run_uid" "$build_run_user"
     fi
+    # Always overwrite with latest
     local run=/radia-run
-    if [[ ! -x $run ]]; then
-        cat > "$run" <<EOF
+    cat > "$run" <<EOF
 #!/bin/bash
 #
 # Adjust uid and gid of $build_run_user to match uid and gid
@@ -106,7 +106,7 @@ EOF
         cat >> "$run" <<'EOF'
 uid=$1
 shift
-gid=$2
+gid=$1
 shift
 if [[ ! $@ ]]; then
     echo "usage: $(basename "$0") <uid> <gid> <command> ..." 1>&2
@@ -122,11 +122,12 @@ if (( $gid != $(id -g $user) )); then
 fi
 exec su - "$user" -c "$*"
 EOF
-        chmod 555 "$run"
-    fi
+    chmod 555 "$run"
     local x=/etc/sudoers.d/$build_run_user
     if [[ ! -f $x ]]; then
-        build_yum install sudo
+        if [[ ! -x /usr/bin/sudo ]]; then
+            build_yum install sudo
+        fi
         echo "$build_run_user ALL=(ALL) NOPASSWD: ALL" > "$x"
         chmod 440 "$x"
         # Only needed for the build, removed after
