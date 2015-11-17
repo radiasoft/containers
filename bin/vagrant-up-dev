@@ -31,7 +31,16 @@ boot_and_install() {
 check_rcfiles() {
     local f
     local -a rcfiles
-    for f in ~/.docker ~/.gitconfig ~/.hgrc ~/.netrc ~/.pypirc; do
+    for f in \
+        ~/.docker \
+        ~/.emacs.d/lisp \
+        ~/.gitconfig \
+        ~/.hgrc \
+        ~/.netrc \
+        ~/.pypirc \
+        ~/.{post,pre}_bivio_bashrc \
+        ~/bconf.d \
+    ; do
         if [[ -r $f ]]; then
             rcfiles+=( $(basename "$f") )
         fi
