@@ -24,26 +24,28 @@ EOF
     local tag=$build_image_name:$build_version
     local alpha=$build_image_name:alpha
     local latest=$build_image_name:latest
+    local dev=$build_image_name:dev
     docker build --rm=true --tag="$tag" .
     # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version. Since build_image_base
     # is without a version, we are always building with latest.
     docker tag -f "$tag" "$latest"
+    # Convenient tagging. We don't push
+    docker tag -f "$tag" "$dev"
+    docker tag -f "$tag" "$alpha"
     # Can't push multiple tags at once:
     # https://github.com/docker/docker/issues/7336
     cat <<EOF
-Built: $build_image_name:$build_version
+Built: $tag
+Tags: $build_version, latest, dev, alpha
 
 To run it, you can then:
 
     docker run --rm -i -t '$tag'
 
-After some testing, tag it for the alpha channel:
+After some testing, push the alpha channel:
 
-    docker tag -f '$tag' '$alpha'
-    docker push '$tag'
-    docker push '$latest'
-    docker push '$alpha'
+    docker push '$tag'; docker push '$latest'; docker push '$alpha'
 EOF
     cd /
     rm -rf "$build_dir"
