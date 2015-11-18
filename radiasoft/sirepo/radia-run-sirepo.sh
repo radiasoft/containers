@@ -16,5 +16,5 @@ mkdir -p "$db_dir"
 cd "$db_dir"
 export SIREPO_PKCLI_SERVICE_PORT=$port
 export SIREPO_PKCLI_SERVICE_DB_DIR=$PWD
-(echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') sirepo service http; env) > start.log
+(echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') sirepo service http; env)" > start.log
 sirepo service http >> start.log 2>&1
