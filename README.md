@@ -63,15 +63,6 @@ cd ~/src/radiasoft/pykern
 python setup.py develop
 ```
 
-#### Postgres on Fedora
-
-```bash
-yum install -y postgresql-server postgresql-devel
-systemctl enable postgresql
-postgresql-setup initdb
-systemctl start postgresql
-```
-
 #### Build
 
 To build docker or vagrant images, you have to:
