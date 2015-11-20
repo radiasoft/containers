@@ -97,42 +97,36 @@ EOF
     # Always overwrite with latest
     local run=/radia-run
     cat > "$run" <<EOF
-#!/bin/bash
+#!/usr/bin/env python
 #
 # Adjust uid and gid of $build_run_user to match uid and gid
 # of host user. This allows us to run as $build_run_user
 # instead of root.
 #
-user=$build_run_user
-EOF
-        cat >> "$run" <<'EOF'
-uid=$1
-shift
-gid=$1
-shift
-if [[ ! $@ ]]; then
-    echo "usage: $(basename "$0") <uid> <gid> <command> ..." 1>&2
-    exit 1
-fi
-if (( $uid != $(id -u $user) )); then
-    usermod -u "$uid" "$user"
-fi
-if (( $gid != $(id -g $user) )); then
-    groupmod -g "$gid" "$user"
-    eval home=~"$user"
-    chgrp -R "$gid" "$home"
-fi
-python - "$@" <<END
-import os, sys
+from __future__ import print_function
+import os, pwd, sys, subprocess
+user='$build_run_user'
+if sys.argv < 4:
+    print('usage: {} <uid> <gid> <absolute-path> <arg>...', file=sys.stderr)
+    sys.exit(1)
+cmd = sys.argv[1:]
+uid = int(cmd.pop(0))
+gid = int(cmd.pop(0))
+p = pwd.getpwnam(user)
+if p.pw_uid != uid:
+    subprocess.check_call(['usermod', '-u', str(uid), user])
+if p.pw_gid != gid:
+    subprocess.check_call(['groupmod', '-g', str(gid), user])
+    subprocess.check_call(['chgrp', '-R', str(gid), p.pw_dir])
+#TODO(robnagler) look up groups. This is fine for now, because
+# docker doesn't have any other groups for vagrant
 os.setgroups([])
-os.setgid($gid)
-os.setuid($uid)
-os.environ['HOME'] = '/home/$user'
-p = sys.argv[1]
-assert os.path.isabs(p), \
-    '{}: command must be an absolute path'.format(p)
-os.execv(p, sys.argv[1:])
-END
+os.setgid(gid)
+os.setuid(uid)
+os.environ['HOME'] = p.pw_dir
+assert os.path.isabs(cmd[0]), \
+    '{}: command must be an absolute path'.format(cmd[0])
+os.execv(cmd[0], cmd)
 EOF
     chmod 555 "$run"
     local x=/etc/sudoers.d/$build_run_user
