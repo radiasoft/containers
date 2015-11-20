@@ -122,7 +122,17 @@ if (( $gid != $(id -g $user) )); then
     eval home=~"$user"
     chgrp -R "$gid" "$home"
 fi
-exec su - "$user" -c "$*"
+python - "$@" <<END
+import os, sys
+os.setgroups([])
+os.setgid($gid)
+os.setuid($uid)
+os.environ['HOME'] = '/home/$user'
+p = sys.argv[1]
+assert os.path.isabs(p), \
+    '{}: command must be an absolute path'.format(p)
+os.execv(p, sys.argv[1:])
+END
 EOF
     chmod 555 "$run"
     local x=/etc/sudoers.d/$build_run_user
