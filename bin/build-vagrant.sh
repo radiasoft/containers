@@ -2,8 +2,18 @@
 #
 # See ./build for usage
 #
-
 build_image_add='vagrant box add'
+
+build_clean_as_root() {
+    : Nothing to clean
+}
+
+build_clean_container() {
+    set +e
+    cd "$build_dir"
+    vagrant destroy -f
+    rm -rf Vagrantfile .vagrant
+}
 
 build_image() {
     cat > Vagrantfile <<EOF
@@ -34,11 +44,14 @@ EOF
     # Don't use bivio_vagrant_ssh, because we don't want to build
     # guest additions on the build machine. It's irrelevant, because
     # aren't sharing files between the two machines.
-    vagrant ssh -- -T "sudo bash '$build_run'" < /dev/null
+    if ! vagrant ssh -- -T "sudo bash '$build_run'" < /dev/null; then
+        build_err 'Build failed'
+    fi
     vagrant halt
     out=$build_start_dir/${build_image_name//\//-}-$build_version.box
     vagrant package --output "$out"
     vagrant box add "$build_image_name" "$out"
+    build_vagrant_version "$build_image_name" "$build_version"
     local uri=$build_vagrant_uri/$(basename "$out")
     local -a x=( ${build_image_name//\// } )
     cat <<EOF
@@ -89,37 +102,6 @@ Test on another machine:
     vagrant init $build_image_name
     vagrant up
 EOF
-    # This doesn't work:
-    #
-    # vagrant box add --box-version "$(date +%Y%m%d.%H%M%S)" radiasoft/fedora file://$PWD/package.box
-    #
-    # Run vagrant up without adding the box manually using vagrant box add
-    #
-    # VERSION OF BOX; Store in box, too.
-    # https://github.com/hollodotme/Helpers/blob/master/Tutorials/vagrant/self-hosted-vagrant-boxes-with-versioning.md#4-using-a-box-catalog-for-versioning
-    #
-    # openssl sha1 ~/VagrantBoxes/devops_0.1.0.box
-    # {
-    #     "name": "devops",
-    #     "description": "This box contains Ubuntu 14.04.1 LTS 64-bit.",
-    #     "versions": [{
-    #         "version": "0.1.0",
-    #         "providers": [{
-    #                 "name": "virtualbox",
-    #                 "url": "file://~/VagrantBoxes/devops_0.1.0.box",
-    #                 "checksum_type": "sha1",
-    #                 "checksum": "d3597dccfdc6953d0a6eff4a9e1903f44f72ab94"
-    #         }]
-    #     }]
-    # }
-    #
-    # config.vm.box_url = "file://~/VagrantBoxes/devops.json"
-    #
-    # Need to destroy VM because directory is emphemeral
-    vagrant destroy -f
-    rm -rf Vagrantfile .vagrant
-    cd /
-    rm -rf "$build_dir"
 }
 
 build_image_clean() {
@@ -182,7 +164,7 @@ EOF
     x=( $(rpm -qa | grep VirtualBox || true) )
     if [[ $x ]]; then
         # Remove the virtual box RPMs
-        build_yum "${x[@]}" || true
+        build_yum remove "${x[@]}" || true
     fi
     x=~vagrant/.ssh/authorized_keys
     if ! grep -s -q insecure "$x"; then
@@ -192,5 +174,16 @@ EOF
         fi
         build_curl https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub >> "$x"
         chmod -R og-rwx "$d"
+    fi
+}
+
+build_vagrant_version() {
+    local image=$1
+    local version=$2
+    local dir=$HOME/.vagrant.d/boxes/${image/\//-VAGRANTSLASH-}
+    mv "$dir/0" "$dir/$version"
+    local meta=$dir/metadata_url
+    if [[ ! -f $meta ]]; then
+        echo -n "https://atlas.hashicorp.com/$image" > "$meta"
     fi
 }

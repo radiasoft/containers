@@ -5,10 +5,14 @@
 
 build_image_add='docker pull'
 
-build_clean() {
+build_clean_as_root() {
     if [[ $build_sudo_remove ]]; then
         rm -f "$build_sudo_remove"
     fi
+}
+
+build_clean_container() {
+    : nothing to do, because do not have container handle from build
 }
 
 build_image() {
@@ -47,8 +51,6 @@ After some testing, push the alpha channel:
 
     docker push '$tag'; docker push '$latest'; docker push '$alpha'
 EOF
-    cd /
-    rm -rf "$build_dir"
 }
 
 build_image_clean() {

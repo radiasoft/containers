@@ -29,7 +29,11 @@ build_as_run_user() {
 }
 
 build_clean() {
-    : container specific cleaner after root and user finished
+    set +e
+    trap - EXIT
+    build_clean_container
+    cd /
+    rm -rf "$build_dir"
 }
 
 build_curl() {
@@ -44,7 +48,20 @@ build_debug() {
 
 build_err() {
     build_msg "$@"
+    if [[ $build_dir && -d $build_dir ]]; then
+        echo "Directory: $build_dir"
+        echo -n 'Type enter to destroy dir and container (or control-C to exit):'
+        read
+        build_clean
+    fi
     exit 1
+}
+
+build_err_trap() {
+    set +e
+    trap - EXIT
+    trap - ERR
+    build_err "Build: ERROR TRAP"
 }
 
 build_fedora_base_image() {
@@ -155,11 +172,13 @@ build_init() {
 }
 
 build_main() {
+    trap build_err_trap EXIT
     build_main_args "$@"
     build_main_init
     build_image_clean
     build_main_conf_dir
     build_image
+    build_clean
 }
 
 build_main_args() {
@@ -205,7 +224,10 @@ $build_image_add $build_image_base"
     fi
     build_init
     build_version=$(date -u +%Y%m%d.%H%M%S)
-    build_dir=${TMPDIR-/var/tmp}/$build_image_name_as_file-$build_version
+    # Must be /var/tmp, because directory contains .vagrant info and
+    # a reboot will delete $TMPDIR on Macs or /tmp on linux so
+    # vagrant info is no longer there and hard to clean up.
+    build_dir=/var/tmp/$build_image_name_as_file-$build_version
     build_guest_conf=/conf
     build_guest_script=$build_guest_conf/$(basename "$build_script")
     build_msg "Conf: $build_host_conf"
@@ -244,6 +266,7 @@ build_msg() {
 build_run() {
     cd "$(dirname "$0")"
     build_init
+    set -x
     if [[ $UID == 0 ]]; then
         build_run_yum
         build_root_setup
@@ -252,7 +275,7 @@ build_run() {
         build_as_root
         chown -R "$build_run_user:$build_run_user" "$build_guest_conf"
         su "$build_run_user" "$0"
-        build_clean
+        build_clean_as_root
         build_fedora_clean
         cd /
         rm -rf "$build_guest_conf"
@@ -297,4 +320,5 @@ build_yum() {
     $sudo yum --color=never -y -q "$@"
 }
 
+set -x
 build_main "$@"
