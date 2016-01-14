@@ -1,0 +1,4 @@
+#DEBUG: put #DEBUG in front of the next line
+#DEBUG yum update
+procps-ng
+salt-master
