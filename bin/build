@@ -317,7 +317,7 @@ build_run_yum() {
 
 build_yum() {
     local cmd=yum
-    if [[ $(type dnf) ]]; then
+    if [[ $(type -t dnf) ]]; then
         cmd=dnf
     fi
     build_msg "$cmd $@"
