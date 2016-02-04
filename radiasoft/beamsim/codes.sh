@@ -4,8 +4,8 @@
 # You can install individual codes (and dependencies) with:
 #
 # git clone https://github.com/radiasoft/containers
-# cd containers
-# bash codes.sh <code1> <code2>
+# cd containers/radiasoft/beamsim
+# bash -l codes.sh <code1> <code2>
 # pyenv rehash
 #
 # A list of available codes can be found in "codes" subdirectory.
