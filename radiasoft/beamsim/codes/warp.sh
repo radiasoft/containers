@@ -1,9 +1,23 @@
 #!/bin/bash
-codes_dependencies pygist pyMPI Forthon h5py
-codes_download https://depot.radiasoft.org/foss/warp-20150823.tar.gz
+codes_dependencies mpi4py Forthon h5py pygist
+# May only be needed for diags in warp init warp_script.py
+pip install python-dateutil
+prev_pwd=$PWD
+codes_download https://bitbucket.org/berkeleylab/warp.git
 cd pywarp90
-# INSTALLOPTIONS= turns off INSTALLOPTIONS=--user in Makefile.Forthon
-make -f Makefile.Forthon INSTALLOPTIONS= clean install
-make -f Makefile.Forthon.pympi \
-     FCOMP='-F gfortran --fcompexec /usr/lib64/openmpi/bin/mpifort' \
-     clean install
+make clean install
+cat > setup.local.py <<'EOF'
+if parallel:
+    import os, re
+    r = re.compile('^-l(.+)', flags=re.IGNORECASE)
+    for x in os.popen('mpifort --showme:link').read().split():
+        m = r.match(x)
+        if m:
+            l = library_dirs if x[1] == 'L' else libraries
+            l.append(m.group(1))
+EOF
+python setup.local.py
+make FCOMP='-F gfortran --fcompexec mpifort' pclean pinstall
+cd "$prev_pwd"
+codes_download https://depot.radiasoft.org/foss/warp-initialization-tools-20160204.tar.gz
+python setup.py install
