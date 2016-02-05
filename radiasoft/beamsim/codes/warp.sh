@@ -16,7 +16,6 @@ if parallel:
             l = library_dirs if x[1] == 'L' else libraries
             l.append(m.group(1))
 EOF
-python setup.local.py
 make FCOMP='-F gfortran --fcompexec mpifort' pclean pinstall
 cd "$prev_pwd"
 codes_download https://depot.radiasoft.org/foss/warp-initialization-tools-20160204.tar.gz
