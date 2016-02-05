@@ -12,9 +12,14 @@ if parallel:
     r = re.compile('^-l(.+)', flags=re.IGNORECASE)
     for x in os.popen('mpifort --showme:link').read().split():
         m = r.match(x)
-        if m:
-            l = library_dirs if x[1] == 'L' else libraries
-            l.append(m.group(1))
+        if not m:
+            continue
+        arg = m.group(1)
+        if x[1] == 'L':
+             library_dirs.append(arg)
+             extra_link_args += ['-Wl,-rpath', '-Wl,' + arg]
+        else:
+             libraries.append(arg)
 EOF
 make FCOMP='-F gfortran --fcompexec mpifort' pclean pinstall
 cd "$prev_pwd"
