@@ -15,6 +15,7 @@ openssl-devel
 patch
 pkgconfig
 readline-devel
+redhat-rpm-config
 sqlite-devel
 tar
 wget
