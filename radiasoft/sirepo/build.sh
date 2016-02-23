@@ -1,6 +1,11 @@
 #!/bin/bash
 build_image_base=radiasoft/beamsim
 
+build_as_root() {
+    rm -rf /etc/rabbitmq
+    ln -s /vagrant /etc/rabbitmq
+}
+
 build_as_run_user() {
     cd "$build_guest_conf"
     local m
