@@ -19,6 +19,8 @@ build_as_run_user() {
         python setup.py install
         cd ..
     done
+    curl https://raw.githubusercontent.com/rabbitmq/rabbitmq-management/rabbitmq_v3_6_0/bin/rabbitmqadmin > ~/bin/rabbitmqadmin
+    chmod 555 ~/bin/rabbitmqadmin
     install -m 555 radia-run-sirepo.sh ~/bin/radia-run-sirepo
     # Patch srwlib.py to not print stuff
     perl -pi.bak -e  's/^(\s+)(print)/$1pass#$2/' ~/.pyenv/versions/2.7.10/lib/python2.7/site-packages/srwlib.py
