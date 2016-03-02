@@ -7,9 +7,5 @@ leafpad
 lsof
 rpm-build
 scite
-tk-devel
-xauth
-xclock
 xpdf
-xterm
 yum-utils

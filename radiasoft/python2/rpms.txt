@@ -18,5 +18,10 @@ readline-devel
 redhat-rpm-config
 sqlite-devel
 tar
+tk-devel
 wget
+xauth
+xclock
+xpdf
+xterm
 zlib-devel
