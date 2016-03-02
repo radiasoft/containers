@@ -35,6 +35,7 @@ codes_dependencies() {
 codes_download() {
     # If download is an rpm, also installs
     local repo=$1
+    local commit=$2
     if [[ ! $repo =~ / ]]; then
         repo=radiasoft/$repo
     fi
@@ -44,8 +45,15 @@ codes_download() {
     codes_msg "Download: $repo"
     case $repo in
         *.git)
-            git clone -q --depth 1 "$repo"
-            cd "$(basename "$repo" .git)"
+            local d=$(basename "$repo" .git)
+            if [[ $commit ]]; then
+                git clone -q "$repo"
+                cd "$d"
+                git checkout "$commit"
+            else
+                git clone -q --depth 1 "$repo"
+                cd "$d"
+            fi
             ;;
         *.tar\.gz)
             local b=$(basename "$repo" .tar.gz)
