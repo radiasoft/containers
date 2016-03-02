@@ -18,7 +18,7 @@ d=$(python -c 'import distutils.sysconfig as s; print s.get_python_lib()')
 : Creating SRW*tar.gz <<'EOF'
 git clone https://github.com/ochubar/SRW
 cd SRW
-rm -rf .git literature env/{release,work/{install_proj,pre_releases,srw_igor,srw_python/data_example_*}}
+rm -rf .git literature env/{release,work/{install_proj,pre_releases,srw_igor,srw_python/{data_example_*,lib/*}}}
 find . -name '*.{old,a,so,pyd,lib,pdf}' -exec rm -f '{}' \;
 cd ..
 b=SRW-$(date +%Y%m%d)
