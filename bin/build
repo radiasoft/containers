@@ -133,6 +133,7 @@ build_fedora_clean() {
         mv -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
         build-locale-archive
     fi
+    localedef --no-archive -i en_US -f UTF-8 en_US.UTF-8
     #find /usr/share/i18n/locales -type f ! -name en\* | xargs rm -rf
     #find /usr/share/i18n/charmaps -type f ! -name ISO-8859\* ! -name UTF\* | xargs rm -rf
     #find /usr/share/locale ! -name locale -type d -prune ! -name en\* | xargs rm -rf
