@@ -121,7 +121,7 @@ build_fedora_clean() {
     # Doc
     rm -rf /usr/share/{man,info}
     # Locales
-    if [[ $(find /usr/lib/locale/locale-archive -size +5M) ]]; then
+    if [[ $(find /usr/lib/locale/locale-archive -size +10M) ]]; then
         # Need to protect this, because running twice will cause bus error
         # (kicking out of login shell, too). build-locale-archive has a bug.
         #
@@ -129,19 +129,20 @@ build_fedora_clean() {
         # The original Fedora container does not have a locale-archive file, perhaps
         # that's right, but we recrate a small one here after removing all the other
         # locales and charmaps we don't need.
-        localedef --list | grep -v -i ^en | xargs localedef --delete-from-archive
+        localedef --list | grep -v -i ^en_US | xargs localedef --delete-from-archive
         mv -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
         build-locale-archive
+        # Work around a bug in CentOS 6 or Docker 1.7 that doesn't deal with
+        # files with holes correctly.
+        dd if=/usr/lib/locale/locale-archive of=/usr/lib/locale/locale-archive-
+        mv /usr/lib/locale/locale-archive- /usr/lib/locale/locale-archive
+        chmod 644 /usr/lib/locale/locale-archive
+        localedef --list
     fi
-    localedef -i en_US -f UTF-8 en_US
-    localedef -i en_US -f UTF-8 en_US.UTF-8
-    localedef -i en_US -f ISO-8859-15 en_US.iso885915
-    localedef -i en_US -f ISO-8859-1 en_US.iso88591
     #find /usr/share/i18n/locales -type f ! -name en\* | xargs rm -rf
     #find /usr/share/i18n/charmaps -type f ! -name ISO-8859\* ! -name UTF\* | xargs rm -rf
     #find /usr/share/locale ! -name locale -type d -prune ! -name en\* | xargs rm -rf
     # This should recreate the archive, but there are missing charmaps and such
-    # localedef --force --inputfile=en_US --charmap=UTF-8 en_US.UTF-8
     # User (vagrant) caches and junk
     rm -rf /home/*/.{cache,tox,python-eggs,*.old,Xauthority}
 }
