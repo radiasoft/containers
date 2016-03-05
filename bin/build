@@ -120,24 +120,18 @@ build_fedora_clean() {
     rm -rf /var/tmp/* /tmp/*
     # Doc
     rm -rf /usr/share/{man,info}
-    # Locales
-    if [[ $(find /usr/lib/locale/locale-archive -size +10M) ]]; then
-        # Need to protect this, because running twice will cause bus error
-        # (kicking out of login shell, too). build-locale-archive has a bug.
-        #
-        # Locale is huge (+100MB) so compress. http://unix.stackexchange.com/a/90016
-        # The original Fedora container does not have a locale-archive file, perhaps
-        # that's right, but we recrate a small one here after removing all the other
-        # locales and charmaps we don't need.
-        localedef --list | grep -v -i ^en_US | xargs localedef --delete-from-archive
-        mv -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
-        build-locale-archive
-        # Work around a bug in CentOS 6 or Docker 1.7 that doesn't deal with
-        # files with holes correctly.
-        dd if=/usr/lib/locale/locale-archive of=/usr/lib/locale/locale-archive-
-        mv /usr/lib/locale/locale-archive- /usr/lib/locale/locale-archive
-        chmod 644 /usr/lib/locale/locale-archive
-    fi
+    # Localesare huge (+100MB) so compress. http://unix.stackexchange.com/a/90016
+    # Recreate with just what we need
+    rm -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
+    localedef -c -i en_US -f UTF-8 en_US
+    localedef -c -i en_US -f ISO-8859-1 en_US.iso88591
+    localedef -c -i en_US -f ISO-8859-15 en_US.iso885915
+    # Work around a bug in CentOS 6 or Docker 1.7 that doesn't deal with
+    # files with holes correctly.
+    dd if=/usr/lib/locale/locale-archive of=/usr/lib/locale/locale-archive-
+    mv /usr/lib/locale/locale-archive- /usr/lib/locale/locale-archive
+    chmod 644 /usr/lib/locale/locale-archive
+    #TODO(robnagler) these should be included
     #find /usr/share/i18n/locales -type f ! -name en\* | xargs rm -rf
     #find /usr/share/i18n/charmaps -type f ! -name ISO-8859\* ! -name UTF\* | xargs rm -rf
     #find /usr/share/locale ! -name locale -type d -prune ! -name en\* | xargs rm -rf
