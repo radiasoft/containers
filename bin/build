@@ -171,6 +171,9 @@ build_init() {
     if [[ $build_debug ]]; then
         set -x
     fi
+    # Can happen that libraries access X11. You'll see:
+    # X11 connection rejected because of wrong authentication.
+    export DISPLAY=
     build_init_type
 }
 
