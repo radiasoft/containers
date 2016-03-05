@@ -137,7 +137,6 @@ build_fedora_clean() {
         dd if=/usr/lib/locale/locale-archive of=/usr/lib/locale/locale-archive-
         mv /usr/lib/locale/locale-archive- /usr/lib/locale/locale-archive
         chmod 644 /usr/lib/locale/locale-archive
-        localedef --list
     fi
     #find /usr/share/i18n/locales -type f ! -name en\* | xargs rm -rf
     #find /usr/share/i18n/charmaps -type f ! -name ISO-8859\* ! -name UTF\* | xargs rm -rf
