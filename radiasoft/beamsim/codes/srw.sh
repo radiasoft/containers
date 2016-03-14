@@ -15,25 +15,36 @@ d=$(python -c 'import distutils.sysconfig as s; print s.get_python_lib()')
     install -m 644 {srwl,uti}*.py srwlpy.so "$d"
 )
 
-: Creating SRW*tar.gz <<'EOF'
+: bash -l <<'EOF'
+set -e
+if (( $UID != 0 )); then
+    echo must be run as root
+    exit 1
+fi
+if [[ ! -d ~/src/mrakitin ]]; then
+    mkdir -p ~/src/mrakitin
+fi
 cd ~/src/mrakitin
-test -d SRW || git clone https://github.com/mrakitin/SRW
-cd SRW
-git checkout master
-git pull --all
-cd ..
+if [[ ! -d SRW ]]; then
+    git clone https://github.com/mrakitin/SRW
+else
+    cd SRW
+    git checkout master
+    git pull --all
+    cd ..
+fi
 b=SRW-$(date +%Y%m%d)
 rsync -a --exclude .git SRW/. "$b"
 cd "$b"
 rm -rf literature env/{release,work/{install_proj,pre_releases,srw_igor,srw_python/{data_example_*,lib/*}}}
 find . -name '*.{old,a,so,pyd,lib,pdf}' -exec rm -f '{}' \;
 cd ..
-tar czf "$b.tar.gz" "$b"
+t=$b.tar.gz
+tar czf "$t" "$b"
 rm -rf "$b"
-echo "x=$PWD/$b.tar.gz"
-# As root
+x=$PWD/$t
 d=/var/www/virtualhost/depot/foss/$(basename "$x")
 mv "$x" "$d"
-chown root:root "$d"
 chmod 444 "$d"
+echo "codes_download https://depot.radiasoft.org/foss/$t"
 EOF
