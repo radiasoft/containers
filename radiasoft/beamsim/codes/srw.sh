@@ -4,7 +4,7 @@ codes_yum install fftw2-devel
 codes_dependencies mpi4py
 #Too slow. git repo has too much junk:
 #   codes_download SRW
-codes_download https://depot.radiasoft.org/foss/SRW-20160304.tar.gz
+codes_download https://depot.radiasoft.org/foss/SRW-20160314.tar.gz
 perl -pi -e 's/-j8//' Makefile
 perl -pi -e "s/'fftw'/'sfftw'/" cpp/py/setup.py
 perl -pi -e 's/-lfftw/-lsfftw/; s/\bcc\b/gcc/; s/\bc\+\+/g++/' cpp/gcc/Makefile
