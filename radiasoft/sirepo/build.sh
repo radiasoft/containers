@@ -23,7 +23,7 @@ build_as_run_user() {
     done
     install -m 555 radia-run-sirepo.sh ~/bin/radia-run-sirepo
     # Install latest srw
-    build_curl radia.run | bash -s containers/radiasoft/beamsim srw
+    build_curl radia.run | bash -s containers/radiasoft/beamsim srw openPMD
     # Patch srwlib.py to not print stuff
     perl -pi.bak -e  's/^(\s+)(print)/$1pass#$2/' ~/.pyenv/versions/2.7.10/lib/python2.7/site-packages/srwlib.py
 }
