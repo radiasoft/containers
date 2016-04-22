@@ -210,15 +210,16 @@ build_main_args() {
 
 build_main_init() {
     build_init_type
+    build_maintainer="RadiaSoft <$build_type@radiasoft.net>"
+    build_vagrant_uri=https://depot.radiasoft.org/foss
+    build_run_user=vagrant
+    build_run_user_home=/home/$build_run_user
+    build_run_uid=1000
     . "./$build_script"
     local v=
     if [[ ! $build_image_base ]]; then
         build_err "build_image_base: variable must defined in $build_script"
     fi
-    : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
-    : ${build_vagrant_uri:=https://depot.radiasoft.org/foss}
-    : ${build_run_user:=vagrant}
-    : ${build_run_uid:=1000}
     for v in build_as_run_user; do
         if ! declare -f "$v" >& /dev/null; then
             build_err "$v(): function must be defined in $build_script"
@@ -256,6 +257,7 @@ build_guest_conf='$build_guest_conf'
 build_maintainer='$build_maintainer'
 build_run_uid='$build_run_uid'
 build_run_user='$build_run_user'
+build_run_user_home='$build_run_user_home'
 build_version='$build_version'
 . "$build_guest_script"
 build_run

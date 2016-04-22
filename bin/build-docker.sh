@@ -2,8 +2,9 @@
 #
 # See ./build for usage
 #
-
+build_docker_cmd=/bin/bash
 build_image_add='docker pull'
+build_dockerfile_aux=
 
 build_clean_as_root() {
     if [[ $build_sudo_remove ]]; then
@@ -23,7 +24,8 @@ MAINTAINER "$build_maintainer"
 ADD . $build_guest_conf
 RUN "$build_run"
 # Reasonable default for CMD so user doesn't have to specify
-CMD /bin/bash
+CMD $build_docker_cmd
+$build_dockerfile_aux
 EOF
     local tag=$build_image_name:$build_version
     local alpha=$build_image_name:alpha
