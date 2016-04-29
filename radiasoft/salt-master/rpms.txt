@@ -8,7 +8,6 @@ python-jinja2
 python-msgpack
 python-requests
 python-six
-python-xml
 python-zmq
 zeromq-devel
 yum-utils
