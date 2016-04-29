@@ -2,7 +2,7 @@
 #yum update
 PyYAML
 libyaml
-m2ctrypto
+m2crypto
 procps-ng
 python-crypto
 python-jinja2
