@@ -6,7 +6,6 @@ procps-ng
 python-crypto
 python-jinja2
 python-msgpack
-python-pyzmq
 python-requests
 python-six
 python-xml
