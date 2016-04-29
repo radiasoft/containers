@@ -1,4 +1,15 @@
 #DEBUG: put #DEBUG in front of the next line
 #yum update
+PyYAML
+libyaml
 procps-ng
-salt-master
+python-crypto
+python-jinja2
+python-msgpack
+python-pyzmq
+python-requests
+python-six
+python-xml
+python-zmq
+zeromq-devel
+yum-utils

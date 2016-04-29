@@ -2,6 +2,7 @@
 build_fedora_base_image 23
 
 build_as_root() {
-    # We don't want any default config. Set by the runner
+    build_curl https://bootstrap.saltstack.com | bash -s -M -N git develop
+    # We don't want any default config, which is set by the runner
     rm -rf /etc/salt /var/cache/salt /srv
 }
