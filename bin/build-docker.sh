@@ -61,12 +61,13 @@ build_image_clean() {
     fi
     local images=$build_image_exists
     local f=
-    # Remove any exited containers. Will fail if there is a running container
-    for f in $(docker ps -a \
+    # Remove any exited containers.
+    for f in $(docker ps -a --filter status=exited \
             | perl -n -e "m{^(\w+)\s.*\s\Q$build_image_name\E[\s:]} && print(qq{\$1\n})"); do
         docker rm "$f"
     done
     for f in $images; do
+        # OK if a image is running, will be cleaned up next build
         docker rmi "$f" 2>/dev/null || true
     done
 }
