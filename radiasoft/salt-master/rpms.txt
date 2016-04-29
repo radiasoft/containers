@@ -2,6 +2,7 @@
 #yum update
 PyYAML
 libyaml
+m2ctrypto
 procps-ng
 python-crypto
 python-jinja2
@@ -9,5 +10,6 @@ python-msgpack
 python-requests
 python-six
 python-zmq
-zeromq-devel
+python2-systemd
 yum-utils
+zeromq-devel
