@@ -2,9 +2,9 @@
 #
 # See ./build for usage
 #
-build_docker_cmd=/bin/bash
-build_image_add='docker pull'
-build_dockerfile_aux=
+: ${build_docker_cmd:=/bin/bash}
+: ${build_image_add:='docker pull'}
+: ${build_dockerfile_aux:=}
 
 build_clean_as_root() {
     if [[ $build_sudo_remove ]]; then
@@ -18,13 +18,17 @@ build_clean_container() {
 
 build_image() {
     rm -f Dockerfile
+    local cmd=
+    if [[ $build_docker_cmd ]]; then
+        cmd="CMD $build_docker_cmd"
+    fi
     cat > Dockerfile <<EOF
 FROM $build_image_base
 MAINTAINER "$build_maintainer"
 ADD . $build_guest_conf
 RUN "$build_run"
 # Reasonable default for CMD so user doesn't have to specify
-CMD $build_docker_cmd
+$cmd
 $build_dockerfile_aux
 EOF
     local tag=$build_image_name:$build_version

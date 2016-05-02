@@ -215,6 +215,7 @@ build_main_init() {
     build_run_user=vagrant
     build_run_user_home=/home/$build_run_user
     build_run_uid=1000
+    build_simply=
     . "./$build_script"
     local v=
     if [[ ! $build_image_base ]]; then
@@ -251,14 +252,10 @@ build_main_conf_dir() {
         for f in $(compgen -A function | grep ^build_); do
             declare -f "$f"
         done
+        for f in $(compgen -A variable | grep ^build_); do
+            declare -p "$f"
+        done
         cat <<EOF
-build_debug='$build_debug'
-build_guest_conf='$build_guest_conf'
-build_maintainer='$build_maintainer'
-build_run_uid='$build_run_uid'
-build_run_user='$build_run_user'
-build_run_user_home='$build_run_user_home'
-build_version='$build_version'
 . "$build_guest_script"
 build_run
 EOF
@@ -274,7 +271,13 @@ build_msg() {
 build_run() {
     cd "$(dirname "$0")"
     build_init
-    if [[ $UID == 0 ]]; then
+    if [[ $build_simply ]]; then
+        build_as_root
+        return
+    elif (( $UID != 0 )); then
+        build_home_env
+        build_as_run_user
+    else
         build_run_yum
         build_root_setup
         build_fedora_patch
@@ -284,12 +287,9 @@ build_run() {
         su "$build_run_user" "$0"
         build_clean_as_root
         build_fedora_clean
-        cd /
-        rm -rf "$build_guest_conf"
-    else
-        build_home_env
-        build_as_run_user
     fi
+    cd /
+    rm -rf "$build_guest_conf"
 }
 
 build_run_yum() {
