@@ -1,4 +1,5 @@
-# Needed by everything, pretty much;
-# some seutp.py's fail if numpy not installed before
+# There are needed by everything and everyone so include here.
+# Some seutp.py's fail if numpy not installed before
 matplotlib
 numpy
+ipython[all]
