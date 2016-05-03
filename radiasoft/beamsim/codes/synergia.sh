@@ -88,9 +88,9 @@ synergia_configure() {
     done
     x+=(
         #NOT in master: boost/parallel="$cores"
-        chef-libs/repo=https://github.com/radiasoft/accelerator-modeling-chef.git
+        #chef-libs/repo=https://github.com/radiasoft/accelerator-modeling-chef.git
         #chef-libs/branch=5277ecbbdec02e9394eca4e079a651053b6a0ab4
-        chef-libs/branch=radiasoft-devel
+        #chef-libs/branch=radiasoft-devel
     )
     ./contract.py --configure "${x[@]}"
 }
