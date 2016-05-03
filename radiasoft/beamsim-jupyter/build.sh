@@ -13,7 +13,6 @@ build_as_run_user() {
     build_vars
     export notebook_dir=$build_run_user_home/jupyter
     export jupyterhub_singleuser=$boot_dir/jupyterhub-singleuser
-    pip uninstall -y terminado || true
     mkdir -p ~/.jupyter "$notebook_dir" "$boot_dir"
     cp jupyter_notebook_config.py ~/.jupyter
     perl -p -e 's/\{(\w+)\}/$ENV{$1} || die("$1: not found")/eg' radia-run.sh > "$radia_run_boot"
