@@ -273,10 +273,10 @@ build_run() {
     build_init
     if [[ $build_simply ]]; then
         build_as_root
-        return
     elif (( $UID != 0 )); then
         build_home_env
         build_as_run_user
+        return
     else
         build_run_yum
         build_root_setup
