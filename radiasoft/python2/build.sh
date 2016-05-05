@@ -15,5 +15,5 @@ build_as_run_user() {
     . ~/.bashrc
     bivio_pyenv_2
     . ~/.bashrc
-    pip install --upgrade pip setuptools tox matplotlib numpy 'ipython[all]'
+    pip install --upgrade pip setuptools tox
 }
