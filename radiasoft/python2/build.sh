@@ -19,5 +19,5 @@ build_as_run_user() {
     . ~/.bashrc
     rm requirements.txt
     pip install --upgrade pip
-    pip install --update setuptools tox
+    pip install --upgrade setuptools tox
 }
