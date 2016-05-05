@@ -10,10 +10,14 @@ build_as_run_user() {
         sudo systemctl enable docker.service
     fi
     cd
+    # Need to have requirements.txt for bivio_pyenv_2 to work
+    touch requirements.txt
     # This line stops a warning from the pyenv installer
     bivio_path_insert ~/.pyenv/bin 1
     . ~/.bashrc
     bivio_pyenv_2
     . ~/.bashrc
-    pip install --upgrade pip setuptools tox
+    rm requirements.txt
+    pip install --upgrade pip
+    pip install --update setuptools tox
 }
