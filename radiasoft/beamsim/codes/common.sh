@@ -26,3 +26,4 @@ fi
 pip install numpy==1.9.3
 pip install matplotlib
 pip install scipy
+pip install 'ipython[all]'
