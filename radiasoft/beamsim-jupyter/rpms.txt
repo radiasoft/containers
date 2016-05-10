@@ -1,0 +1,3 @@
+# Useful utilities for working in a jupyter terminal
+emacs-nox
+hostname
