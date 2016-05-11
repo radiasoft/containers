@@ -37,10 +37,8 @@ EOF
     local dev=$build_image_name:dev
     docker build --rm=true --tag="$tag" .
     # We have to tag latest, because docker pulls that on
-    # builds if you don't specify a version. Since build_image_base
-    # is without a version, we are always building with latest.
+    # builds if you don't specify a version.
     docker tag -f "$tag" "$latest"
-    # Convenient tagging. We don't push
     docker tag -f "$tag" "$dev"
     docker tag -f "$tag" "$alpha"
     # Can't push multiple tags at once:
@@ -55,7 +53,7 @@ To run it, you can then:
 
 After some testing, push the alpha channel:
 
-    docker push '$tag'; docker push '$latest'; docker push '$alpha'
+    docker push '$tag'; docker push '$latest'; docker push '$dev'; docker push '$alpha'
 EOF
 }
 
