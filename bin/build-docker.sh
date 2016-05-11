@@ -97,10 +97,7 @@ EOF
     if [[ ! -f /root/.bash_profile ]]; then
         cp -a /etc/skel/.??* /root
     fi
-    if ! id -u $build_run_user >& /dev/null; then
-        groupadd -g "$build_run_uid" "$build_run_user"
-        useradd -m -g "$build_run_user" -u "$build_run_uid" "$build_run_user"
-    fi
+    build_create_run_user
     # Always overwrite with latest
     local run=/radia-run
     cat > "$run" <<EOF

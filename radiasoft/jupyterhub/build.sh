@@ -8,4 +8,6 @@ build_as_root() {
     pip install git+git://github.com/jupyterhub/oauthenticator.git
     pip install git+git://github.com/jupyterhub/dockerspawner.git
     echo '# Real cfg in conf/jupyterhub_config.py' > /srv/jupyterhub/jupyterhub_config.py
+    # Convenient to have "vagrant" user for development
+    build_create_run_user
 }
