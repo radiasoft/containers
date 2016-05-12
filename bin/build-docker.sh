@@ -32,29 +32,41 @@ $cmd
 $build_dockerfile_aux
 EOF
     local tag=$build_image_name:$build_version
-    local alpha=$build_image_name:alpha
-    local latest=$build_image_name:latest
-    local dev=$build_image_name:dev
     docker build --rm=true --tag="$tag" .
     # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version.
-    docker tag -f "$tag" "$latest"
-    docker tag -f "$tag" "$dev"
-    docker tag -f "$tag" "$alpha"
-    # Can't push multiple tags at once:
-    # https://github.com/docker/docker/issues/7336
+    local channels=( latest dev alpha )
+    local tags=( $tag )
+    local push="docker push '$tag'"
+    local c t
+    for c in "${channels[@]}"; do
+        t=$build_image_name:$c
+        tags+=( $t )
+        docker tag -f "$tag" "$t"
+        # Can't push multiple tags at once:
+        # https://github.com/docker/docker/issues/7336
+        push="$push; docker push '$t'"
+    done
     cat <<EOF
 Built: $tag
-Tags: $build_version, latest, dev, alpha
-
+Channels: $build_version ${tags[*]}
+EOF
+    if [[ -n $build_push ]]; then
+        for t in "${tags[@]}"; do
+            echo "Pushing: $t"
+            docker push "$t"
+        done
+    else
+        cat <<EOF
 To run it, you can then:
 
     docker run --rm -i -t '$tag'
 
 After some testing, push the alpha channel:
 
-    docker push '$tag'; docker push '$latest'; docker push '$dev'; docker push '$alpha'
+    $push
 EOF
+    fi
 }
 
 build_image_clean() {

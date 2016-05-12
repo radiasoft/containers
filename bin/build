@@ -2,8 +2,12 @@
 #
 # Usage: bin/build (docker|vagrant) image/name
 #
-# image/name is a subdirectory of the current working directory. The
-# script "build.sh" must reside in image/name, and define the following:
+# image/name is a subdirectory of the current working directory.
+#
+# You can provide a build_push=1 environment variable to
+# force the push to the registery (only works with docker).
+#
+# The script "build.sh" must reside in image/name, and define the following:
 #
 # $build_image_base - starting image name
 # build_as_run_user() - executed after above as $build_run_user
