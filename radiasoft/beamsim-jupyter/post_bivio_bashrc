@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# Fixups for Bivio environment running in terminado.
+#
+export PROMPT_COMMAND=bivio_prompt_command
+export PS1='\W$ '
+
+if [[ -f '{notebook_bashrc}' ]]; then
+    . '{notebook_bashrc}'
+fi
