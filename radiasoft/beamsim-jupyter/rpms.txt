@@ -1,3 +1,5 @@
 # Useful utilities for working in a jupyter terminal
 emacs-nox
 hostname
+# Needed to install jupyter/notebook from git
+npm
