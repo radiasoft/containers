@@ -19,8 +19,8 @@ build_as_run_user() {
     export jupyterhub_singleuser=$boot_dir/jupyterhub-singleuser
     export boot_dir
     mkdir -p ~/.jupyter "$notebook_dir" "$boot_dir"
-    replace_vars jupyter_notebook_config.py ~/.jupyter
-    replace_vars radia-run.sh > "$radia_run_boot"
+    replace_vars jupyter_notebook_config.py ~/.jupyter/jupyter_notebook_config.py
+    replace_vars radia-run.sh "$radia_run_boot"
     chmod +x "$radia_run_boot"
     build_curl https://github.com/krallin/tini/releases/download/v0.9.0/tini > "$tini_file"
     chmod +x "$tini_file"
