@@ -29,7 +29,6 @@ build_as_run_user() {
     chmod +x "$jupyterhub_singleuser"
     replace_vars bashrc "$notebook_dir/bashrc"
     replace_vars post_bivio_bashrc ~/.post_bivio_bashrc
-    ln -s "$notebook_bashrc" ~/.post_bivio_bashrc
     replace_vars requirements.txt "$notebook_dir/requirements.txt"
 }
 
