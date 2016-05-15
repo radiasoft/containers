@@ -20,12 +20,18 @@ export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 
 cd '{notebook_dir}'
-if ! diff '{boot_dir}'/requirements.txt requirements.txt >& /dev/null; then
+for f in "{notebook_template_dir}"/*; do
+    if [[ ! -f "{notebook_template_dir}/$f" ]]; then
+        cp -a "{notebook_template_dir}/$f" .
+    fi
+done
+f='{boot_dir}'/cached-requirements.txt
+if ! diff "$f" requirements.txt >& /dev/null; then
     (
         set +e
         pip install --upgrade requirements.txt >& requirements.out
         # Don't track whether install is successful
-        cp requirements.txt '{boot_dir}'
+        cp requirements.txt "$f"
     )
 fi
 

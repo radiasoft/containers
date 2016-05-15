@@ -16,10 +16,11 @@ build_as_run_user() {
     export jupyterhub_singleuser=$boot_dir/jupyterhub-singleuser
     export boot_dir
     export notebook_bashrc="$notebook_dir_base/bashrc"
+    export notebook_template_dir="$boot_dir/$notebook_dir_base"
     # Fork of jupyter/notebook with terminado_settings fix
     pip install -U git+git://github.com/robnagler/notebook
     # POSIT: notebook_dir in salt-conf/srv/pillar/jupyterhub/base.yml
-    mkdir -p ~/.jupyter "$notebook_dir" "$boot_dir"
+    mkdir -p ~/.jupyter "$notebook_dir" "$notebook_template_dir"
     replace_vars jupyter_notebook_config.py ~/.jupyter/jupyter_notebook_config.py
     replace_vars radia-run.sh "$radia_run_boot"
     chmod +x "$radia_run_boot"
@@ -27,9 +28,11 @@ build_as_run_user() {
     chmod +x "$tini_file"
     build_curl https://raw.githubusercontent.com/jupyter/jupyterhub/master/scripts/jupyterhub-singleuser | perl -p -e 's/python3/python/' > "$jupyterhub_singleuser"
     chmod +x "$jupyterhub_singleuser"
-    replace_vars bashrc "$notebook_dir/bashrc"
     replace_vars post_bivio_bashrc ~/.post_bivio_bashrc
-    replace_vars requirements.txt "$notebook_dir/requirements.txt"
+    local f
+    for f in bashrc requirements.txt; do
+        replace_vars "$f" "$notebook_template_dir/$f"
+    done
 }
 
 replace_vars() {
