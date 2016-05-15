@@ -29,8 +29,7 @@ if ! diff '{boot_dir}'/requirements.txt requirements.txt >& /dev/null; then
     )
 fi
 
-
-# 8888 is hardwired everywhere. It should be JPY_IP and JPY_PORT
+# POSIT: 8888 in various jupyterhub repos
 exec {jupyterhub_singleuser} \
   --port=8888 \
   --ip=0.0.0.0 \

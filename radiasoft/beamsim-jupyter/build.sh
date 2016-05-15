@@ -13,6 +13,7 @@ build_as_run_user() {
     build_vars
     # Fork of jupyter/notebook with terminado_settings fix
     pip install -U git+git://github.com/robnagler/notebook
+    # POSIT: notebook_dir in salt-conf/srv/pillar/jupyterhub/base.yml
     local notebook_dir_base=jupyter
     export notebook_dir=$build_run_user_home/$notebook_dir_base
     export jupyterhub_singleuser=$boot_dir/jupyterhub-singleuser
