@@ -11,13 +11,14 @@ build_vars() {
 build_as_run_user() {
     cd "$build_guest_conf"
     build_vars
-    # Fork of jupyter/notebook with terminado_settings fix
-    pip install -U git+git://github.com/robnagler/notebook
-    # POSIT: notebook_dir in salt-conf/srv/pillar/jupyterhub/base.yml
     local notebook_dir_base=jupyter
     export notebook_dir=$build_run_user_home/$notebook_dir_base
     export jupyterhub_singleuser=$boot_dir/jupyterhub-singleuser
     export boot_dir
+    export notebook_bashrc="$notebook_dir_base/bashrc"
+    # Fork of jupyter/notebook with terminado_settings fix
+    pip install -U git+git://github.com/robnagler/notebook
+    # POSIT: notebook_dir in salt-conf/srv/pillar/jupyterhub/base.yml
     mkdir -p ~/.jupyter "$notebook_dir" "$boot_dir"
     replace_vars jupyter_notebook_config.py ~/.jupyter/jupyter_notebook_config.py
     replace_vars radia-run.sh "$radia_run_boot"
@@ -28,7 +29,6 @@ build_as_run_user() {
     chmod +x "$jupyterhub_singleuser"
     replace_vars bashrc "$notebook_dir/bashrc"
     replace_vars post_bivio_bashrc ~/.post_bivio_bashrc
-    export notebook_bashrc="$notebook_dir_base/bashrc"
     ln -s "$notebook_bashrc" ~/.post_bivio_bashrc
     replace_vars requirements.txt "$notebook_dir/requirements.txt"
 }
