@@ -4,7 +4,7 @@
 # for radiasoft/beamsim.
 #
 cd
-~/.bashrc
+. ~/.bashrc
 # must be after to avoid false returns in bashrc
 set -e
 
@@ -21,8 +21,8 @@ export LANGUAGE=en_US.UTF-8
 
 cd '{notebook_dir}'
 for f in "{notebook_template_dir}"/*; do
-    if [[ ! -f "{notebook_template_dir}/$f" ]]; then
-        cp -a "{notebook_template_dir}/$f" .
+    if [[ ! -f $(basename "$f") ]]; then
+        cp -a "$f" .
     fi
 done
 f='{boot_dir}'/cached-requirements.txt
