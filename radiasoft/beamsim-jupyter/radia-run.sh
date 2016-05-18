@@ -29,7 +29,7 @@ f='{boot_dir}'/cached-requirements.txt
 if ! diff "$f" requirements.txt >& /dev/null; then
     (
         set +e
-        pip install --upgrade requirements.txt >& requirements.out
+        pip install --upgrade -r requirements.txt >& requirements.out
         # Don't track whether install is successful
         cp requirements.txt "$f"
     )
