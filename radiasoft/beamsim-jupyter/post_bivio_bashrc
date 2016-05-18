@@ -4,6 +4,7 @@
 #
 export PROMPT_COMMAND=bivio_prompt_command
 export PS1='\W$ '
+export TERM=xterm
 
 if [[ -f ~/'{notebook_bashrc}' ]]; then
     . ~/'{notebook_bashrc}'
