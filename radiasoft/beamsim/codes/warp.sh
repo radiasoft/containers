@@ -3,7 +3,7 @@ codes_dependencies mpi4py Forthon h5py pygist openPMD
 # May only be needed for diags in warp init warp_script.py
 pip install python-dateutil
 prev_pwd=$PWD
-codes_download https://bitbucket.org/berkeleylab/warp.git 0755530ae90d8f68e1cacb86c105f57c68d2e63f
+codes_download https://bitbucket.org/berkeleylab/warp.git 855a6980ed8b3cd34b76c0b2b291005ee6723aa2
 cd pywarp90
 make clean install
 cat > setup.local.py <<'EOF'
@@ -23,5 +23,5 @@ if parallel:
 EOF
 make FCOMP='-F gfortran --fcompexec mpifort' pclean pinstall
 cd "$prev_pwd"
-codes_download https://depot.radiasoft.org/foss/warp-initialization-tools-20160204.tar.gz
+codes_download https://depot.radiasoft.org/foss/warp-initialization-tools-20160519.tar.gz
 python setup.py install
