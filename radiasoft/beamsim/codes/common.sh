@@ -1,6 +1,6 @@
 #!/bin/bash
 # Some rpms most codes use
-codes_yum install atlas-devel blas-devel lapack-devel openmpi-devel
+codes_yum install atlas-devel blas-devel lapack-devel openmpi-devel hdf5-devel hdf5-openmpi
 # Just in case this is installed outside the context for radiasoft/python2,
 # we need openmpi in our path (normally set by ~/.bashrc)
 if [[ ! ( :$PATH: =~ :/usr/lib64/openmpi/bin: ) ]]; then
@@ -27,4 +27,7 @@ pip install numpy==1.9.3
 pip install matplotlib
 pip install scipy
 pip install 'ipython[all]'
+# Need to install Cython first, or h5py build fails
+pip install Cython
+pip install h5py
 pip install tables

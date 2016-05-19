@@ -61,7 +61,7 @@
 #     fatal: dumb http transport does not support --depth
 
 # h5py also installs hdf5 RPMs, which is what's needed (see above)
-codes_dependencies mpi4py h5py
+codes_dependencies mpi4py
 
 codes_yum install flex cmake eigen3-devel glib2-devel
 pip install pyparsing nose
