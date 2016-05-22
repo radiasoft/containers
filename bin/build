@@ -290,13 +290,14 @@ build_run() {
         return
     else
         build_run_yum
+        build_sudo_install
         build_root_setup
         build_fedora_patch
         build_home_env
         build_as_root
         chown -R "$build_run_user:$build_run_user" "$build_guest_conf"
         su "$build_run_user" "$0"
-        build_clean_as_root
+        build_sudo_remove
         build_fedora_clean
     fi
     cd /
@@ -314,7 +315,7 @@ build_run_yum() {
     # git and tar are needed to build home_env
     local -a rpms=()
     local f
-    for f in git tar findutils; do
+    for f in git tar findutils sudo; do
         if ! rpm --quiet -q "$f"; then
             rpms+=($f)
         fi
@@ -329,17 +330,40 @@ build_run_yum() {
     fi
 }
 
+build_sudo() {
+    local sudo
+    if [[ $UID != 0 ]]; then
+        sudo=sudo
+    fi
+    $sudo "$@"
+}
+
+build_sudo_install() {
+    local x=/etc/sudoers.d/$build_run_user
+    if [[ -f $x ]]; then
+        # Don't remove if installed in base image,
+        # because likely vagrant.
+        return
+    fi
+    echo "$build_run_user ALL=(ALL) NOPASSWD: ALL" > "$x"
+    chmod 440 "$x"
+    # Only needed for docker build, removed after
+    build_sudo_remove=$x
+}
+
+build_sudo_remove() {
+    if [[ -n $build_sudo_remove ]]; then
+        rm -f "$build_sudo_remove"
+    fi
+}
+
 build_yum() {
     local cmd=yum
     if [[ $(type -t dnf) ]]; then
         cmd=dnf
     fi
     build_msg "$cmd $@"
-    local sudo
-    if [[ $UID != 0 ]]; then
-        sudo=sudo
-    fi
-    $sudo "$cmd" --color=never -y -q "$@"
+    build_sudo "$cmd" --color=never -y -q "$@"
 }
 
 build_main "$@"

@@ -6,12 +6,6 @@
 : ${build_image_add:='docker pull'}
 : ${build_dockerfile_aux:=}
 
-build_clean_as_root() {
-    if [[ $build_sudo_remove ]]; then
-        rm -f "$build_sudo_remove"
-    fi
-}
-
 build_clean_container() {
     : nothing to do, because do not have container handle from build
 }
@@ -145,14 +139,4 @@ assert os.path.isabs(cmd[0]), \
 os.execv(cmd[0], cmd)
 EOF
     chmod 555 "$run"
-    local x=/etc/sudoers.d/$build_run_user
-    if [[ ! -f $x ]]; then
-        if [[ ! -x /usr/bin/sudo ]]; then
-            build_yum install sudo
-        fi
-        echo "$build_run_user ALL=(ALL) NOPASSWD: ALL" > "$x"
-        chmod 440 "$x"
-        # Only needed for the build, removed after
-        build_sudo_remove=$x
-    fi
 }

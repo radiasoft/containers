@@ -3,3 +3,5 @@ emacs-nox
 hostname
 # Needed to install jupyter/notebook from git
 npm
+# Needed for MPI nodes
+openssh-server

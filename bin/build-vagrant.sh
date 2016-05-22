@@ -4,10 +4,6 @@
 #
 build_image_add='vagrant box add'
 
-build_clean_as_root() {
-    : Nothing to clean
-}
-
 build_clean_container() {
     set +e
     cd "$build_dir"

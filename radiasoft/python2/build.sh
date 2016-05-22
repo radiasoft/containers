@@ -3,11 +3,11 @@ build_fedora_base_image
 
 build_as_run_user() {
     if [[ $build_is_vagrant ]]; then
-        sudo rpm --import https://yum.dockerproject.org/gpg
-        sudo cp docker.repo /etc/yum.repos.d/docker.repo
+        build_sudo rpm --import https://yum.dockerproject.org/gpg
+        build_sudo cp docker.repo /etc/yum.repos.d/docker.repo
         build_yum install docker-engine
-        sudo usermod -a -G docker vagrant
-        sudo systemctl enable docker.service
+        build_sudo usermod -a -G docker vagrant
+        build_sudo systemctl enable docker.service
     fi
     cd
     # Need to have requirements.txt for bivio_pyenv_2 to work
