@@ -31,7 +31,7 @@ fi
 
 # POSIT: 8888 in various jupyterhub repos
 exec {jupyterhub_singleuser} \
-  --port=8888 \
+  --port="${RADIA_RUN_PORT:-8888}" \
   --ip=0.0.0.0 \
   --user="$JPY_USER" \
   --cookie-name="$JPY_COOKIE_NAME" \
