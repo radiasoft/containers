@@ -5,8 +5,8 @@ build_docker_cmd='[]'
 
 build_as_root() {
     apt-get update
-    apt-get install libpq-dev
-    pip install psycopg2
+    apt-get -y install libpq-dev
+    pip install Psycopg2
     pip install 'ipython[all]'
     pip install git+git://github.com/jupyterhub/oauthenticator.git
     pip install git+git://github.com/jupyterhub/dockerspawner.git
