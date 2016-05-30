@@ -27,15 +27,19 @@ fi
 if [[ -n $RADIA_RUN_CMD ]]; then
     # Can't quote this
     exec $RADIA_RUN_CMD
+else:
+    # POSIT: 8888 in various jupyterhub repos
+    exec {jupyterhub_singleuser} \
+      --port="${RADIA_RUN_PORT:-8888}" \
+      --ip=0.0.0.0 \
+      --user="$JPY_USER" \
+      --cookie-name="$JPY_COOKIE_NAME" \
+      --base-url="$JPY_BASE_URL" \
+      --hub-prefix="$JPY_HUB_PREFIX" \
+      --hub-api-url="$JPY_HUB_API_URL" \
+      --notebook-dir='{notebook_dir}'
+    RADIA_RUN_CMD='{jupyterhub_singleuser}'
 fi
 
-# POSIT: 8888 in various jupyterhub repos
-exec {jupyterhub_singleuser} \
-  --port="${RADIA_RUN_PORT:-8888}" \
-  --ip=0.0.0.0 \
-  --user="$JPY_USER" \
-  --cookie-name="$JPY_COOKIE_NAME" \
-  --base-url="$JPY_BASE_URL" \
-  --hub-prefix="$JPY_HUB_PREFIX" \
-  --hub-api-url="$JPY_HUB_API_URL" \
-  --notebook-dir='{notebook_dir}'
+echo "ERROR: '$RADIA_RUN_CMD': exec failed'" 1>&2
+exit 1
