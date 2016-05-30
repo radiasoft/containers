@@ -5,3 +5,6 @@ hostname
 npm
 # Needed for MPI nodes
 openssh-server
+# Needed for debugging
+iproute
+strace
