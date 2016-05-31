@@ -27,7 +27,7 @@ fi
 if [[ -n $RADIA_RUN_CMD ]]; then
     # Can't quote this
     exec $RADIA_RUN_CMD
-else:
+else
     # POSIT: 8888 in various jupyterhub repos
     exec {jupyterhub_singleuser} \
       --port="${RADIA_RUN_PORT:-8888}" \
