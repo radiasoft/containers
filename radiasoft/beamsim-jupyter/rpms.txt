@@ -6,7 +6,7 @@ npm
 # Needed for MPI nodes
 openssh-server
 # For cluster start
-dig
+bind-utils
 strace
 # Needed for debugging
 iproute

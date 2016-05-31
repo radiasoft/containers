@@ -1,7 +1,7 @@
 #DEBUG: put #DEBUG in front of the next line
 #yum update
 PyYAML
-dig
+bind-utils
 git
 hostname
 iproute

@@ -1,7 +1,7 @@
 #DEBUG: put #DEBUG in front of the next line
 #yum update
 bzip2-devel
-dig
+bind-utils
 gcc
 gcc-c++
 gd-devel
