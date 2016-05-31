@@ -5,6 +5,9 @@ hostname
 npm
 # Needed for MPI nodes
 openssh-server
+# For cluster start
+dig
+strace
 # Needed for debugging
 iproute
 strace

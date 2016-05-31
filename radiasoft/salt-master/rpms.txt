@@ -3,6 +3,7 @@
 PyYAML
 dig
 git
+hostname
 iproute
 libyaml
 m2crypto
