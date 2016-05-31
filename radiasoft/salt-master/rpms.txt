@@ -1,6 +1,9 @@
 #DEBUG: put #DEBUG in front of the next line
 #yum update
 PyYAML
+dig
+git
+iproute
 libyaml
 m2crypto
 procps-ng
@@ -11,5 +14,7 @@ python-requests
 python-six
 python-zmq
 python2-systemd
+strace
+wget
 yum-utils
 zeromq-devel
