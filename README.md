@@ -89,13 +89,14 @@ To query all the tags in the registry, you use curl, e.g. for `radiasoft/beasim`
 curl https://registry.hub.docker.com/v1/repositories/radiasoft/beamsim/tags
 ```
 
-## Jupyter server at https://jupyter.radiasoft.org -- usage tips
+## Usage tips for the RadiaSoft Jupyter server
+####https://jupyter.radiasoft.org
 
 ### Importing the Warp code in an IPython Notebook
 
-Simply trying 'import warp' or 'from warp import *' will generate errors.
-Instead, use the following:
-'''import sys
+Simply trying 'import warp' or 'from warp import *' will generate errors. Instead, use the following:
+'''bash
+import sys
 del sys.argv[1:]
 from warp import *
 '''
@@ -103,6 +104,7 @@ from warp import *
 ### European XFEL: the WaveProperGator (WPG) notebooks for running SRW
 
 1) Point your browser to the following address:
+
 https://jupyter.radiasoft.org 
 
 2) Login with your GitHub credentials.
@@ -112,14 +114,19 @@ https://jupyter.radiasoft.org
 4) Near the upper right, click "New" and then select "Terminal"
 
 5) In the new terminal window, type the following command:
+'''bash
 jupyter$ git clone https://github.com/samoylv/WPG.git ./WPG
+'''
 
 6) Return to browser tab where you originally logged in to the server.
 Or alternatively, click the 'Jupyter' logo near the upper left.
 
 7) Browse to a notebook, by doing (for example) the following:
-'''Click "WPG"
+
+Click "WPG"
+
 Click "samples"
+
 Click "Tutorials"
+
 Click "Tutorial_case_1.ipynb"
-'''
