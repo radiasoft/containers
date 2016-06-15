@@ -90,16 +90,17 @@ curl https://registry.hub.docker.com/v1/repositories/radiasoft/beamsim/tags
 ```
 
 ## Usage tips for the RadiaSoft Jupyter server
-####https://jupyter.radiasoft.org
+
+https://jupyter.radiasoft.org
 
 ### Importing the Warp code in an IPython Notebook
 
 Simply trying 'import warp' or 'from warp import *' will generate errors. Instead, use the following:
-'''bash
+```bash
 import sys
 del sys.argv[1:]
 from warp import *
-'''
+```
 
 ### European XFEL: the WaveProperGator (WPG) notebooks for running SRW
 
@@ -114,11 +115,13 @@ https://jupyter.radiasoft.org
 4) Near the upper right, click "New" and then select "Terminal"
 
 5) In the new terminal window, type the following command:
-'''bash
+
+```bash
 jupyter$ git clone https://github.com/samoylv/WPG.git ./WPG
-'''
+```
 
 6) Return to browser tab where you originally logged in to the server.
+
 Or alternatively, click the 'Jupyter' logo near the upper left.
 
 7) Browse to a notebook, by doing (for example) the following:
