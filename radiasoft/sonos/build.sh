@@ -13,4 +13,10 @@ build_as_root() {
 build_as_run_user() {
     cd /srv/node-sonos-http-api
     npm install --production
+    cat > start <<'EOF'
+#!/bin/bash
+cd "$(dirname "$0")"
+npm start
+EOF
+    chmod +x start
 }
