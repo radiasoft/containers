@@ -157,6 +157,7 @@ build_fedora_patch() {
     rm -f /etc/localtime
     # Not ideal, but where is the user really?
     ln -s /usr/share/zoneinfo/UCT /etc/localtime
+    echo 'color=never' >> /etc/dnf/dnf.conf
 }
 
 build_home_env() {
