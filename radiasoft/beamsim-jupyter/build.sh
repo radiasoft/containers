@@ -19,8 +19,6 @@ build_as_run_user() {
     export notebook_template_dir="$boot_dir/$notebook_dir_base"
     # Make sure these are up to date, fixes we need only in dev version
     pip install -U git+git://github.com/jupyter/notebook.git
-    # Needed to run jupyterhub-singleuser script
-    pip install -U git+git://github.com/jupyterhub/jupyterhub.git
     # POSIT: notebook_dir in salt-conf/srv/pillar/jupyterhub/base.yml
     mkdir -p ~/.jupyter "$notebook_dir" "$notebook_template_dir"
     replace_vars jupyter_notebook_config.py ~/.jupyter/jupyter_notebook_config.py
@@ -28,7 +26,10 @@ build_as_run_user() {
     chmod +x "$radia_run_boot"
     build_curl https://github.com/krallin/tini/releases/download/v0.9.0/tini > "$tini_file"
     chmod +x "$tini_file"
-    build_curl https://raw.githubusercontent.com/jupyter/jupyterhub/master/scripts/jupyterhub-singleuser | perl -p -e 's/python3/python/' > "$jupyterhub_singleuser"
+    # Needed to run jupyterhub-singleuser script
+    # pip install -U git+git://github.com/jupyterhub/jupyterhub.git
+    # build_curl https://raw.githubusercontent.com/jupyter/jupyterhub/master/scripts/jupyterhub-singleuser | perl -p -e 's/python3/python/' > "$jupyterhub_singleuser"
+    build_curl https://raw.githubusercontent.com/jupyterhub/jupyterhub/d9d68efa55afb57d40c23257a2915aa1337aef92/scripts/jupyterhub-singleuser > "$jupyterhub_singleuser"
     chmod +x "$jupyterhub_singleuser"
     replace_vars post_bivio_bashrc ~/.post_bivio_bashrc
     local f
