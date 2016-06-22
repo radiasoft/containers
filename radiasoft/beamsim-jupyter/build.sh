@@ -18,7 +18,7 @@ build_as_run_user() {
     export notebook_bashrc="$notebook_dir_base/bashrc"
     export notebook_template_dir="$boot_dir/$notebook_dir_base"
     # Make sure these are up to date, fixes we need only in dev version
-    pip install -U 'git+git://github.com/jupyter/notebook.git@385773d2c19ee4da29287bcbf74c38b17999071f'
+    pip install -U 'git+git://github.com/jupyter/notebook.git@4e359c921fb503ba3782a67cbd5ed221b081a478'
     # POSIT: notebook_dir in salt-conf/srv/pillar/jupyterhub/base.yml
     mkdir -p ~/.jupyter "$notebook_dir" "$notebook_template_dir"
     replace_vars jupyter_notebook_config.py ~/.jupyter/jupyter_notebook_config.py
