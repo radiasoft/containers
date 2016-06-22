@@ -72,10 +72,7 @@ codes_download() {
             if rpm --quiet -q "${b//-*/}"; then
                 echo "$b already installed"
             else
-                sudo yum --color=never -y -q install "$repo"
-                if [[ -n $(type -p package-cleanup) ]]; then
-                    package-cleanup --cleandupes
-                fi
+                codes_yum install "$repo"
             fi
             ;;
         *)
@@ -132,6 +129,9 @@ codes_msg() {
 codes_yum() {
     codes_msg "yum $@"
     sudo yum --color=never -y -q "$@"
+    if [[ -n $(type -p package-cleanup) ]]; then
+        package-cleanup --cleandupes
+    fi
 }
 
 if [[ $0 == ${BASH_SOURCE[0]} ]]; then
