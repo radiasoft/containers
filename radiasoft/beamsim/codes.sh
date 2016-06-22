@@ -73,6 +73,9 @@ codes_download() {
                 echo "$b already installed"
             else
                 sudo yum --color=never -y -q install "$repo"
+                if [[ -n $(type -p package-cleanup) ]]; then
+                    package-cleanup --cleandupes
+                fi
             fi
             ;;
         *)
