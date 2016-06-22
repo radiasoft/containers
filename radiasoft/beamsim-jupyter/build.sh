@@ -17,15 +17,10 @@ build_as_run_user() {
     export boot_dir
     export notebook_bashrc="$notebook_dir_base/bashrc"
     export notebook_template_dir="$boot_dir/$notebook_dir_base"
-    # Fork of jupyter/notebook with terminado_settings fix
-    (
-        cd
-        mkdir -p src/robnagler
-        cd src/robnagler
-        git clone https://github.com/robnagler/notebook
-        cd notebook
-        pip install -U .
-    )
+    # Make sure these are up to date, fixes we need only in dev version
+    pip install -U git+git://github.com/jupyter/notebook.git
+    # Needed to run jupyterhub-singleuser script
+    pip install -U git+git://github.com/jupyterhub/jupyterhub.git
     # POSIT: notebook_dir in salt-conf/srv/pillar/jupyterhub/base.yml
     mkdir -p ~/.jupyter "$notebook_dir" "$notebook_template_dir"
     replace_vars jupyter_notebook_config.py ~/.jupyter/jupyter_notebook_config.py
