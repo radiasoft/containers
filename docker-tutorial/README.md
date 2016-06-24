@@ -344,8 +344,8 @@ the `RUN` command. Here's a more complex Dockerfile:
 FROM busybox
 MAINTAINER Rob Nagler
 ADD . /cfg
-RUN chmod +x /cfg/hello-world
-CMD /cfg/hello-world
+RUN chmod +x /cfg/hello-world.sh
+CMD /cfg/hello-world.sh
 ```
 
 The `ADD` instruction tells Docker to copy the contents of the build
