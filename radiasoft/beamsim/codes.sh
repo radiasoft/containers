@@ -130,7 +130,7 @@ codes_yum() {
     codes_msg "yum $@"
     sudo yum --color=never -y -q "$@"
     if [[ -n $(type -p package-cleanup) ]]; then
-        package-cleanup --cleandupes
+        sudo package-cleanup --cleandupes
     fi
 }
 
