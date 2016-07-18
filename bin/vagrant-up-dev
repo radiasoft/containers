@@ -19,11 +19,11 @@ boot_and_install() {
     cd ~/src/radiasoft;
     git clone -q https://github.com/radiasoft/pykern;
     cd pykern;
-    pip install -q -e .;
+    pip install --upgrade -q -e .;
     cd ..;
     git clone -q https://github.com/radiasoft/sirepo;
     cd sirepo;
-    pip install -q -e .;
+    pip install --upgrade -q -e .;
     "
     rm "$rcfiles_tar"
 }

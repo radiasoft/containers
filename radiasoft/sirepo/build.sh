@@ -17,7 +17,7 @@ build_as_run_user() {
         # in newer matplotlib or numpy. PyKern itself is ok to upgrade
         # always, because it will be backwards compatible.
         cd "$m"
-        pip install -r requirements.txt
+        pip install --upgrade -r requirements.txt
         python setup.py install
         cd ..
     done

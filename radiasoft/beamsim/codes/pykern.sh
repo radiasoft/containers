@@ -1,4 +1,4 @@
 #!/bin/bash
 codes_download pykern
-pip install -r requirements.txt
+pip install --upgrade -r requirements.txt
 python setup.py install
