@@ -126,6 +126,13 @@ codes_msg() {
     echo "$@" 1>&2
 }
 
+codes_patch_requirements_txt() {
+    # numpy==1.9.3 is the only version that works with all the codes
+    local t=tmp.$$
+    grep -v numpy requirements.txt > "$t"
+    mv -f "$t" requirements.txt
+}
+
 codes_yum() {
     codes_msg "yum $@"
     sudo yum --color=never -y -q "$@"
