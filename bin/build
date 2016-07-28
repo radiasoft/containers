@@ -234,7 +234,6 @@ build_main_init() {
     if [[ $(type -t build_script_host_init) == 'function' ]]; then
         build_script_host_init
     fi
-    build_script_host_init
     local v=
     if [[ ! $build_image_base ]]; then
         build_err "build_image_base: variable must defined in $build_script"
