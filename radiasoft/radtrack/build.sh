@@ -13,7 +13,7 @@ build_as_run_user() {
         if [[ $m == radtrack ]]; then
             bash install-pyqt4-fedora.sh
         fi
-        pip install --upgrade -r requirements.txt
+        pip install -r requirements.txt
         python setup.py install
         cd ..
     done

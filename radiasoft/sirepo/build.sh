@@ -6,11 +6,8 @@ build_as_run_user() {
     local m
     for m in pykern sirepo; do
         git clone -q --depth 1 https://github.com/radiasoft/"$m"
-        # Don't think we want an upgrade here, because might bring
-        # in newer matplotlib or numpy. PyKern itself is ok to upgrade
-        # always, because it will be backwards compatible.
         cd "$m"
-        pip install --upgrade -r requirements.txt
+        pip install -r requirements.txt
         python setup.py install
         cd ..
     done
