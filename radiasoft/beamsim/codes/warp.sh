@@ -3,7 +3,7 @@ codes_dependencies mpi4py Forthon pygist openPMD
 # May only be needed for diags in warp init warp_script.py
 pip install python-dateutil
 prev_pwd=$PWD
-codes_download https://bitbucket.org/berkeleylab/warp.git 855a6980ed8b3cd34b76c0b2b291005ee6723aa2
+codes_download https://bitbucket.org/berkeleylab/warp.git e33d96eb4de4d2eb8cab614234f08435e0949513
 cd pywarp90
 make clean install
 cat > setup.local.py <<'EOF'
