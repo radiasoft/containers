@@ -4,7 +4,7 @@ codes_yum install fftw2-devel
 codes_dependencies mpi4py
 # ochubar/SRW is over 600MB so GitHub times out sometimes. This is a
 # stripped down copy
-codes_download mrakitin/bnlcrl
+codes_download robnagler/bnlcrl
 codes_patch_requirements_txt
 python setup.py install
 codes_download SRW-light
