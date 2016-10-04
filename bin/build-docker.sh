@@ -36,7 +36,7 @@ EOF
     for c in "${channels[@]}"; do
         t=$build_image_name:$c
         tags+=( $t )
-        docker tag -f "$tag" "$t"
+        docker tag "$tag" "$t"
         # Can't push multiple tags at once:
         # https://github.com/docker/docker/issues/7336
         push="$push; docker push '$t'"
