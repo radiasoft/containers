@@ -8,6 +8,18 @@ build_vars() {
     build_dockerfile_aux="USER $build_run_user"
 }
 
+build_as_root() {
+    # Add RPMFusion repo:
+    # http://rpmfusion.org/Configuration
+    build_yum install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-21.noarch.rpm 
+    build_yum install https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-21.noarch.rpm
+    # ffmpeg for matplotlib animations
+    # yum-utils for yum repo management
+    build_yum install ffmpeg yum-utils
+    # ffmpeg was already installed from rpmfusion, disable it for future packages
+    yum-config-manager --disable 'rpmfusion*' > /dev/null
+}
+
 build_as_run_user() {
     cd "$build_guest_conf"
     build_vars
