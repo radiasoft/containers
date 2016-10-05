@@ -229,6 +229,7 @@ build_main_init() {
     build_run_user=vagrant
     build_run_user_home=/home/$build_run_user
     build_run_uid=1000
+    build_run_dir=/$build_run_user
     build_simply=
     . "./$build_script"
     if [[ $(type -t build_script_host_init) == 'function' ]]; then
@@ -289,6 +290,7 @@ build_run() {
     cd "$(dirname "$0")"
     build_init
     if [[ $build_simply ]]; then
+        build_run_dir
         build_as_root
     elif (( $UID != 0 )); then
         build_home_env
@@ -300,14 +302,24 @@ build_run() {
         build_root_setup
         build_fedora_patch
         build_home_env
+        build_run_dir
         build_as_root
-        chown -R "$build_run_user:$build_run_user" "$build_guest_conf"
+        chown -R "$build_run_user:" "$build_guest_conf"
         su "$build_run_user" "$0"
         build_sudo_remove
         build_fedora_clean
     fi
     cd /
     rm -rf "$build_guest_conf"
+}
+
+build_run_dir() {
+    # /vagrant may not exist so create it. synced_folder is disabled
+    # by default with Vagrant to avoid guest additions loading problems.
+    if [[ ! -d $build_run_dir ]]; then
+        mkdir -p "$build_run_dir"
+        chown "$build_run_user:" "$build_run_dir"
+    fi
 }
 
 build_run_yum() {
