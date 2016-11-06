@@ -1,9 +1,5 @@
 #!/bin/bash
-
-d=$(dirname "$(dirname "$(python -c 'import sys; sys.stdout.write(sys.executable)')")")/lib
-export SYNERGIA2DIR=$d
-export LD_LIBRARY_PATH=$d:/usr/lib64/openmpi/lib
-export PYTHONPATH=$d
+. ~/.pyenv/pyenv.d/exec/radia-synergia2dir.bash
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
