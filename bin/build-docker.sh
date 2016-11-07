@@ -6,6 +6,8 @@
 : ${build_image_add:='docker pull'}
 : ${build_dockerfile_aux:=}
 
+_docker_client_version=$(docker --version | perl -n -e '/ (\d+\.\d+)/ && print $1')
+
 build_clean_container() {
     : nothing to do, because do not have container handle from build
 }
@@ -33,10 +35,14 @@ EOF
     local tags=( $tag )
     local push="docker push '$tag'"
     local c t
+    local force=
+    if [[ $_docker_client_version =~ ^1\.[0-9]$ ]]; then
+        force=-f
+    fi
     for c in "${channels[@]}"; do
         t=$build_image_name:$c
         tags+=( $t )
-        docker tag "$tag" "$t"
+        docker tag $force "$tag" "$t"
         # Can't push multiple tags at once:
         # https://github.com/docker/docker/issues/7336
         push="$push; docker push '$t'"
