@@ -33,7 +33,7 @@ build_synergia_pre3() {
     pip install 'git+git://github.com/radiasoft/rsbeams.git@master'
     pip install 'git+git://github.com/radiasoft/rssynergia.git@master'
     pyenv virtualenv "$venv"
-    export PYENV_VERION="$venv"
+    export PYENV_VERSION="$venv"
     # pykern brings in a lot of requirements to simplify build times
     pip install pykern
     build_curl radia.run | codes_synergia_branch=devel-pre3 bash -s master code synergia
