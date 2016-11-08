@@ -1,5 +1,10 @@
 #!/bin/bash
-. ~/.pyenv/pyenv.d/exec/radia-synergia2dir.bash
+#
+# Avoid: "pyenv-virtualenv: prompt changing will be removed from future release."
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+
+. ~/.pyenv/pyenv.d/exec/rs-beamsim-jupyter.bash
+
 
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8

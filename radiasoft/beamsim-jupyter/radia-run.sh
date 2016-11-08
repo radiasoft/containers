@@ -5,24 +5,13 @@
 #
 cd
 . ~/.bashrc
+
 # must be after to avoid false returns in bashrc
 set -e
 
+curl radia.run | bash -s init-from-git radiasoft/jupyter.radiasoft.org $JPY_USER/jupyter.radiasoft.org
+
 cd '{notebook_dir}'
-for f in "{notebook_template_dir}"/*; do
-    if [[ ! -f $(basename "$f") ]]; then
-        cp -a "$f" .
-    fi
-done
-f='{boot_dir}'/cached-requirements.txt
-if ! diff "$f" requirements.txt >& /dev/null; then
-    (
-        set +e
-        pip install -r requirements.txt >& requirements.out
-        # Don't track whether install is successful
-        cp requirements.txt "$f"
-    )
-fi
 
 if [[ -n $RADIA_RUN_CMD ]]; then
     # Can't quote this

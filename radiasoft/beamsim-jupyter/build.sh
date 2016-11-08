@@ -21,31 +21,31 @@ build_as_root() {
 }
 
 build_synergia_pre3() {
-    local base=radia-synergia2dir.bash
-d=$(pyenv prefix)/lib
-export SYNERGIA2DIR=$d
-export LD_LIBRARY_PATH=$d:/usr/lib64/openmpi/lib
-export PYTHONPATH=$d
-
-TODO: do this in beamsim
+    #TODO(robnagler) do this in radiasoft/beamsim/codes/synergia.sh
+    #      need something to avoid hardwiring openmpi lib... PYTHONPATH is
+    #      also not right, but we control everything here so probably ok.
+    local base=rs-beamsim-jupyter.bash
     local abs=$build_run_user_home/.pyenv/pyenv.d/exec/$base
     mkdir -p "$(dirname abs)"
     cp "$base" "$abs"
     . "$abs"
     local venv=synergia-pre3
+    pip install 'git+git://github.com/radiasoft/rsbeams.git@master'
+    pip install 'git+git://github.com/radiasoft/rssynergia.git@master'
     pyenv virtualenv "$venv"
-    pyenv activate --force "$venv"
+    pyenv global "$venv"
     # Get requirements for installing
     pip install pykern
-    build_curl radia.run | codes_synergia_branch=devel-pre3 bash -s code synergia
+    build_curl radia.run | codes_synergia_branch=devel-pre3 bash -s master code synergia
+    pip install 'git+git://github.com/radiasoft/rsbeams.git@master'
+    pip install 'git+git://github.com/radiasoft/rssynergia.git@master'
     # http://ipython.readthedocs.io/en/stable/install/kernel_install.html
     # http://www.alfredo.motta.name/create-isolated-jupyter-ipython-kernels-with-pyenv-and-virtualenv/
-    local where=$(python -m ipykernel install --display-name 'Python2 (synergia-pre3)' --name "$venv" --user)
-export SYNERGIA2DIR=$d
-export LD_LIBRARY_PATH=$d:/usr/lib64/openmpi/lib
-export PYTHONPATH=$d
-
-    perl -pi -e 's/\{/{\n  "env": ["SYNERGIA2DIR": "'"$SYNERGIA2DIR"'"],/' "${where[-1]}/kernel.json"
+    local where=( $(python -m ipykernel install --display-name 'Python 2 synergia-pre3' --name "$venv" --user) )
+    perl -pi -e 'sub _e {join(qq{,\n},
+            map(qq{  "$_": "$ENV{$_}"},
+                qw(SYNERGIA2DIR LD_LIBRARY_PATH PYTHONPATH)))};
+        s/^\{/{\n "env": {\n@{[_e()]}\n },/' "${where[-1]}/kernel.json"
     # Test with: ipython notebook --no-browser --ip='*'
 }
 
