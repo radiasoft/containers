@@ -318,7 +318,9 @@ build_run_dir() {
     # by default with Vagrant to avoid guest additions loading problems.
     if [[ ! -d $build_run_dir ]]; then
         mkdir -p "$build_run_dir"
-        chown "$build_run_user:" "$build_run_dir"
+        if id "$build_run_user" >& /dev/null; then
+            chown "$build_run_user:" "$build_run_dir"
+        fi
     fi
 }
 
