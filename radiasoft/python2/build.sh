@@ -20,4 +20,6 @@ build_as_run_user() {
     rm requirements.txt
     pip install --upgrade pip
     pip install --upgrade setuptools tox
+    pyenv virtualenv py2
+    pyenv global py2
 }

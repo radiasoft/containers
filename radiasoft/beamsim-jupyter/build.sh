@@ -24,29 +24,35 @@ build_synergia_pre3() {
     #TODO(robnagler) do this in radiasoft/beamsim/codes/synergia.sh
     #      need something to avoid hardwiring openmpi lib... PYTHONPATH is
     #      also not right, but we control everything here so probably ok.
-    local base=rs-beamsim-jupyter.bash
-    local abs=$build_run_user_home/.pyenv/pyenv.d/exec/$base
-    mkdir -p "$(dirname abs)"
-    cp "$base" "$abs"
-    . "$abs"
+    pip install -U 'git+git://github.com/radiasoft/rsbeams.git@master'
+    pip install -U 'git+git://github.com/radiasoft/rssynergia.git@master'
     local venv=synergia-pre3
-    pip install 'git+git://github.com/radiasoft/rsbeams.git@master'
-    pip install 'git+git://github.com/radiasoft/rssynergia.git@master'
-    pyenv virtualenv "$venv"
-    export PYENV_VERSION="$venv"
+    pyenv virtualenv 2.7.10 "$venv"
+    pyenv activate "$venv"
     # pykern brings in a lot of requirements to simplify build times
     pip install pykern
     build_curl radia.run | codes_synergia_branch=devel-pre3 bash -s master code synergia
-    pip install 'git+git://github.com/radiasoft/rsbeams.git@master'
-    pip install 'git+git://github.com/radiasoft/rssynergia.git@master'
+    pip install -U 'git+git://github.com/radiasoft/rsbeams.git@master'
+    pip install -U 'git+git://github.com/radiasoft/rssynergia.git@master'
     # http://ipython.readthedocs.io/en/stable/install/kernel_install.html
     # http://www.alfredo.motta.name/create-isolated-jupyter-ipython-kernels-with-pyenv-and-virtualenv/
     local where=( $(python -m ipykernel install --display-name 'Python 2 synergia-pre3' --name "$venv" --user) )
+    . ~/.pyenv/pyenv.d/exec/*synergia*.bash
     perl -pi -e 'sub _e {join(qq{,\n},
             map(qq{  "$_": "$ENV{$_}"},
                 qw(SYNERGIA2DIR LD_LIBRARY_PATH PYTHONPATH)))};
         s/^\{/{\n "env": {\n@{[_e()]}\n },/' "${where[-1]}/kernel.json"
     # Test with: ipython notebook --no-browser --ip='*'
+}
+
+build_rsbeams_style() {
+    cd /tmp
+    git clone https://github.com/radiasoft/rsbeams
+    for src in rsbeams/rsbeams/matplotlib/stylelib/*; do
+        dst=~/.config/matplotlib/$(basename "$src")
+        cp -a "$src" "$dst"
+    done
+    rm -rf rsbeams
 }
 
 build_as_run_user() {
@@ -72,11 +78,13 @@ build_as_run_user() {
     # build_curl https://raw.githubusercontent.com/jupyter/jupyterhub/master/scripts/jupyterhub-singleuser | perl -p -e 's/python3/python/' > "$jupyterhub_singleuser"
     build_curl https://raw.githubusercontent.com/jupyterhub/jupyterhub/d9d68efa55afb57d40c23257a2915aa1337aef92/scripts/jupyterhub-singleuser > "$jupyterhub_singleuser"
     chmod +x "$jupyterhub_singleuser"
-    replace_vars post_bivio_bashrc ~/.post_bivio_bashrc
     local f
     for f in bashrc requirements.txt; do
         replace_vars "$f" "$notebook_template_dir/$f"
     done
+    replace_vars post_bivio_bashrc ~/.post_bivio_bashrc
+    . ~/.bashrc
+    (build_rsbeams_style)
     (build_synergia_pre3)
 }
 

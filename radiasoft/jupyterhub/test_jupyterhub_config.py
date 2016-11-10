@@ -3,6 +3,7 @@ from jupyter_client.localinterfaces import public_ips
 import base64
 
 c.Authenticator.admin_users = set(['vagrant'])
+c.DockerSpawner.http_timeout = 120
 c.DockerSpawner.container_image = 'radiasoft/beamsim-jupyter'
 c.DockerSpawner.remove_containers = True
 c.DockerSpawner.use_internal_ip = True

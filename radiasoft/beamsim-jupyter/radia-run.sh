@@ -9,7 +9,11 @@ cd
 # must be after to avoid false returns in bashrc
 set -e
 
-curl radia.run | bash -s init-from-git radiasoft/jupyter.radiasoft.org $JPY_USER/jupyter.radiasoft.org
+curl radia.run | bash -s init-from-git radiasoft/jupyter.radiasoft.org "$JPY_USER/jupyter.radiasoft.org"
+
+# May have been set by ~/.bashrc
+unset PYENV_VERSION
+unset PYENV_VIRTUAL_ENV
 
 cd '{notebook_dir}'
 

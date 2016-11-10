@@ -109,13 +109,30 @@ synergia_install() {
     # openmpi should be added automatically (/etc/ld.so.conf.d), but there's
     # a conflict with hdf5, which has same library name in /usr/lib64 as in
     # /usr/lib64/openmpi/lib.
-    perl -pi -e 's{(?=ldpathadd ")}{ldpathadd /usr/lib64/openmpi/lib\n}s' install/bin/synergia
-    local d=$(python -c 'import sys; sys.stdout.write(sys.executable)')
-    d=$(dirname "$(dirname "$d")")
+    perl -pi -e '
+        s{(?<=install_dir/lib)}{/synergia};
+        s{(?=ldpathadd ")}{ldpathadd /usr/lib64/openmpi/lib\n}s;
+    ' install/bin/synergia
+    local d=$(pyenv prefix)
     # Synergia installer doesn't set modes correctly in all cases
     chmod -R a+rX install
-    (cd install && cp -a bin include lib "$d")
+    (
+        set -e
+        cd install
+        cp -a bin include "$d"
+        mv lib "$d/lib/synergia"
+    )
     return $?
 }
 synergia_install
 unset -f synergia_install
+
+cat > ~/.pyenv/pyenv.d/exec/rs-beamsim-synergia.bash <<'EOF'
+#!/bin/bash
+#
+# Synergia needs these special paths to work.
+#
+export SYNERGIA2DIR=$(pyenv prefix)/lib/synergia
+export LD_LIBRARY_PATH=$SYNERGIA2DIR:/usr/lib64/openmpi/lib
+export PYTHONPATH=$SYNERGIA2DIR
+EOF
