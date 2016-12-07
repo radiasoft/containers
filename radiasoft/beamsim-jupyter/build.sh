@@ -66,6 +66,7 @@ build_jupyterlab() {
     pip install --upgrade pip
     pip install --upgrade setuptools
     pip install jupyter 'jupyterlab==0.10.0' 'jupyterhub==0.7b1'
+    pip install --upgrade --no-deps git+https://github.com/radiasoft/notebook@terminado_settings#egg=notebook
     build_curl https://raw.githubusercontent.com/radiasoft/jupyterlab/master/jupyterlab/__init__.py > "$HOME/.pyenv/versions/$pyver/envs/$venv/lib/python3.5/site-packages/jupyterlab/__init__.py" 
 
     jupyter serverextension enable --py jupyterlab --sys-prefix
