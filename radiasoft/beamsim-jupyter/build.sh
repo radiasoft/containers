@@ -102,6 +102,8 @@ build_as_run_user() {
     replace_vars post_bivio_bashrc ~/.post_bivio_bashrc
     . ~/.bashrc
 
+    python -m ipykernel install --display-name 'Python 2' --name "$(pyenv global)" --user 
+
     (build_rsbeams_style)
     (build_synergia_pre3)
 }
