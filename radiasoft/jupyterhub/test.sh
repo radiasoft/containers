@@ -11,11 +11,14 @@ args=(
     --name jupyterhub
     -u root
     -p 8000:8000
+    -p 65435-65535:65435-65535
     -v $PWD/run/conf:/srv/jupyterhub/conf
     -v $PWD/run/jupyterhub:/var/db/jupyterhub
     -v $PWD/run/scratch:/scratch/jupyterhub
     -v /run/docker.sock:/run/docker.sock
     radiasoft/jupyterhub
-    jupyterhub -f /srv/jupyterhub/conf/jupyterhub_config.py
+    /bin/bash
+    -c 
+    "echo -e 'nameserver 8.8.8.8\nnameserver 8.8.4.4' > /etc/resolv.conf && exec jupyterhub -f /srv/jupyterhub/conf/jupyterhub_config.py"
 )
 docker run "${args[@]}"

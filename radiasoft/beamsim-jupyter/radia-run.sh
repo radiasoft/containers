@@ -15,6 +15,8 @@ curl radia.run | bash -s init-from-git radiasoft/jupyter.radiasoft.org "$JPY_USE
 unset PYENV_VERSION
 unset PYENV_VIRTUAL_ENV
 
+pyenv activate jupyterlab
+
 cd '{notebook_dir}'
 
 if [[ -n $RADIA_RUN_CMD ]]; then
@@ -22,7 +24,7 @@ if [[ -n $RADIA_RUN_CMD ]]; then
     exec $RADIA_RUN_CMD
 else
     # POSIT: 8888 in various jupyterhub repos
-    exec {jupyterhub_singleuser} \
+    exec /home/vagrant/.pyenv/versions/3.5.2/envs/jupyterlab/bin/jupyterhub-singleuser \
       --port="${RADIA_RUN_PORT:-8888}" \
       --ip=0.0.0.0 \
       --user="$JPY_USER" \

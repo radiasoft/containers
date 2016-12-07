@@ -42,3 +42,15 @@ c.Spawner.debug = True
 # Testing only; Need a passwd for vagrant inside container for PAMAuthenticator
 import subprocess
 subprocess.check_call('echo vagrant:vagrant|chpasswd', shell=True)
+
+c.JupyterHub.services = [
+    {
+        'command': [
+            '/opt/conda/bin/comsoljupyter', 'web',
+            '-s', '/var/db/jupyterhub',
+            '12345', 'http://jupyter.radiasoft.org:8000',
+        ],
+        'name': 'comsol',
+        'url': 'http://127.0.0.1:12345',
+    },
+]
