@@ -55,6 +55,29 @@ build_rsbeams_style() {
     rm -rf rsbeams
 }
 
+build_jupyterlab() {
+    # update python-build
+    pushd ~/.pyenv/plugins/python-build && git pull
+    popd
+
+    local venv=jupyterlab
+    # get latest python 3.5 version
+    local pyver=$(pyenv install -l | egrep ' 3.5' | grep -v dev  | sort -r | head -n 1 | tr -d ' ')
+    
+    pyenv install "$pyver"
+    pyenv virtualenv "$pyver" "$venv"
+    pyenv activate "$venv"
+
+    pip install --upgrade pip
+    pip install --upgrade setuptools
+    # Since the Terminado Settings has not been merged into any release, we are have your 
+    # own fork with the changes applied to the latest release.  
+    pip install --upgrade --no-deps git+https://github.com/radiasoft/notebook@terminado_settings#egg=notebook
+    pip install jupyter jupyterlab jupyterhub
+
+    jupyter serverextension enable --py jupyterlab --sys-prefix
+}
+
 build_as_run_user() {
     cd "$build_guest_conf"
     build_vars
@@ -64,8 +87,9 @@ build_as_run_user() {
     export boot_dir
     export notebook_bashrc="$notebook_dir_base/bashrc"
     export notebook_template_dir="$boot_dir/$notebook_dir_base"
-    # Make sure these are up to date, fixes we need (terminado_settings) only in dev version
-    pip install -U 'git+git://github.com/jupyter/notebook.git@4e359c921fb503ba3782a67cbd5ed221b081a478'
+
+    (build_jupyterlab)
+
     # POSIT: notebook_dir in salt-conf/srv/pillar/jupyterhub/base.yml
     mkdir -p ~/.jupyter "$notebook_dir" "$notebook_template_dir"
     replace_vars jupyter_notebook_config.py ~/.jupyter/jupyter_notebook_config.py
@@ -73,17 +97,15 @@ build_as_run_user() {
     chmod +x "$radia_run_boot"
     build_curl https://github.com/krallin/tini/releases/download/v0.9.0/tini > "$tini_file"
     chmod +x "$tini_file"
-    # Needed to run jupyterhub-singleuser script
-    # pip install -U git+git://github.com/jupyterhub/jupyterhub.git
-    # build_curl https://raw.githubusercontent.com/jupyter/jupyterhub/master/scripts/jupyterhub-singleuser | perl -p -e 's/python3/python/' > "$jupyterhub_singleuser"
-    build_curl https://raw.githubusercontent.com/jupyterhub/jupyterhub/d9d68efa55afb57d40c23257a2915aa1337aef92/scripts/jupyterhub-singleuser > "$jupyterhub_singleuser"
-    chmod +x "$jupyterhub_singleuser"
     local f
     for f in bashrc requirements.txt; do
         replace_vars "$f" "$notebook_template_dir/$f"
     done
     replace_vars post_bivio_bashrc ~/.post_bivio_bashrc
     . ~/.bashrc
+
+    python -m ipykernel install --display-name 'Python 2' --name "$(pyenv global)" --user 
+
     (build_rsbeams_style)
     (build_synergia_pre3)
 }
