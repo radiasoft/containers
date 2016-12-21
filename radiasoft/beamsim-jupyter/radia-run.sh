@@ -15,6 +15,8 @@ curl radia.run | bash -s init-from-git radiasoft/jupyter.radiasoft.org "$JPY_USE
 unset PYENV_VERSION
 unset PYENV_VIRTUAL_ENV
 
+pyenv activate jupyterlab
+
 cd '{notebook_dir}'
 
 if [[ -n $RADIA_RUN_CMD ]]; then
