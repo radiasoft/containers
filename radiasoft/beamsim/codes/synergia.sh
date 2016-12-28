@@ -63,11 +63,20 @@
 # h5py also installs hdf5 RPMs, which is what's needed (see above)
 codes_dependencies mpi4py
 
+ORIG_GIT='http://cdvcs.fnal.org/projects'
+REPLACE_GIT='http://depot.radiasoft.org/foss/synergia'
+
+patch_synergia_git() {
+    local dir_path=$1
+    grep -Rl "$ORIG_GIT" $dir_path | xargs sed -i -e "s|$ORIG_GIT|$REPLACE_GIT|g" 
+}
+
 codes_yum install flex cmake eigen3-devel glib2-devel
 pip install pyparsing nose
-git clone -q http://cdcvs.fnal.gov/projects/contract-synergia2
+git clone -q http://depot.radiasoft.org/foss/synergia/contract-synergia2
 cd contract-synergia2
 git checkout -b devel origin/devel
+patch_synergia_git .
 ./bootstrap
 
 # declare as function so can use local vars

@@ -323,7 +323,10 @@ build_run() {
         build_fedora_clean
     fi
     cd /
-    rm -rf "$build_guest_conf"
+
+    if [[ -z ${build_debug+x} ]]; then
+        rm -rf "$build_guest_conf"
+    fi
 }
 
 build_run_dir() {

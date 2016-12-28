@@ -11,9 +11,7 @@ set -e
 
 curl radia.run | bash -s init-from-git radiasoft/jupyter.radiasoft.org "$JPY_USER/jupyter.radiasoft.org"
 
-# May have been set by ~/.bashrc
-unset PYENV_VERSION
-unset PYENV_VIRTUAL_ENV
+pyenv activate '{jupyter_venv}'
 
 cd '{notebook_dir}'
 
@@ -22,7 +20,7 @@ if [[ -n $RADIA_RUN_CMD ]]; then
     exec $RADIA_RUN_CMD
 else
     # POSIT: 8888 in various jupyterhub repos
-    exec {jupyterhub_singleuser} \
+    exec jupyterhub-singleuser \
       --port="${RADIA_RUN_PORT:-8888}" \
       --ip=0.0.0.0 \
       --user="$JPY_USER" \
@@ -31,7 +29,7 @@ else
       --hub-prefix="$JPY_HUB_PREFIX" \
       --hub-api-url="$JPY_HUB_API_URL" \
       --notebook-dir='{notebook_dir}'
-    RADIA_RUN_CMD='{jupyterhub_singleuser}'
+    RADIA_RUN_CMD=$(type -f jupyterhub-singleuser)
 fi
 
 echo "ERROR: '$RADIA_RUN_CMD': exec failed'" 1>&2
