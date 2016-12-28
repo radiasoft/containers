@@ -55,18 +55,15 @@ build_rsbeams_style() {
     rm -rf rsbeams
 }
 
-build_jupyterlab() {
+build_jupyter() {
     # update python-build
-    pushd ~/.pyenv/plugins/python-build && git pull
-    popd
+    pyenv update || true
 
-    local venv=jupyterlab
-    # get latest python 3.5 version
-    local pyver=$(pyenv install -l | egrep ' 3.5' | grep -v dev  | sort -r | head -n 1 | tr -d ' ')
+    local pyver=3.5.2
     
     pyenv install "$pyver"
-    pyenv virtualenv "$pyver" "$venv"
-    pyenv activate "$venv"
+    pyenv virtualenv "$pyver" "$jupyter_venv"
+    pyenv activate "$jupyter_venv"
 
     pip install --upgrade pip
     pip install --upgrade setuptools
@@ -83,12 +80,12 @@ build_as_run_user() {
     build_vars
     local notebook_dir_base=jupyter
     export notebook_dir=$build_run_user_home/$notebook_dir_base
-    export jupyterhub_singleuser=$boot_dir/jupyterhub-singleuser
     export boot_dir
     export notebook_bashrc="$notebook_dir_base/bashrc"
     export notebook_template_dir="$boot_dir/$notebook_dir_base"
+    export jupyter_venv=jupyter
 
-    (build_jupyterlab)
+    (build_jupyter)
 
     # POSIT: notebook_dir in salt-conf/srv/pillar/jupyterhub/base.yml
     mkdir -p ~/.jupyter "$notebook_dir" "$notebook_template_dir"
