@@ -63,7 +63,7 @@
 # h5py also installs hdf5 RPMs, which is what's needed (see above)
 codes_dependencies mpi4py
 
-ORIG_GIT='http://cdvcs.fnal.org/projects'
+ORIG_GIT='http://cdcvs.fnal.gov/projects'
 REPLACE_GIT='http://depot.radiasoft.org/foss/synergia'
 
 patch_synergia_git() {
