@@ -15,7 +15,7 @@ build_as_root() {
     build_yum install https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-21.noarch.rpm
     # ffmpeg for matplotlib animations
     # yum-utils for yum repo management
-    build_yum install ffmpeg yum-utils
+    build_yum install ffmpeg yum-utils texlive-scheme-medium
     # ffmpeg was already installed from rpmfusion, disable it for future packages
     yum-config-manager --disable 'rpmfusion*' > /dev/null
 }
