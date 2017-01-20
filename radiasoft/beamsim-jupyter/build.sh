@@ -20,6 +20,12 @@ build_as_root() {
     yum-config-manager --disable 'rpmfusion*' > /dev/null
 }
 
+build_default_py2_kernel() {
+    local where=( $(python -m ipykernel install --display-name 'Python 2' --name "$(pyenv global)" --user) )
+    . ~/.pyenv/pyenv.d/exec/*synergia*.bash
+    update_ipy_kernel_env "${where[-1]}"
+}
+
 build_synergia_pre3() {
     #TODO(robnagler) do this in radiasoft/beamsim/codes/synergia.sh
     #      need something to avoid hardwiring openmpi lib... PYTHONPATH is
@@ -38,10 +44,7 @@ build_synergia_pre3() {
     # http://www.alfredo.motta.name/create-isolated-jupyter-ipython-kernels-with-pyenv-and-virtualenv/
     local where=( $(python -m ipykernel install --display-name 'Python 2 synergia-pre3' --name "$venv" --user) )
     . ~/.pyenv/pyenv.d/exec/*synergia*.bash
-    perl -pi -e 'sub _e {join(qq{,\n},
-            map(qq{  "$_": "$ENV{$_}"},
-                qw(SYNERGIA2DIR LD_LIBRARY_PATH PYTHONPATH)))};
-        s/^\{/{\n "env": {\n@{[_e()]}\n },/' "${where[-1]}/kernel.json"
+    update_ipy_kernel_env "${where[-1]}"
     # Test with: ipython notebook --no-browser --ip='*'
 }
 
@@ -101,8 +104,7 @@ build_as_run_user() {
     replace_vars post_bivio_bashrc ~/.post_bivio_bashrc
     . ~/.bashrc
 
-    python -m ipykernel install --display-name 'Python 2' --name "$(pyenv global)" --user 
-
+    (build_default_py2_kernel)
     (build_rsbeams_style)
     (build_synergia_pre3)
 }
@@ -111,6 +113,14 @@ replace_vars() {
     local src=$1
     local dst=$2
     perl -p -e 's/\{(\w+)\}/$ENV{$1} || die("$1: not found")/eg' "$src" > "$dst"
+}
+
+update_ipy_kernel_env() {
+    local where="$1"
+    perl -pi -e 'sub _e {join(qq{,\n},
+            map(qq{  "$_": "$ENV{$_}"},
+                qw(SYNERGIA2DIR LD_LIBRARY_PATH PYTHONPATH)))};
+        s/^\{/{\n "env": {\n@{[_e()]}\n },/' "$where/kernel.json"
 }
 
 build_vars
