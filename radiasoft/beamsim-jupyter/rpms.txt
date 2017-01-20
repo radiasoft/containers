@@ -7,7 +7,6 @@ npm
 openssh-server
 # For cluster start
 bind-utils
-strace
 # Needed for debugging
 iproute
 strace
