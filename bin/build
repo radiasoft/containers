@@ -14,6 +14,8 @@
 #
 # Optionally define:
 #
+# $build_batch_mode - defaults to false
+# $build_passenv - variables to pass to containter
 # $build_maintainer - identify author of image [RadiaSoft <(vagrant|docker)@radiasoft.net>]
 # $build_vagrant_uri - for help message on how to install in vagrant hub [https://depot.radiasoft.org/foss]
 #
@@ -23,6 +25,9 @@
 # $build_run_uid - application user is this uid [1000]
 
 build_start_dir=$(pwd)
+
+: ${build_passenv:=}
+: ${build_batch_mode:=}
 
 build_as_root() {
     : Executes as root after root setup complete
@@ -60,9 +65,11 @@ build_debug() {
 build_err() {
     build_msg "$@"
     if [[ $build_dir && -d $build_dir ]]; then
-        echo "Directory: $build_dir"
-        echo -n 'Type enter to destroy dir and container (or control-C to exit):'
-        read
+        if [[ ! $build_batch_mode ]]; then
+            echo "Directory: $build_dir"
+            echo -n 'Type enter to destroy dir and container (or control-C to exit):'
+            read
+        fi
         build_clean
     fi
     exit 1
@@ -224,8 +231,8 @@ build_main_args() {
 
 build_main_init() {
     build_init_type
-    build_maintainer="RadiaSoft <$build_type@radiasoft.net>"
-    build_vagrant_uri=https://depot.radiasoft.org/foss
+    : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
+    : ${build_vagrant_uri:=https://depot.radiasoft.org/foss}
     build_run_user=vagrant
     build_run_user_home=/home/$build_run_user
     build_run_uid=1000
@@ -254,8 +261,9 @@ $build_image_add $build_image_base"
     # a reboot will delete $TMPDIR on Macs or /tmp on linux so
     # vagrant info is no longer there and hard to clean up.
     build_dir=/var/tmp/$build_image_name_as_file-$build_version
-    build_guest_conf=/conf
+    build_guest_conf=/rsconf
     build_guest_script=$build_guest_conf/$(basename "$build_script")
+    build_manifest_yml=/RSMANIFEST.yml
     build_msg "Conf: $build_host_conf"
     build_msg "Build: $build_dir"
 }
@@ -270,7 +278,7 @@ build_main_conf_dir() {
         for f in $(compgen -A function | grep ^build_); do
             declare -f "$f"
         done
-        for f in $(compgen -A variable | grep ^build_); do
+        for f in $(compgen -A variable | grep ^build_) $build_passenv; do
             declare -p "$f"
         done
         cat <<EOF
@@ -283,15 +291,12 @@ EOF
 }
 
 build_manifest_yml() {
-    local manifest=/RSMANIFEST.yml
-    if [[ ! -e $manifest ]]; then
-        cat << EOF > $manifest
+    cat << EOF > "$build_manifest_yml"
 container:
   name: $build_image_name
   type: $build_type
   version: $build_version
 EOF
-    fi
 }
 
 build_msg() {
@@ -301,8 +306,8 @@ build_msg() {
 build_run() {
     cd "$(dirname "$0")"
     build_init
-    build_manifest_yml
     if [[ $build_simply ]]; then
+        build_manifest_yml
         build_run_dir
         build_as_root
     elif (( $UID != 0 )); then
@@ -310,6 +315,7 @@ build_run() {
         build_as_run_user
         return
     else
+        build_manifest_yml
         build_run_yum
         build_sudo_install
         build_root_setup

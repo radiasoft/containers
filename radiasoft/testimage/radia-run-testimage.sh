@@ -1,3 +1,5 @@
 #!/bin/bash
+. ~/.bashrc
+set -e
 env
-echo SUCCESS
+cat /RSMANIFEST.yml
