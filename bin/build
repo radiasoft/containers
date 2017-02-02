@@ -252,8 +252,11 @@ build_main_init() {
         fi
     done
     if ! build_image_exists "$build_image_base"; then
-        build_err "$build_image_base: image not found; Try:
+        if [[ ! $build_batch_mode ]]; then
+            build_err "$build_image_base: image not found; Try:
 $build_image_add $build_image_base"
+        fi
+        $build_image_add "$build_image_base"
     fi
     build_init
     build_version=$(date -u +%Y%m%d.%H%M%S)
