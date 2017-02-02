@@ -6,4 +6,4 @@ branches:
   only:
     - master
 script:
-  - cd containers && bash travis.sh
+  - bash travis.sh
