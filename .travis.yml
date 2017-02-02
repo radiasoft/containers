@@ -1,6 +1,6 @@
 ---
-# force
 sudo: required
+language: python
 services:
   - docker
 branches:
