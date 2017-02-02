@@ -18,6 +18,7 @@
 # $build_passenv - variables to pass to containter
 # $build_maintainer - identify author of image [RadiaSoft <(vagrant|docker)@radiasoft.net>]
 # $build_vagrant_uri - for help message on how to install in vagrant hub [https://depot.radiasoft.org/foss]
+# $build_version - defaults to the time now, but can be any chronological version
 #
 # You could, but probably don't want to change these:
 #
@@ -233,6 +234,7 @@ build_main_init() {
     build_init_type
     : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
     : ${build_vagrant_uri:=https://depot.radiasoft.org/foss}
+    : ${build_version:=$(date -u +%Y%m%d.%H%M%S)}
     build_run_user=vagrant
     build_run_user_home=/home/$build_run_user
     build_run_uid=1000
@@ -245,6 +247,9 @@ build_main_init() {
     local v=
     if [[ ! $build_image_base ]]; then
         build_err "build_image_base: variable must defined in $build_script"
+    fi
+    if [[ ! $build_version =~ ^[[:digit:]]{8}\.[[:digit:]]{6}$ ]]; then
+        build_err "$build_version: build_version must be a cronver"
     fi
     for v in build_as_run_user; do
         if ! declare -f "$v" >& /dev/null; then
@@ -259,7 +264,6 @@ $build_image_add $build_image_base"
         $build_image_add "$build_image_base"
     fi
     build_init
-    build_version=$(date -u +%Y%m%d.%H%M%S)
     # Must be /var/tmp, because directory contains .vagrant info and
     # a reboot will delete $TMPDIR on Macs or /tmp on linux so
     # vagrant info is no longer there and hard to clean up.
