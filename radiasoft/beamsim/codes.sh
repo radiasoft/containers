@@ -15,6 +15,8 @@ set -e
 # Build scripts directory
 : ${CODES_DIR:=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)/codes}
 
+codes_data_src_dir=$CODES_DIR/data
+
 # Where to install binaries (needed by genesis.sh)
 codes_bin_dir=$(dirname "$(pyenv which python)")
 

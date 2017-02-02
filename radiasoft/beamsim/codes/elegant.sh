@@ -1,23 +1,27 @@
 #!/bin/bash
 
-install_elegant_docs() {
-    local elegant_docs=/usr/share/doc/elegant
-    sudo mkdir -p "$elegant_docs"
-    sudo chmod og+rx "$elegant_docs"
-    sudo cp /conf/data/elegant/LICENSE $elegant_docs/LICENSE
-    sudo cp /conf/data/elegant/defns.rpn $elegant_docs/defns.rpn
-    sudo chmod -R ugo+r $elegant_docs
+elegant_docs_d=/usr/share/doc/elegant
+
+elegant_docs() {
+    local src=$codes_data_src_dir/elegant
+    sudo install -d 755 "$elegant_docs_d"
+    local f
+    for f in defns.rpn LICENSE; do
+        sudo install -m 444 "$src/$f" "$elegant_docs_d"
+    done
 }
 
-enable_rpn_defns() {
-    local elegant_docs=/usr/share/doc/elegant
+elegant_rpn_defns() {
+    #TODO(robnagler) this isn't right, because elegant isn't python. Just needs to
+    # be in bashrc. We need a "post_bashrc_d" or something like that to so we don't
+    # collide with beamsim. Needs to be added to home-env first.
     cat > ~/.pyenv/pyenv.d/exec/rs-beamsim-elegant.bash <<EOF
 #!/bin/bash
-export RPN_DEFNS=$elegant_docs/defns.rpn
+export RPN_DEFNS=$elegant_docs_d/defns.rpn
 EOF
 }
 
-install_elegant_docs
-enable_rpn_defns
 codes_dependencies sdds
 codes_download https://depot.radiasoft.org/foss/elegant-28.1.0-1.fedora.21.openmpi.x86_64.rpm
+elegant_docs
+elegant_rpn_defns
