@@ -49,7 +49,6 @@ EOF
     vagrant box add "$build_image_name" "$out"
     build_vagrant_version "$build_image_name" "$build_version"
     local uri=$build_vagrant_uri/$(basename "$out")
-    local -a x=( ${build_image_name//\// } )
     cat <<EOF
 You need to copy the box:
 
@@ -61,7 +60,7 @@ to:
 
 Then, go to:
 
-    https://atlas.hashicorp.com/${x[0]}/boxes/${x[1]}/versions/new
+    $build_vagrant_atlas_uri/new
 
 Enter the version:
 
@@ -73,7 +72,7 @@ and a description which includes the base image:
 
 and source:
 
-    https://github.com/${x[0]}/containers/tree/master/$build_image_name
+    https://github.com/$build_vagrant_org/containers/tree/master/$build_image_name
 
 Click "Create version".
 
@@ -89,7 +88,7 @@ Click "Create provider".
 
 Click "Edit" to the left of "v$build_version" button:
 
-    https://atlas.hashicorp.com/${x[0]}/boxes/${x[1]}/versions/$build_version/edit
+    $build_image_registry_uri/edit
 
 Click "Release version"
 
@@ -101,6 +100,11 @@ EOF
 }
 
 build_image_clean() {
+    local -a x=( ${build_image_name//\// } )
+    build_vagrant_org=${x[0]}
+    build_vagrant_repo=${x[1]}
+    build_vagrant_atlas_uri=https://atlas.hashicorp.com/$build_vagrant_org/boxes/$build_vagrant_repo/versions
+    build_image_uri=$build_vagrant_atlas_uri/$build_version
     if ! build_image_exists "$build_image_name"; then
         return 0
     fi

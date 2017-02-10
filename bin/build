@@ -299,10 +299,13 @@ EOF
 
 build_manifest_yml() {
     cat << EOF > "$build_manifest_yml"
-container:
-  name: $build_image_name
-  type: $build_type
-  version: $build_version
+version: 20170210.000000
+radiasoft:
+  container:
+    name: "$build_image_name"
+    type: "$build_type"
+    uri: "$build_image_uri"
+    version: "$build_version"
 EOF
 }
 
@@ -314,15 +317,14 @@ build_run() {
     cd "$(dirname "$0")"
     build_init
     if [[ $build_simply ]]; then
-        build_manifest_yml
         build_run_dir
         build_as_root
+        build_manifest_yml
     elif (( $UID != 0 )); then
         build_home_env
         build_as_run_user
         return
     else
-        build_manifest_yml
         build_run_yum
         build_sudo_install
         build_root_setup
@@ -330,6 +332,7 @@ build_run() {
         build_home_env
         build_run_dir
         build_as_root
+        build_manifest_yml
         chown -R "$build_run_user:" "$build_guest_conf"
         su "$build_run_user" "$0"
         build_sudo_remove

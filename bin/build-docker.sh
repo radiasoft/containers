@@ -27,13 +27,12 @@ RUN "$build_run"
 $cmd
 $build_dockerfile_aux
 EOF
-    local tag=$build_image_name:$build_version
-    docker build --rm=true --tag="$tag" .
+    docker build --rm=true --tag="$build_docker_tag" .
     # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version.
     local channels=( latest dev alpha )
-    local tags=( $tag )
-    local push="docker push '$tag'"
+    local tags=( $build_docker_tag )
+    local push="docker push '$build_docker_tag'"
     local c t
     local force=
     if [[ $_docker_client_version =~ ^1\.[0-9]$ ]]; then
@@ -42,13 +41,13 @@ EOF
     for c in "${channels[@]}"; do
         t=$build_image_name:$c
         tags+=( $t )
-        docker tag $force "$tag" "$t"
+        docker tag $force "$build_docker_tag" "$t"
         # Can't push multiple tags at once:
         # https://github.com/docker/docker/issues/7336
         push="$push; docker push '$t'"
     done
     cat <<EOF
-Built: $tag
+Built: $build_docker_tag
 Channels: $build_version ${tags[*]}
 EOF
     if [[ -n $build_push ]]; then
@@ -60,7 +59,7 @@ EOF
         cat <<EOF
 To run it, you can then:
 
-    docker run --rm -i -t '$tag'
+    docker run --rm -i -t '$build_docker_tag'
 
 After some testing, push the alpha channel:
 
@@ -70,6 +69,8 @@ EOF
 }
 
 build_image_clean() {
+    build_docker_tag=$build_image_name:$build_version
+    build_image_uri=https://registry.hub.docker.com/$build_docker_tag
     if ! build_image_exists "$build_image_name"; then
         return 0
     fi
