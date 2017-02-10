@@ -307,6 +307,7 @@ radiasoft:
     uri: "$build_image_uri"
     version: "$build_version"
 EOF
+    chmod 444 "$build_manifest_yml"
 }
 
 build_msg() {
