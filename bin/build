@@ -299,9 +299,8 @@ EOF
 
 build_manifest_yml() {
     cat << EOF > "$build_manifest_yml"
-version: 20170210.000000
-radiasoft:
-  container:
+version: 20170214.000000
+container:
     name: "$build_image_name"
     type: "$build_type"
     uri: "$build_image_uri"
@@ -312,6 +311,12 @@ EOF
 
 build_msg() {
     echo "$@" 1>&2
+}
+
+build_replace_vars() {
+    local src=$1
+    local dst=$2
+    perl -p -e 's/\{(\w+)\}/$ENV{$1} || die("$1: not found")/eg' "$src" > "$dst"
 }
 
 build_run() {

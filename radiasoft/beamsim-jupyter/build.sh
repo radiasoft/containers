@@ -63,15 +63,15 @@ build_jupyter() {
     pyenv update || true
 
     local pyver=3.5.2
-    
+
     pyenv install "$pyver"
     pyenv virtualenv "$pyver" "$jupyter_venv"
     pyenv activate "$jupyter_venv"
 
     pip install --upgrade pip
     pip install --upgrade setuptools
-    # Since the Terminado Settings has not been merged into any release, we are have your 
-    # own fork with the changes applied to the latest release.  
+    # Since the Terminado Settings has not been merged into any release, we are have your
+    # own fork with the changes applied to the latest release.
     pip install --upgrade --no-deps git+https://github.com/radiasoft/notebook@terminado_settings#egg=notebook
     pip install jupyter jupyterlab jupyterhub
 
@@ -92,27 +92,21 @@ build_as_run_user() {
 
     # POSIT: notebook_dir in salt-conf/srv/pillar/jupyterhub/base.yml
     mkdir -p ~/.jupyter "$notebook_dir" "$notebook_template_dir"
-    replace_vars jupyter_notebook_config.py ~/.jupyter/jupyter_notebook_config.py
-    replace_vars radia-run.sh "$radia_run_boot"
+    build_replace_vars jupyter_notebook_config.py ~/.jupyter/jupyter_notebook_config.py
+    build_replace_vars radia-run.sh "$radia_run_boot"
     chmod +x "$radia_run_boot"
     build_curl https://github.com/krallin/tini/releases/download/v0.9.0/tini > "$tini_file"
     chmod +x "$tini_file"
     local f
     for f in bashrc requirements.txt; do
-        replace_vars "$f" "$notebook_template_dir/$f"
+        build_replace_vars "$f" "$notebook_template_dir/$f"
     done
-    replace_vars post_bivio_bashrc ~/.post_bivio_bashrc
+    build_replace_vars post_bivio_bashrc ~/.post_bivio_bashrc
     . ~/.bashrc
 
     (build_default_py2_kernel)
     (build_rsbeams_style)
     (build_synergia_pre3)
-}
-
-replace_vars() {
-    local src=$1
-    local dst=$2
-    perl -p -e 's/\{(\w+)\}/$ENV{$1} || die("$1: not found")/eg' "$src" > "$dst"
 }
 
 update_ipy_kernel_env() {
