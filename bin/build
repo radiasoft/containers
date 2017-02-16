@@ -270,7 +270,7 @@ $build_image_add $build_image_base"
     build_dir=/var/tmp/$build_image_name_as_file-$build_version
     build_guest_conf=/rsconf
     build_guest_script=$build_guest_conf/$(basename "$build_script")
-    build_manifest_yml=/RSMANIFEST.yml
+    build_rsmanifest=/RSMANIFEST.json
     build_msg "Conf: $build_host_conf"
     build_msg "Build: $build_dir"
 }
@@ -297,18 +297,6 @@ EOF
     build_run="$build_guest_conf/build-run.sh"
 }
 
-build_manifest_yml() {
-    cat << EOF > "$build_manifest_yml"
-version: 20170214.000000
-container:
-    name: "$build_image_name"
-    type: "$build_type"
-    uri: "$build_image_uri"
-    version: "$build_version"
-EOF
-    chmod 444 "$build_manifest_yml"
-}
-
 build_msg() {
     echo "$@" 1>&2
 }
@@ -319,13 +307,36 @@ build_replace_vars() {
     perl -p -e 's/\{(\w+)\}/$ENV{$1} || die("$1: not found")/eg' "$src" > "$dst"
 }
 
+build_rsmanifest() {
+    rm -f "$build_rsmanifest"
+    python - <<EOF
+# -*- coding: utf-8 -*-
+import json
+json.dump(
+    {
+        'version': '20170214.000000',
+        'container': {
+            'name': '$build_image_name',
+            'type': '$build_type',
+            'uri': '$build_image_uri',
+            'version': '$build_version',
+        },
+    },
+    open('$build_rsmanifest', 'w'),
+    indent=4,
+    sort_keys=True,
+)
+EOF
+    chmod 444 "$build_rsmanifest"
+}
+
 build_run() {
     cd "$(dirname "$0")"
     build_init
     if [[ $build_simply ]]; then
         build_run_dir
         build_as_root
-        build_manifest_yml
+        build_rsmanifest
     elif (( $UID != 0 )); then
         build_home_env
         build_as_run_user
@@ -338,7 +349,7 @@ build_run() {
         build_home_env
         build_run_dir
         build_as_root
-        build_manifest_yml
+        build_rsmanifest
         chown -R "$build_run_user:" "$build_guest_conf"
         su "$build_run_user" "$0"
         build_sudo_remove

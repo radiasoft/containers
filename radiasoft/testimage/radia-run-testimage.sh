@@ -2,4 +2,5 @@
 . ~/.bashrc
 set -e
 env
-cat /RSMANIFEST.yml
+python -c 'import json; assert float(json.load(open("/RSMANIFEST.json"))["version"]) > 20170101.'
+cat /RSMANIFEST.json
