@@ -68,7 +68,7 @@ synergia_bootstrap() {
     # "git clone --depth 1" doesn't work in some case
     #     fatal: dumb http transport does not support --depth
     # so if you don't pass a commit to codes_download, you'll see this error.
-    codes_download "$radiasoft"/contract-synergia2 origin/devel
+    codes_download "$radiasoft"/contract-synergia2.git origin/devel
     fgrep -Rl "$fnal" . | xargs perl -pi -e "s{\\Q$fnal}{$radiasoft}g"
     ./bootstrap
 }

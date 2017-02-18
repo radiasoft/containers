@@ -100,9 +100,6 @@ codes_download() {
             codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz"
             ;;
     esac
-    set -x
-    pyenv version
-    env
     if [[ -n $(type -t pykern) ]]; then
         local venv=
         if [[ -n $(find . -name \*.py) ]]; then
@@ -112,7 +109,6 @@ codes_download() {
         pykern rsmanifest add_code --virtual-env="$venv" \
             "${package:-${manifest[0]}}" "${version:-${manifest[1]}}" "$repo" "$(pwd)"
     fi
-    set +x
     return 0
 }
 
