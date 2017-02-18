@@ -14,7 +14,7 @@ codes are installed in the radiasoft/beamsim container:
   amplifier and SASE FEL, although the flexible input can be used to
   easily extend the capacity to cover FEL oscillators or multistage
   set-ups.
-e* [Shadow3](http://forge.epn-campus.eu/projects/shadow3)
+* [Shadow3](http://forge.epn-campus.eu/projects/shadow3)
   is used to study propagation of a photon beam through an optical
   system. The program is general, but is optimized for the case of
   X-rays and reflective optics such as those encountered in the XUV
@@ -39,6 +39,49 @@ e* [Shadow3](http://forge.epn-campus.eu/projects/shadow3)
   space-charge effects in bent accelerator lattices (resolution can be
   placed where needed) associated with rings and beam transfer lines
   with dipole bends.
+
+
+### ~/rsmanifest.json
+
+All codes installed with `codes_download` will be added to `~/rsmanifest.json`,
+which describes a code, e.g.
+
+
+```
+"srw": {
+    "installed": "2017-02-18T04:50:22Z",
+    "name": "SRW",
+    "source_d": "/home/vagrant/src/radiasoft/codes/srw-20170218.045013/bnlcrl/SRW-light",
+    "uri": "https://github.com/radiasoft/SRW-light.git",
+    "version": "db9a8082a4e9ab901de4311fbb94d4a4306d390e"
+},
+```
+
+If a code is not based on Python, it will be found in `codes['']`, e.g.
+`codes['']['elegant']`. However, if a code has python scripts (literally
+searching for `*.py` in the source directory), then it will be in
+a virtual environment (venv), e.g. `codes['py2']['srw']`. Note that the
+names are lower case for looking up in the index, but the case sensitive
+name will be in the code's meta data (`name`).
+
+The `source_d` is where the source of the build is saved.
+
+See [pykern.pkcli.rsmanifest](https://github.com/radiasoft/pykern/blob/master/pykern/pkcli/rsmanifest.py) for how the file is generated.
+
+### New Codes
+
+You can add new codes by writing a bash script in the `codes` subdir.
+Look through example codes to try out. You can test installs with:
+
+```
+bash codes.sh <code>.sh
+```
+
+You should always depend on:
+
+```
+codes_dependencies common
+```
 
 
 ### Build Info
