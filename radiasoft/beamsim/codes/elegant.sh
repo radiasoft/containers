@@ -21,7 +21,7 @@ export RPN_DEFNS=$elegant_docs_d/defns.rpn
 EOF
 }
 
-codes_dependencies sdds
+codes_dependencies common sdds
 codes_download https://depot.radiasoft.org/foss/elegant-28.1.0-1.fedora.21.openmpi.x86_64.rpm
 elegant_docs
 elegant_rpn_defns

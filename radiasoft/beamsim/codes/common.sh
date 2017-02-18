@@ -31,3 +31,4 @@ pip install 'ipython[all]'
 pip install Cython
 pip install h5py
 pip install tables
+codes_dependencies pykern

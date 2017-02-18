@@ -270,7 +270,7 @@ $build_image_add $build_image_base"
     build_dir=/var/tmp/$build_image_name_as_file-$build_version
     build_guest_conf=/rsconf
     build_guest_script=$build_guest_conf/$(basename "$build_script")
-    build_rsmanifest=/.rsmanifest.json
+    build_rsmanifest=/rsmanifest.json
     build_msg "Conf: $build_host_conf"
     build_msg "Build: $build_dir"
 }

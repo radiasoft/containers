@@ -1,5 +1,5 @@
 #!/bin/bash
-codes_dependencies mpi4py Forthon pygist openPMD
+codes_dependencies common mpi4py Forthon pygist openPMD
 # May only be needed for diags in warp init warp_script.py
 pip install python-dateutil
 prev_pwd=$PWD

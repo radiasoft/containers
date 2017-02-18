@@ -100,16 +100,19 @@ codes_download() {
             codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz"
             ;;
     esac
-    if [[ -n $(type -t pkyern) ]]; then
-        # If
+    set -x
+    pyenv version
+    env
+    if [[ -n $(type -t pykern) ]]; then
         local venv=
         if [[ -n $(find . -name \*.py) ]]; then
             venv=( $(pyenv version) )
             venv=${venv[0]}
         fi
         pykern rsmanifest add_code --virtual-env="$venv" \
-            "${package:-${manifest[0]}" "${version:-${manifest[1]}}" "$repo" "$(pwd)"
+            "${package:-${manifest[0]}}" "${version:-${manifest[1]}}" "$repo" "$(pwd)"
     fi
+    set +x
     return 0
 }
 
@@ -128,7 +131,7 @@ codes_install() {
     local prev=$(pwd)
     local dir=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
     rm -rf "$dir"
-    mkdir "$dir"
+    mkdir -p "$dir"
     if [[ ! -f $sh ]]; then
         # Might be passed as 'genesis', 'genesis.sh', 'codes/genesis.sh', or
         # (some special name) 'foo/bar/code1.sh'
