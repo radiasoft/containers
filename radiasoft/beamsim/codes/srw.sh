@@ -7,7 +7,7 @@ codes_patch_requirements_txt
 python setup.py install
 # ochubar/SRW is over 600MB so GitHub times out sometimes. This is a
 # stripped down copy
-codes_download SRW-light
+codes_download SRW-light '' SRW
 perl -pi -e 's/-j8//' Makefile
 perl -pi -e "s/'fftw'/'sfftw'/" cpp/py/setup.py
 perl -pi -e 's/-lfftw/-lsfftw/; s/\bcc\b/gcc/; s/\bc\+\+/g++/' cpp/gcc/Makefile

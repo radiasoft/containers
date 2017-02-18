@@ -57,30 +57,23 @@
 #     chmod 444 tables-2.1.2.tar.gz
 #     perl -pi -e 's{https://compacc.fnal.gov/projects/attachments/download/20}{https://depot.radiasoft.org/foss}' packages/pytables_pkg.py
 #
-# The "git clone --depth 1" doesn't work in this case:
-#     fatal: dumb http transport does not support --depth
-
 # h5py also installs hdf5 RPMs, which is what's needed (see above)
 codes_dependencies mpi4py
-
-ORIG_GIT='http://cdcvs.fnal.gov/projects'
-REPLACE_GIT='http://depot.radiasoft.org/foss/synergia'
-
-patch_synergia_git() {
-    local dir_path=$1
-    grep -Rl "$ORIG_GIT" $dir_path | xargs sed -i -e "s|$ORIG_GIT|$REPLACE_GIT|g" 
-}
-
 codes_yum install flex cmake eigen3-devel glib2-devel
 pip install pyparsing nose
-git clone -q http://depot.radiasoft.org/foss/synergia/contract-synergia2
-cd contract-synergia2
-git checkout -b devel origin/devel
-patch_synergia_git .
-./bootstrap
 
-# declare as function so can use local vars
-synergia_configure() {
+synergia_bootstrap() {
+    local fnal=http://cdcvs.fnal.gov/projects
+    local radiasoft=http://depot.radiasoft.org/foss/synergia
+    # "git clone --depth 1" doesn't work in some case
+    #     fatal: dumb http transport does not support --depth
+    # so if you don't pass a commit to codes_download, you'll see this error.
+    codes_download "$radiasoft"/contract-synergia2 origin/devel
+    fgrep -Rl "$fnal" . | xargs perl -pi -e "s{\\Q$fnal}{$radiasoft}g"
+    ./bootstrap
+}
+
+synergia_contractor() {
     # Turn off parallel make
     local f
     local -a x=()
@@ -108,11 +101,8 @@ synergia_configure() {
         fi
     fi
     ./contract.py --configure "${x[@]}"
+    ./contract.py
 }
-synergia_configure
-unset -f synergia_configure
-
-./contract.py
 
 synergia_install() {
     # openmpi should be added automatically (/etc/ld.so.conf.d), but there's
@@ -133,10 +123,9 @@ synergia_install() {
     )
     return $?
 }
-synergia_install
-unset -f synergia_install
 
-cat > ~/.pyenv/pyenv.d/exec/rs-beamsim-synergia.bash <<'EOF'
+synergia_pyenv_exec() {
+    cat > ~/.pyenv/pyenv.d/exec/rs-beamsim-synergia.bash <<'EOF'
 #!/bin/bash
 #
 # Synergia needs these special paths to work.
@@ -145,3 +134,9 @@ export SYNERGIA2DIR=$(pyenv prefix)/lib/synergia
 export LD_LIBRARY_PATH=$SYNERGIA2DIR:/usr/lib64/openmpi/lib
 export PYTHONPATH=$SYNERGIA2DIR
 EOF
+}
+
+synergia_bootstrap
+synergia_contractor
+synergia_install
+synergia_pyenv_exec

@@ -37,7 +37,9 @@ codes_dependencies() {
 codes_download() {
     # If download is an rpm, also installs
     local repo=$1
-    local commit=$2
+    local qualifier=$2
+    local package=$3
+    local version=$4
     if [[ ! $repo =~ / ]]; then
         repo=radiasoft/$repo
     fi
@@ -48,41 +50,72 @@ codes_download() {
     case $repo in
         *.git)
             local d=$(basename "$repo" .git)
-            if [[ $commit ]]; then
+            if [[ $qualifier ]]; then
+                # Don't pass --depth in this case for a couple of reasons:
+                # 1) we don't know where the commit is; 2) It might be a simple http
+                # transport (synergia.sh) which doesn't support git
                 git clone -q "$repo"
                 cd "$d"
-                git checkout "$commit"
+                git checkout "$qualifier"
             else
                 git clone -q --depth 1 "$repo"
                 cd "$d"
             fi
+            local manifest=(
+                "$d"
+                "$(git rev-parse HEAD)"
+            )
             ;;
         *.tar\.gz)
             local b=$(basename "$repo" .tar.gz)
+            local d=${qualifier:-$b}
             local t=tarball-$RANDOM
             codes_curl -o "$t" "$repo"
             tar xzf "$t"
             rm -f "$t"
-            # It may unpack into a different directory (genesis does)
-            if [[ -d $b ]]; then
-                cd "$b"
+            cd "$d"
+            if [[ ! $b =~ ^(.+)-([[:digit:]].+)$ ]]; then
+                codes_err "$repo: basename does not match version regex"
             fi
+            local manifest=(
+                "${BASH_REMATCH[1]}"
+                "${BASH_REMATCH[2]}"
+            )
             ;;
         *.rpm)
             local b=$(basename "$repo")
+            local n="${b//-*/}"
             # FRAGILE: works for current set of RPMs
-            if rpm --quiet -q "${b//-*/}"; then
+            if rpm --quiet -q "$n"; then
                 echo "$b already installed"
             else
                 codes_yum install "$repo"
             fi
+            local manifest=(
+                "$(rpm -q --queryformat '%{NAME}' "$n")"
+                "$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' "$n")"
+            )
             ;;
         *)
-            codes_msg "$repo: unknown repository format; must end in .git, .rpm, .tar.gz"
-            return 1
+            codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz"
             ;;
     esac
+    if [[ -n $(type -t pkyern) ]]; then
+        # If
+        local venv=
+        if [[ -n $(find . -name \*.py) ]]; then
+            venv=( $(pyenv version) )
+            venv=${venv[0]}
+        fi
+        pykern rsmanifest add_code --virtual-env="$venv" \
+            "${package:-${manifest[0]}" "${version:-${manifest[1]}}" "$repo" "$(pwd)"
+    fi
     return 0
+}
+
+codes_err() {
+    codes_msg "$@"
+    return 1
 }
 
 codes_install() {
@@ -93,7 +126,7 @@ codes_install() {
     fi
     codes_installed[$module]=1
     local prev=$(pwd)
-    local dir=${TMPDIR:-/var/tmp}/codes-$module-$UID-$RANDOM
+    local dir=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
     rm -rf "$dir"
     mkdir "$dir"
     if [[ ! -f $sh ]]; then
@@ -106,7 +139,6 @@ codes_install() {
     cd "$dir"
     . "$sh"
     cd "$prev"
-    rm -rf "$dir"
 }
 
 codes_install_loop() {
@@ -147,13 +179,11 @@ if [[ $0 == ${BASH_SOURCE[0]} ]]; then
     # Run independently from the shell
     if [[ ! $(cat /etc/fedora-release 2>/dev/null) =~ release.21 ]]; then
         codes_msg 'Only Fedora 21 is supported at this time'
-        exit 1
     fi
     # make sure pyenv loaded
     if [[ $(type -t pyenv) != function ]]; then
         if [[ ! $(type -f pyenv 2>/dev/null) =~ /bin/pyenv$ ]]; then
-            codes_msg 'ERROR: You must have pyenv in your path'
-            exit 1
+            codes_err 'ERROR: You must have pyenv in your path'
         fi
         eval "$(pyenv init -)"
         eval "$(pyenv virtualenv-init -)"
