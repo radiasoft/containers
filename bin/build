@@ -458,7 +458,6 @@ build_travis_main() {
     export build_push=1
     export build_batch_mode=1
     build_main "$@"
-    echo PASSED
 }
 
 build_yum() {
