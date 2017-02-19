@@ -210,6 +210,29 @@ build_main() {
 }
 
 build_main_args() {
+    build_type=$1
+    local d=$(pwd)
+    build_script=$d/src/build.sh
+    if ! [[ -f $build_script ]]; then
+        build_main_args_legacy "$@"
+        return
+    fi
+    if ! [[ $(basename "$d") =~ ^container-([-_[:alnum:]]+)$ ]]; then
+        build_err 'must be run from a repo called container-<name>'
+    fi
+    local b=${BASH_REMATCH[1]}
+    local o=$(basename "$(dirname "$d")")
+    build_image_name=$o/$b
+    build_host_conf=$(cd "$(dirname "$build_script")"; pwd)
+    if [[ -z $build_type ]]; then
+        build_type=docker
+    elif [[ ! $build_type =~ ^(vagrant|docker)$ ]]; then
+        build_err 'usage: build [vagrant|docker (default)]'
+    fi
+    . "$(dirname "$0")/build-$build_type.sh"
+}
+
+build_main_args_legacy() {
     build_image_name=$2
     case "$1" in
         vagrant|docker)
@@ -219,11 +242,10 @@ build_main_args() {
             build_err 'usage: bin/build (vagrant|docker) image/name'
             ;;
     esac
-    if ! [[ $build_image_name =~ ^([-_[:alnum:]]+)/([-_[:alnum:]]+)$ ]]; then
+    if ! [[ $build_image_name =~ ^[-_[:alnum:]]+/[-_[:alnum:]]+$ ]]; then
         build_err "$build_image_name: invalid or missing image/name directory"
     fi
-    build_image_name_as_file=${BASH_REMATCH[1]}-${BASH_REMATCH[2]}
-    build_script=$build_image_name/build.sh
+    build_script=./$build_image_name/build.sh
     if [[ ! -f $build_script ]]; then
         build_err "$build_script: missing config file in current directory."
     fi
@@ -240,7 +262,7 @@ build_main_init() {
     build_run_uid=1000
     build_run_dir=/$build_run_user
     build_simply=
-    . "./$build_script"
+    . "$build_script"
     if [[ $(type -t build_script_host_init) == 'function' ]]; then
         build_script_host_init
     fi
@@ -267,7 +289,7 @@ $build_image_add $build_image_base"
     # Must be /var/tmp, because directory contains .vagrant info and
     # a reboot will delete $TMPDIR on Macs or /tmp on linux so
     # vagrant info is no longer there and hard to clean up.
-    build_dir=/var/tmp/$build_image_name_as_file-$build_version
+    build_dir=/var/tmp/containers-$build_version-$RANDOM
     build_guest_conf=/rsconf
     build_guest_script=$build_guest_conf/$(basename "$build_script")
     build_rsmanifest=/rsmanifest.json
