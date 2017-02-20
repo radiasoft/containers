@@ -12,14 +12,12 @@ The best way to install is to use our
 
 The follow container images are available:
 
-* [radiasoft/beamsim](https://github.com/radiasoft/containers/tree/master/radiasoft/beamsim)
+* [radiasoft/beamsim](https://github.com/radiasoft/container-beamsim)
   is a physics image for particle accelerator and free electron laser (FEL) simulations.
-* [radiasoft/beamsim-jupyter](https://github.com/radiasoft/containers/tree/master/radiasoft/beamsim-jupyter)
+* [radiasoft/beamsim-jupyter](https://github.com/radiasoft/container-beamsim-jupyter)
   is a Jupyter/IPython notebook server for beamsim.
-* [radiasoft/python2](https://github.com/radiasoft/containers/tree/master/radiasoft/python2)
+* [radiasoft/python2](https://github.com/radiasoft/containers-python2)
   is a basic Python2 (currently 2.7.10) pyenv with matplotlib and numpy.
-* [radiasoft/radtrack](https://github.com/radiasoft/containers/tree/master/radiasoft/radtrack)
-  is an desktop to simplify the execution of accelerator codes
 * [radiasoft/sirepo](https://github.com/radiasoft/containers/tree/master/radiasoft/sirepo)
   is an web application to simplify the execution of scientific codes.
 
