@@ -471,6 +471,7 @@ build_yum() {
 
 # Needed for migration from radiasoft/sirepo/travis.sh
 if [[ $TRAVIS == true && $2 != radiasoft/sirepo ]]; then
+    export build_passenv="TRAVIS $build_passenv"
     build_travis_main "$@"
 else
     build_main "$@"
