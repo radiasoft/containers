@@ -57,13 +57,14 @@ build_travis_trigger_next() {
     fi
     local r
     for r in "${build_travis_trigger_next[@]}"; do
+        build_msg "Travis Trigger: $r"
         local out=$(curl -s -S -X POST \
              -H 'Content-Type: application/json' \
              -H 'Accept: application/json' \
              -H 'Travis-API-Version: 3' \
              -H "Authorization: token $RADIASOFT_TRAVIS_TOKEN" \
              -d '{"request": {"branch":"master"}}' \
-             "https://api.travis-ci.org/repo/$r/requests" 2>&1 || true
+             "https://api.travis-ci.org/repo/${r/\//%2F}/requests" 2>&1 || true
         )
         if [[ ! $out =~ type.*pending ]]; then
             build_err "$r: travis trigger failed: $out"
