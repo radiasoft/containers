@@ -217,10 +217,10 @@ build_main_args() {
         build_main_args_legacy "$@"
         return
     fi
-    if ! [[ $(basename "$d") =~ ^container-([-_[:alnum:]]+)$ ]]; then
-        build_err 'must be run from a repo called container-<name>'
+    local b=$(basename "$d")
+    if [[ $b =~ ^container-([-_[:alnum:]]+)$ ]]; then
+        b=${BASH_REMATCH[1]}
     fi
-    local b=${BASH_REMATCH[1]}
     local o=$(basename "$(dirname "$d")")
     build_image_name=$o/$b
     build_host_conf=$(cd "$(dirname "$build_script")"; pwd)
