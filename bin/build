@@ -441,41 +441,6 @@ build_sudo_remove() {
     fi
 }
 
-build_travis_main() {
-    if [[ $TRAVIS_BRANCH != master && $TRAVIS_EVENT_TYPE != push ]]; then
-        build_msg 'Not a master push so skipping'
-        return
-    fi
-    if [[ -z $RADIASOFT_DOCKER_LOGIN ]]; then
-        build_err 'RADIASOFT_DOCKER_LOGIN must be defined'
-    fi
-    (
-        umask 077
-        mkdir ~/.docker
-        # Avoid echoing in log if set -x
-        perl -e 'print($ENV{"RADIASOFT_DOCKER_LOGIN"})' > ~/.docker/config.json
-    )
-    export build_push=1
-    export build_batch_mode=1
-    build_main "$@"
-    if [[ $build_travis_trigger_next && $RADIASOFT_TRAVIS_TOKEN ]]; then
-        local r
-        for r in "${build_travis_trigger_next[@]}"; do
-            local out=$(curl -s -S -X POST \
-                 -H 'Content-Type: application/json' \
-                 -H 'Accept: application/json' \
-                 -H 'Travis-API-Version: 3' \
-                 -H "Authorization: token $RADIASOFT_TRAVIS_TOKEN" \
-                 -d '{"request": {"branch":"master"}}' \
-                 "https://api.travis-ci.org/repo/$r/requests" 2>&1 || true
-            )
-            if [[ ! $out =~ type.*pending ]]; then
-                build_err "$r: travis trigger failed: $out"
-            fi
-        done
-    fi
-}
-
 build_yum() {
     local cmd=yum
     if [[ $(type -t dnf) ]]; then
@@ -485,9 +450,8 @@ build_yum() {
     build_sudo "$cmd" --color=never -y -q "$@"
 }
 
-# Needed for migration from radiasoft/sirepo/travis.sh
-if [[ $TRAVIS == true && $2 != radiasoft/sirepo ]]; then
-    export build_passenv="TRAVIS $build_passenv"
+if [[ $TRAVIS == true ]]; then
+    . "$(dirname "$0")/build-travis.sh"
     build_travis_main "$@"
 else
     build_main "$@"
