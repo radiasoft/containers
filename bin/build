@@ -212,7 +212,7 @@ build_main() {
 build_main_args() {
     build_type=$1
     local d=$(pwd)
-    build_script=$d/src/build.sh
+    build_script=$d/container-conf/build.sh
     if ! [[ -f $build_script ]]; then
         build_main_args_legacy "$@"
         return
