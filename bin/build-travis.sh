@@ -56,7 +56,15 @@ build_travis_trigger_next() {
         return
     fi
     local r
+    local sleep
     for r in "${build_travis_trigger_next[@]}"; do
+        # Try to keep the order of the builds the same as in the list
+        # Travis will get out of order if requests come in too quickly
+        if [[ $sleep ]]; then
+            sleep "$sleep"
+        else
+            sleep=15
+        fi
         if [[ ! $r =~ / ]]; then
             r=radiasoft/container-$r
         fi
