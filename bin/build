@@ -458,6 +458,18 @@ build_travis_main() {
     export build_push=1
     export build_batch_mode=1
     build_main "$@"
+    if [[ $build_travis_trigger_next && $RADIASOFT_TRAVIS_TOKEN ]]; then
+        local r
+        for r in "${build_travis_trigger_next[@]}"; do
+            curl -s -X POST \
+                 -H 'Content-Type: application/json' \
+                 -H 'Accept: application/json' \
+                 -H 'Travis-API-Version: 3' \
+                 -H "Authorization: token $RADIASOFT_TRAVIS_TOKEN" \
+                 -d '{"request": {"branch":"master"}}' \
+                 "https://api.travis-ci.org/repo/$r/requests"
+        done
+    fi
 }
 
 build_yum() {
