@@ -58,7 +58,7 @@ build_travis_trigger_next() {
     local r
     for r in "${build_travis_trigger_next[@]}"; do
         if [[ ! $r =~ / ]]; then
-            r=radiasoft/$r
+            r=radiasoft/container-$r
         fi
         build_msg "Travis Trigger: $r"
         local out=$(curl -s -S -X POST \
