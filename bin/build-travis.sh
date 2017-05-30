@@ -15,7 +15,14 @@ build_travis_main() {
     build_travis_setup_pypi
     export build_passenv="TRAVIS $build_passenv"
     export $build_passenv
+    local noise_pid
+    while true; do
+        echo "$(date): some noise for travis"
+        sleep 60
+    done &
+    noise_pid=$!
     build_main "$@"
+    kill -9 "$noise_pid"
     build_travis_trigger_next
 }
 
