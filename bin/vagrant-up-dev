@@ -13,7 +13,7 @@ boot_and_install() {
         | bash -s "
     set -e;
     cd;
-    tar xf /vagrant/$rcfiles_tar;
+    tar xpf /vagrant/$rcfiles_tar;
     echo Cloning pykern and sirepo
     mkdir -p ~/src/radiasoft;
     cd ~/src/radiasoft;
@@ -32,12 +32,17 @@ check_rcfiles() {
     local f
     local -a rcfiles
     for f in \
+        ~/.asciinema \
+        ~/.aws \
         ~/.docker \
         ~/.emacs.d/lisp \
         ~/.gitconfig \
+        ~/.gnupg \
         ~/.hgrc \
         ~/.netrc \
         ~/.pypirc \
+        ~/.ssh/id_rsa \
+        ~/.ssh/id_rsa.pub \
         ~/.{post,pre}_bivio_bashrc \
         ~/bconf.d \
     ; do
