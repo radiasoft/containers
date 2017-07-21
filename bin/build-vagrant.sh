@@ -60,7 +60,7 @@ to:
 
 Then, go to:
 
-    $build_vagrant_atlas_uri/new
+    $build_vagrant_cloud_uri/new
 
 Enter the version:
 
@@ -80,15 +80,15 @@ Click "Create new provider". Select the provider:
 
     virtualbox
 
-Select "URL" and fill "HTTP URL"
+Select "External URL" and fill "URL" with:
 
     $uri
 
 Click "Create provider".
 
-Click "Edit" to the left of "v$build_version" button:
+Click "Release" to the right of "v$build_version" string:
 
-    $build_image_registry_uri/edit
+    $build_image_uri/edit
 
 Click "Release version"
 
@@ -103,8 +103,8 @@ build_image_clean() {
     local -a x=( ${build_image_name//\// } )
     build_vagrant_org=${x[0]}
     build_vagrant_repo=${x[1]}
-    build_vagrant_atlas_uri=https://atlas.hashicorp.com/$build_vagrant_org/boxes/$build_vagrant_repo/versions
-    build_image_uri=$build_vagrant_atlas_uri/$build_version
+    build_vagrant_cloud_uri=https://app.vagrantup.com/$build_vagrant_org/boxes/$build_vagrant_repo/versions
+    build_image_uri=$build_vagrant_cloud_uri/$build_version
     if ! build_image_exists "$build_image_name"; then
         return 0
     fi
@@ -184,6 +184,6 @@ build_vagrant_version() {
     mv "$dir/0" "$dir/$version"
     local meta=$dir/metadata_url
     if [[ ! -f $meta ]]; then
-        echo -n "https://atlas.hashicorp.com/$image" > "$meta"
+        echo -n "https://app.vagrantup.com/$image" > "$meta"
     fi
 }
