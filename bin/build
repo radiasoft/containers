@@ -311,6 +311,8 @@ build_main_conf_dir() {
             declare -p "$f"
         done
         cat <<EOF
+export install_server=$install_server
+export install_channel=$install_channel
 . "$build_guest_script"
 build_run
 EOF

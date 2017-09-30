@@ -27,7 +27,17 @@ RUN "$build_run"
 $cmd
 $build_dockerfile_aux
 EOF
-    docker build --rm=true --tag="$build_docker_tag" .
+    # the tee avoids docker's term escape codes
+#tee doesn't work
+    local flags=()
+    #TODO(robnagler) Really want to check for
+    #   IPv4 forwarding is disabled. Networking will not work.
+    # However, this doesn't work on older versions, since it prints something
+    # similar even when forwarding is disabled.
+    if docker build --help 2>&1 | fgrep -q -s -- --network; then
+        flags+=( --network=host )
+    fi
+    docker build "${flags[@]}" --rm=true --tag="$build_docker_tag" .
     # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version.
     local channels=( latest dev alpha )
@@ -53,7 +63,8 @@ EOF
     if [[ -n $build_push ]]; then
         for t in "${tags[@]}"; do
             echo "Pushing: $t"
-            docker push "$t"
+            # the tee avoids docker's term escape codes
+            docker push "$t" | tee
         done
     else
         cat <<EOF
