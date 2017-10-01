@@ -313,6 +313,8 @@ build_main_conf_dir() {
         cat <<EOF
 export install_server=$install_server
 export install_channel=$install_channel
+export install_debug=${install_debug:-$build_debug}
+export install_verbose=${install_verbose:-$build_debug}
 . "$build_guest_script"
 build_run
 EOF
