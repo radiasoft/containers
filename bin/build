@@ -217,12 +217,14 @@ build_main_args() {
         build_main_args_legacy "$@"
         return
     fi
-    local b=$(basename "$d")
-    if [[ $b =~ ^container-([-_[:alnum:]]+)$ ]]; then
-        b=${BASH_REMATCH[1]}
+    if [[ ! $build_image_name ]]; then
+        local b=$(basename "$d")
+        if [[ $b =~ ^container-([-_[:alnum:]]+)$ ]]; then
+            b=${BASH_REMATCH[1]}
+        fi
+        local o=$(basename "$(dirname "$d")")
+        build_image_name=$o/$b
     fi
-    local o=$(basename "$(dirname "$d")")
-    build_image_name=$o/$b
     build_host_conf=$(cd "$(dirname "$build_script")"; pwd)
     if [[ -z $build_type ]]; then
         build_type=docker

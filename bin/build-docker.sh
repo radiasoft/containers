@@ -70,7 +70,7 @@ EOF
         cat <<EOF
 To run it, you can then:
 
-    docker run --rm -i -t '$build_docker_tag'
+    docker run --rm -it ${flags[*]} '$build_docker_tag'
 
 After some testing, push the alpha channel:
 
