@@ -290,7 +290,7 @@ $build_image_add $build_image_base"
     # a reboot will delete $TMPDIR on Macs or /tmp on linux so
     # vagrant info is no longer there and hard to clean up.
     build_dir=/var/tmp/containers-$build_version-$RANDOM
-    build_guest_conf=/rsconf
+    build_guest_conf=/rscontainers
     build_guest_script=$build_guest_conf/$(basename "$build_script")
     build_rsmanifest=/rsmanifest.json
     build_msg "Conf: $build_host_conf"
@@ -375,8 +375,9 @@ build_run() {
         build_fedora_clean
     fi
     cd /
-
-    if [[ -z ${build_debug+x} ]]; then
+    if [[ $build_debug ]]; then
+        mv -f "$build_guest_conf" "$build_guest_conf-$(date +%Y%m%d%H%M%S)"
+    else
         rm -rf "$build_guest_conf"
     fi
 }
