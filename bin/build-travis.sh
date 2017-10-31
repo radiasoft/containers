@@ -55,6 +55,9 @@ build_travis_setup_pypi() {
 }
 
 build_travis_trigger_next() {
+    if [[ $@ ]]; then
+        build_travis_trigger_next=( "$@" )
+    fi
     if ! [[ $build_travis_trigger_next && $RADIASOFT_TRAVIS_TOKEN ]]; then
         return
     fi
@@ -72,12 +75,16 @@ build_travis_trigger_next() {
             r=radiasoft/container-$r
         fi
         build_msg "Travis Trigger: $r"
+        local m=''
+        if [[ $TRAVIS_REPO_SLUG && $TRAVIS_COMMIT ]]; then
+            m=$(printf ',"message":"trigger %s@%s"' "$TRAVIS_REPO_SLUG" "$TRAVIS_COMMIT")
+        fi
         local out=$(curl -s -S -X POST \
              -H 'Content-Type: application/json' \
              -H 'Accept: application/json' \
              -H 'Travis-API-Version: 3' \
              -H "Authorization: token $RADIASOFT_TRAVIS_TOKEN" \
-             -d '{"request": {"branch":"master"}}' \
+             -d "$(printf '{"request": {"branch":"master"%s}}' "$m")" \
              "https://api.travis-ci.org/repo/${r/\//%2F}/requests" 2>&1 || true
         )
         if [[ ! $out =~ type.*pending ]]; then
