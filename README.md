@@ -43,8 +43,8 @@ simulation codes it installs. All codes are documented in
 To build docker image, clone the appropriate container repo and run:
 
 ```bash
-git clone https://github.com/radiasoft/python2
-cd python2
+git clone https://github.com/radiasoft/container-python2
+cd container-python2
 curl radia.run | bash -s container-build
 ```
 

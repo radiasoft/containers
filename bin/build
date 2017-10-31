@@ -217,12 +217,14 @@ build_main_args() {
         build_main_args_legacy "$@"
         return
     fi
-    local b=$(basename "$d")
-    if [[ $b =~ ^container-([-_[:alnum:]]+)$ ]]; then
-        b=${BASH_REMATCH[1]}
+    if [[ ! $build_image_name ]]; then
+        local b=$(basename "$d")
+        if [[ $b =~ ^container-([-_[:alnum:]]+)$ ]]; then
+            b=${BASH_REMATCH[1]}
+        fi
+        local o=$(basename "$(dirname "$d")")
+        build_image_name=$o/$b
     fi
-    local o=$(basename "$(dirname "$d")")
-    build_image_name=$o/$b
     build_host_conf=$(cd "$(dirname "$build_script")"; pwd)
     if [[ -z $build_type ]]; then
         build_type=docker
@@ -290,7 +292,7 @@ $build_image_add $build_image_base"
     # a reboot will delete $TMPDIR on Macs or /tmp on linux so
     # vagrant info is no longer there and hard to clean up.
     build_dir=/var/tmp/containers-$build_version-$RANDOM
-    build_guest_conf=/rsconf
+    build_guest_conf=/rscontainers
     build_guest_script=$build_guest_conf/$(basename "$build_script")
     build_rsmanifest=/rsmanifest.json
     build_msg "Conf: $build_host_conf"
@@ -311,6 +313,10 @@ build_main_conf_dir() {
             declare -p "$f"
         done
         cat <<EOF
+export install_server=$install_server
+export install_channel=$install_channel
+export install_debug=${install_debug:-$build_debug}
+export install_verbose=${install_verbose:-$build_debug}
 . "$build_guest_script"
 build_run
 EOF
@@ -371,8 +377,9 @@ build_run() {
         build_fedora_clean
     fi
     cd /
-
-    if [[ -z ${build_debug+x} ]]; then
+    if [[ $build_debug ]]; then
+        mv -f "$build_guest_conf" "$build_guest_conf-$(date +%Y%m%d%H%M%S)"
+    else
         rm -rf "$build_guest_conf"
     fi
 }
