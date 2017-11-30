@@ -306,11 +306,8 @@ build_main_conf_dir() {
             declare -p "$f"
         done
         cat <<EOF
-unset install_script_dir
-export install_server=$install_server
-export install_channel=$install_channel
-export install_debug=${install_debug:-$build_debug}
-export install_verbose=${install_verbose:-$build_debug}
+set -e
+install_init_vars
 source "$build_guest_script"
 build_run
 EOF
