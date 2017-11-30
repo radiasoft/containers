@@ -299,10 +299,10 @@ build_main_conf_dir() {
     cp -a "$build_host_conf"/* .
     {
         echo '#!/bin/bash'
-        for f in $(compgen -A function | grep ^build_); do
+        for f in $(compgen -A function build_) $(compgen -A function install_); do
             declare -f "$f"
         done
-        for f in $(compgen -A variable | grep ^build_) $build_passenv; do
+        for f in $(compgen -A variable build_) $(compgen -A variable install_) $build_passenv; do
             declare -p "$f"
         done
         cat <<EOF

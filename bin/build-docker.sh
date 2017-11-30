@@ -8,9 +8,9 @@
 : ${build_image_add:='docker pull'}
 : ${build_dockerfile_aux:=}
 
-_build_docker_version_is_old=
+build_docker_version_is_old=
 if [[ $(docker --version | perl -n -e '/ (\d+\.\d+)/ && print $1') =~ ^1\.[0-9]$ ]]; then
-    _build_docker_version_is_old=1
+    build_docker_version_is_old=1
 fi
 
 build_clean_container() {
@@ -57,7 +57,7 @@ EOF
     local tags=()
     local c t r
     local force=
-    if [[ $_build_docker_version_is_old ]]; then
+    if [[ $build_docker_version_is_old ]]; then
         force=-f
     fi
     for r in "${build_is_public:+docker.io}" "$build_docker_registry"; do
@@ -101,7 +101,7 @@ EOF
 
 build_image_exists() {
     local img=$1
-    if [[ $_build_docker_version_is_old ]]; then
+    if [[ $build_docker_version_is_old ]]; then
         if [[ $build_docker_registry ]]; then
             build_err '$build_docker_registry not allowed in old version of Docker'
         fi
