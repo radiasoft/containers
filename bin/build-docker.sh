@@ -3,10 +3,15 @@
 # See ./build for usage
 #
 : ${build_docker_cmd:=/bin/bash}
+: ${build_is_public:=}
+: ${build_docker_registry:=}
 : ${build_image_add:='docker pull'}
 : ${build_dockerfile_aux:=}
 
-_docker_client_version=$(docker --version | perl -n -e '/ (\d+\.\d+)/ && print $1')
+_build_docker_version_is_old=
+if [[ $(docker --version | perl -n -e '/ (\d+\.\d+)/ && print $1') =~ ^1\.[0-9]$ ]]; then
+    _build_docker_version_is_old=1
+fi
 
 build_clean_container() {
     : nothing to do, because do not have container handle from build
@@ -18,8 +23,15 @@ build_image() {
     if [[ $build_docker_cmd ]]; then
         cmd="CMD $build_docker_cmd"
     fi
+    local bi=$build_image_base
+    if [[ $build_docker_registry ]]; then
+        local x=$build_docker_registry/$bi
+        if build_image_exists "$x"; then
+            bi=$x
+        fi
+    fi
     cat > Dockerfile <<EOF
-FROM $build_image_base
+FROM $bi
 MAINTAINER "$build_maintainer"
 ADD . $build_guest_conf
 RUN "$build_run"
@@ -37,28 +49,32 @@ EOF
     if docker build --help 2>&1 | fgrep -q -s -- --network; then
         flags+=( --network=host )
     fi
-    docker build "${flags[@]}" --rm=true --tag="$build_docker_tag" .
+    local tag=${build_docker_registry:-docker.io}/$build_image_name:$build_version
+    docker build "${flags[@]}" --rm=true --tag="$tag" .
     # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version.
-    local channels=( latest dev alpha )
-    local tags=( $build_docker_tag )
-    local push="docker push '$build_docker_tag'"
-    local c t
+    local channels=( "$build_version" latest dev alpha )
+    local tags=()
+    local c t r
     local force=
-    if [[ $_docker_client_version =~ ^1\.[0-9]$ ]]; then
+    if [[ $_build_docker_version_is_old ]]; then
         force=-f
     fi
-    for c in "${channels[@]}"; do
-        t=$build_image_name:$c
-        tags+=( $t )
-        docker tag $force "$build_docker_tag" "$t"
-        # Can't push multiple tags at once:
-        # https://github.com/docker/docker/issues/7336
-        push="$push; docker push '$t'"
+    for r in "${build_is_public:+docker.io}" "$build_docker_registry"; do
+        if [[ ! $r ]]; then
+            continue
+        fi
+        for c in "${channels[@]}"; do
+            t=$r/$build_image_name:$c
+            tags+=( $t )
+            if [[ $t != $tag ]]; then
+                docker tag $force "$tag" "$t"
+            fi
+        done
     done
     cat <<EOF
-Built: $build_docker_tag
-Channels: $build_version ${tags[*]}
+Built: $tag
+Channels: ${channels[*]}
 EOF
     if [[ -n $build_push ]]; then
         for t in "${tags[@]}"; do
@@ -67,10 +83,14 @@ EOF
             docker push "$t" | tee
         done
     else
+        local push=''
+        for t in "${tags[@]}"; do
+            push="$push${push:+; }docker push '$t'"
+        done
         cat <<EOF
 To run it, you can then:
 
-    docker run --rm -it ${flags[*]} '$build_docker_tag'
+    docker run --rm -it ${flags[*]} '$tag'
 
 After some testing, push the alpha channel:
 
@@ -79,29 +99,21 @@ EOF
     fi
 }
 
-build_image_clean() {
-    build_docker_tag=$build_image_name:$build_version
-    build_image_uri=https://registry.hub.docker.com/$build_docker_tag
-    if ! build_image_exists "$build_image_name"; then
-        return 0
-    fi
-    local images=$build_image_exists
-    local f=
-    # Remove any exited containers.
-    for f in $(docker ps -a --filter status=exited \
-            | perl -n -e "m{^(\w+)\s.*\s\Q$build_image_name\E[\s:]} && print(qq{\$1\n})"); do
-        docker rm "$f"
-    done
-    for f in $images; do
-        # OK if a image is running, will be cleaned up next build
-        docker rmi "$f" 2>/dev/null || true
-    done
-}
-
 build_image_exists() {
     local img=$1
-    build_image_exists=$(docker images -a | perl -ne "m{^${img/:/ +}\\b} && print((split)[2], qq{\\n})")
+    if [[ $_build_docker_version_is_old ]]; then
+        if [[ $build_docker_registry ]]; then
+            build_err '$build_docker_registry not allowed in old version of Docker'
+        fi
+        build_image_exists=$(docker images -a | perl -ne "m{^${img/:/ +}\\b} && print((split)[2], qq{\\n})")
+    else
+        build_image_exists=$(docker images -q "$img")
+    fi
     [[ -n $build_image_exists ]]
+}
+
+build_image_prep() {
+    build_image_uri=https://${build_docker_registry:-registry.hub.docker.com}/$build_image_name:$build_version
 }
 
 build_init_type() {

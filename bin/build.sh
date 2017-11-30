@@ -1,16 +1,16 @@
 #!/bin/bash
 #
-# Usage: bin/build (docker|vagrant) image/name
+# Usage: curl radia.run | bash -s containers [vagrant]
 #
-# image/name is a subdirectory of the current working directory.
+# Run from directory (repo) which has container-conf/build.sh
 #
-# You can provide a build_push=1 environment variable to
-# force the push to the registery (only works with docker).
-#
-# The script "build.sh" must reside in image/name, and define the following:
+# The script "build.sh" must define the following:
 #
 # $build_image_base - starting image name
 # build_as_run_user() - executed after above as $build_run_user
+#
+# You can provide a build_push=1 environment variable to
+# force the push to the registery (only works with docker).
 #
 # Optionally define:
 #
@@ -203,7 +203,7 @@ build_main() {
     trap build_err_trap EXIT
     build_main_args "$@"
     build_main_init
-    build_image_clean
+    build_image_prep
     build_main_conf_dir
     build_image
     build_clean
@@ -231,14 +231,14 @@ build_main_args() {
     elif [[ ! $build_type =~ ^(vagrant|docker)$ ]]; then
         build_err 'usage: build [vagrant|docker (default)]'
     fi
-    . "$(dirname "$0")/build-$build_type.sh"
+    install_script_eval "bin/build-$build_type.sh"
 }
 
 build_main_args_legacy() {
     build_image_name=$2
     case "$1" in
         vagrant|docker)
-            . "$(dirname "$0")/build-$1.sh"
+            install_script_eval "bin/build-$1.sh"
             ;;
         *)
             build_err 'usage: bin/build (vagrant|docker) image/name'
@@ -264,7 +264,7 @@ build_main_init() {
     build_run_uid=1000
     build_run_dir=/$build_run_user
     build_simply=
-    . "$build_script"
+    source "$build_script"
     if [[ $(type -t build_script_host_init) == 'function' ]]; then
         build_script_host_init
     fi
@@ -280,13 +280,6 @@ build_main_init() {
             build_err "$v(): function must be defined in $build_script"
         fi
     done
-    if ! build_image_exists "$build_image_base"; then
-        if [[ ! $build_batch_mode ]]; then
-            build_err "$build_image_base: image not found; Try:
-$build_image_add $build_image_base"
-        fi
-        $build_image_add "$build_image_base"
-    fi
     build_init
     # Must be /var/tmp, because directory contains .vagrant info and
     # a reboot will delete $TMPDIR on Macs or /tmp on linux so
@@ -317,7 +310,7 @@ export install_server=$install_server
 export install_channel=$install_channel
 export install_debug=${install_debug:-$build_debug}
 export install_verbose=${install_verbose:-$build_debug}
-. "$build_guest_script"
+source "$build_guest_script"
 build_run
 EOF
     } > build-run.sh
@@ -460,11 +453,11 @@ build_yum() {
 }
 
 if [[ $build_travis_trigger_only ]]; then
-    . "$(dirname "$0")/build-travis.sh"
-    build_travis_trigger_next "$@"
+    install_script_eval bin/build-travis.sh
+    build_travis_trigger_next "${install_extra_args[@]}"
 elif [[ $TRAVIS == true ]]; then
-    . "$(dirname "$0")/build-travis.sh"
-    build_travis_main "$@"
+    install_script_eval bin/build-travis.sh
+    build_travis_main "${install_extra_args[@]}"
 else
-    build_main "$@"
+    build_main "${install_extra_args[@]}"
 fi

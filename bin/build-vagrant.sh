@@ -99,29 +99,12 @@ Test on another machine:
 EOF
 }
 
-build_image_clean() {
+build_image_prep() {
     local -a x=( ${build_image_name//\// } )
     build_vagrant_org=${x[0]}
     build_vagrant_repo=${x[1]}
     build_vagrant_cloud_uri=https://app.vagrantup.com/$build_vagrant_org/boxes/$build_vagrant_repo/versions
     build_image_uri=$build_vagrant_cloud_uri/$build_version
-    if ! build_image_exists "$build_image_name"; then
-        return 0
-    fi
-    local v
-    for v in $(vagrant box list \
-        | perl -n -e "m{^$build_image_name"' .*,( [\d+\.]+)} && print($1)')
-    do
-        vagrant box remove --box-version "$v" "$build_image_name"
-    done
-}
-
-build_image_exists() {
-    local img=$1
-    if vagrant box list | grep -s -q "^$img "; then
-        return 0
-    fi
-    return 1
 }
 
 build_init_type() {
