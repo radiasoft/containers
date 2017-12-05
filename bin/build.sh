@@ -449,8 +449,9 @@ build_yum() {
     local cmd=yum
     if [[ $(type -t dnf) ]]; then
         cmd=dnf
+    else
+        build_sudo rpm --rebuilddb --quiet
     fi
-    build_sudo rpm --rebuilddb --quiet
     build_msg "$cmd $@"
     build_sudo "$cmd" --color=never -y -q "$@"
     if [[ -n $(type -p package-cleanup) ]]; then
