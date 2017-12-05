@@ -139,21 +139,24 @@ build_fedora_clean() {
     rm -rf /var/tmp/* /tmp/*
     # Doc
     rm -rf /usr/share/{man,info}
-    # Localesare huge (+100MB) so compress. http://unix.stackexchange.com/a/90016
-    # Recreate with just what we need
-    rm -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
-    localedef -c -i en_US -f UTF-8 en_US
-    localedef -c -i en_US -f ISO-8859-1 en_US.iso88591
-    localedef -c -i en_US -f ISO-8859-15 en_US.iso885915
-    # Work around a bug in CentOS 6 or Docker 1.7 that doesn't deal with
-    # files with holes correctly.
-    dd if=/usr/lib/locale/locale-archive of=/usr/lib/locale/locale-archive-
-    mv /usr/lib/locale/locale-archive- /usr/lib/locale/locale-archive
-    chmod 644 /usr/lib/locale/locale-archive
-    #TODO(robnagler) these should be included
-    #find /usr/share/i18n/locales -type f ! -name en\* | xargs rm -rf
-    #find /usr/share/i18n/charmaps -type f ! -name ISO-8859\* ! -name UTF\* | xargs rm -rf
-    #find /usr/share/locale ! -name locale -type d -prune ! -name en\* | xargs rm -rf
+    if [[ -e /usr/lib/locale/locale-archive ]]; then
+        # Only for systems which have locale-archive. Fedora 25 does not.
+        # Locales are huge (+100MB) so compress. http://unix.stackexchange.com/a/90016
+        # Recreate with just what we need
+        rm -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
+        localedef -c -i en_US -f UTF-8 en_US
+        localedef -c -i en_US -f ISO-8859-1 en_US.iso88591
+        localedef -c -i en_US -f ISO-8859-15 en_US.iso885915
+        # Work around a bug in CentOS 6 or Docker 1.7 that doesn't deal with
+        # files with holes correctly.
+        dd if=/usr/lib/locale/locale-archive of=/usr/lib/locale/locale-archive-
+        mv /usr/lib/locale/locale-archive- /usr/lib/locale/locale-archive
+        chmod 644 /usr/lib/locale/locale-archive
+        #TODO(robnagler) these should be included
+        #find /usr/share/i18n/locales -type f ! -name en\* | xargs rm -rf
+        #find /usr/share/i18n/charmaps -type f ! -name ISO-8859\* ! -name UTF\* | xargs rm -rf
+        #find /usr/share/locale ! -name locale -type d -prune ! -name en\* | xargs rm -rf
+    fi
     # This should recreate the archive, but there are missing charmaps and such
     # User (vagrant) caches and junk
     rm -rf /home/*/.{cache,tox,python-eggs,*.old,Xauthority}
