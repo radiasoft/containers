@@ -454,7 +454,7 @@ build_yum() {
     fi
     build_msg "$cmd $@"
     build_sudo "$cmd" --color=never -y -q "$@"
-    if [[ -n $(type -p package-cleanup) ]]; then
+    if [[ $cmd = yum && -n $(type -p package-cleanup) ]]; then
         build_sudo package-cleanup --cleandupes
     fi
 }
