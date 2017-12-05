@@ -453,6 +453,9 @@ build_yum() {
     build_sudo rpm --rebuilddb --quiet
     build_msg "$cmd $@"
     build_sudo "$cmd" --color=never -y -q "$@"
+    if [[ -n $(type -p package-cleanup) ]]; then
+        build_sudo package-cleanup --cleandupes
+    fi
 }
 
 if [[ $build_travis_trigger_only ]]; then
