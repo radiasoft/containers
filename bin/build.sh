@@ -188,7 +188,10 @@ build_home_env() {
             echo 'export TERM=dumb' > ~/.pre_bivio_bashrc
         fi
     fi
+    # Can't trust bashrc files to be properly written
+    set +e
     . ~/.bashrc
+    set -e
 }
 
 build_init() {
