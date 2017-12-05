@@ -193,6 +193,9 @@ build_home_env() {
 
 build_init() {
     set -e -o pipefail
+    if [[ $install_debug ]]; then
+        build_debug=1
+    fi
     if [[ $build_debug ]]; then
         set -x
     fi
