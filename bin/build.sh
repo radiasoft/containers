@@ -174,7 +174,10 @@ build_fedora_patch() {
 }
 
 build_home_env() {
-    if [[ ! -d ~/src/biviosoftware/home-env ]]; then
+    local update=~/bin/_bivio_home_env_update
+    if [[ -x $update ]]; then
+        "$update" -f
+    else
         # Needs to be two lines to catch error on retrieval; bash doesn't complain
         # if an empty file ("false | bash" is true).
         # Root downloads but user and vagrant execute so need to download
@@ -188,7 +191,7 @@ build_home_env() {
             echo 'export TERM=dumb' > ~/.pre_bivio_bashrc
         fi
     fi
-    # Can't trust bashrc files to be properly written
+    # Can't trust /etc/{bash,profile}* files to work in -e mode
     set +e
     . ~/.bashrc
     set -e
