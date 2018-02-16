@@ -176,6 +176,10 @@ build_fedora_patch() {
 build_home_env() {
     local update=~/bin/_bivio_home_env_update
     if [[ -x $update ]]; then
+        # Need proper environment for update
+        set +e
+        . ~/.bashrc
+        set -e
         "$update" -f
     else
         # Needs to be two lines to catch error on retrieval; bash doesn't complain
