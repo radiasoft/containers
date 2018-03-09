@@ -192,7 +192,7 @@ build_home_env() {
         fi
         bash "$x"
         if [[ $build_is_docker ]]; then
-            echo 'export TERM=dumb' > ~/.pre_bivio_bashrc
+            echo 'export TERM=dumb' >> ~/.pre_bivio_bashrc
         fi
     fi
     # Can't trust /etc/{bash,profile}* files to work in -e mode
