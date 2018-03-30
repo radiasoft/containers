@@ -60,6 +60,8 @@ EOF
     if [[ $build_docker_version_is_old ]]; then
         force=-f
     fi
+    # always tag latest
+    docker tag $force "$tag" "${tag/$build_version/latest}"
     for r in "${build_is_public:+docker.io}" "$build_docker_registry"; do
         if [[ ! $r ]]; then
             continue
