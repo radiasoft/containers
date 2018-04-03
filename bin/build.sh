@@ -1,8 +1,12 @@
 #!/bin/bash
 #
-# Usage: curl radia.run | bash -s containers [vagrant]
-#
 # Run from directory (repo) which has container-conf/build.sh
+#
+# cd ~/src/radiasoft/container-<name>
+#
+#     curl radia.run | bash -s containers [vagrant]
+# or
+#     install_server=file://$HOME/src bash ~/src/radiasoft/download/bin/install.sh container-build
 #
 # The script "build.sh" must define the following:
 #
