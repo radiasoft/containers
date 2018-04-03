@@ -230,7 +230,7 @@ build_main() {
 }
 
 build_main_args() {
-    build_type=$1
+    build_type=${1:-}
     local d=$(pwd)
     build_script=$d/container-conf/build.sh
     if ! [[ -f $build_script ]]; then
@@ -255,13 +255,13 @@ build_main_args() {
 }
 
 build_main_args_legacy() {
-    build_image_name=$2
-    case "$1" in
+    build_image_name=${2:-}
+    case "${1:-}" in
         vagrant|docker)
             install_script_eval "bin/build-$1.sh"
             ;;
         *)
-            build_err 'usage: bin/build (vagrant|docker) image/name'
+            build_err 'usage: bin/build [vagrant|docker (default)]'
             ;;
     esac
     if ! [[ $build_image_name =~ ^[-_[:alnum:]]+/[-_[:alnum:]]+$ ]]; then
