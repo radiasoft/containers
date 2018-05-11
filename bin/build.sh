@@ -411,8 +411,11 @@ build_run_yum() {
         # https://bugzilla.redhat.com/show_bug.cgi?format=multiple&id=1171928
         # error: unpacking of archive failed on file /sys: cpio: chmod
         # error: filesystem-3.2-28.fc21.x86_64: install failed
+        #
+        # https://github.com/radiasoft/containers/issues/86
+        # error: unpacking of archive failed on file /etc/hosts: cpio: rename failed - Device or resource busy
         # DEBUG: Don't run update so comment this line:
-        build_yum update --exclude='filesystem*'
+        build_yum update --exclude='filesystem*' --exclude='setup-*'
     fi
     # git and tar are needed to build home_env
     local -a rpms=()
