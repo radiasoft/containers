@@ -158,7 +158,7 @@ p = pwd.getpwnam(user)
 if p.pw_uid != uid:
     subprocess.check_call(['usermod', '-u', str(uid), user])
 if p.pw_gid != gid:
-    subprocess.check_call(['groupmod', '-g', str(gid), user])
+    subprocess.check_call(['groupmod', '--non-unique', '-g', str(gid), user])
     subprocess.check_call(['chgrp', '-R', str(gid), p.pw_dir])
 #TODO(robnagler) look up groups. This is fine for now, because
 # docker doesn't have any other groups for vagrant
