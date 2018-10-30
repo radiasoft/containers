@@ -464,7 +464,7 @@ build_yum() {
     fi
     build_msg "${cmd[*]} $*"
     if [[ ! $build_debug ]]; then
-        cmd+=-q
+        cmd+=( -q )
     fi
     build_sudo "${cmd[@]}" --color=never -y "$@"
     if [[ ${cmd[0]} = yum && -n $(type -p package-cleanup) ]]; then
