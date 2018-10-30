@@ -2,6 +2,7 @@
 #
 # See ./build for usage
 #
+# Must be absolute; see download/installers/container-run/radiasoft-download.sh
 : ${build_docker_cmd:=/bin/bash}
 : ${build_is_public:=}
 : ${build_docker_registry:=}
@@ -39,8 +40,6 @@ RUN "$build_run"
 $cmd
 $build_dockerfile_aux
 EOF
-    # the tee avoids docker's term escape codes
-#tee doesn't work
     local flags=()
     #TODO(robnagler) Really want to check for
     #   IPv4 forwarding is disabled. Networking will not work.
@@ -78,7 +77,7 @@ EOF
 Built: $tag
 Channels: ${channels[*]}
 EOF
-    if [[ -n $build_push ]]; then
+    if [[ ${build_push:-} ]]; then
         for t in "${tags[@]}"; do
             echo "Pushing: $t"
             # the tee avoids docker's term escape codes
@@ -111,7 +110,7 @@ build_image_exists() {
     else
         build_image_exists=$(docker images -q "$img")
     fi
-    [[ -n $build_image_exists ]]
+    [[ $build_image_exists ]]
 }
 
 build_image_prep() {
@@ -136,45 +135,4 @@ EOF
         cp -a /etc/skel/.??* /root
     fi
     build_create_run_user
-    # Always overwrite with latest
-    local run=/radia-run
-    cat > "$run" <<EOF
-#!/usr/bin/env python
-#
-# Adjust uid and gid of $build_run_user to match uid and gid
-# of host user. This allows us to run as $build_run_user
-# instead of root.
-#
-from __future__ import print_function
-import os, pwd, sys, subprocess
-user='$build_run_user'
-if sys.argv < 4:
-    print('usage: {} <uid> <gid> <absolute-path> <arg>...', file=sys.stderr)
-    sys.exit(1)
-cmd = sys.argv[1:]
-uid = int(cmd.pop(0))
-gid = int(cmd.pop(0))
-p = pwd.getpwnam(user)
-usermod = []
-if p.pw_uid != uid:
-    usermod += ['-u', str(uid)]
-if p.pw_gid != gid:
-    # assumes names of user and group in the container are the same
-    subprocess.check_call(['groupmod', '--non-unique', '-g', str(gid), user])
-    # usermod doesn't chgrp
-    subprocess.check_call(['chgrp', '-R', str(gid), p.pw_dir])
-    usermod += ['-g', str(gid)]
-if usermod:
-    subprocess.check_call(['usermod'] + usermod + [user])
-#TODO(robnagler) look up groups. This is fine for now, because
-# docker doesn't have any other groups for vagrant
-os.setgroups([])
-os.setgid(gid)
-os.setuid(uid)
-os.environ['HOME'] = p.pw_dir
-assert os.path.isabs(cmd[0]), \
-    '{}: command must be an absolute path'.format(cmd[0])
-os.execv(cmd[0], cmd)
-EOF
-    chmod 555 "$run"
 }

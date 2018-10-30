@@ -5,8 +5,10 @@
 # cd ~/src/radiasoft/container-<name>
 #
 #     curl radia.run | bash -s containers [vagrant]
-# or
-#     install_server=file://$HOME/src bash ~/src/radiasoft/download/bin/install.sh container-build
+#
+# or see radiasoft/download/README.md
+#
+#     install_server=http://$(dig $(hostname -f) +short):1313 bash -s container-build
 #
 # The script "build.sh" must define the following:
 #
@@ -28,6 +30,7 @@
 #
 # $build_run_user - application runs as this user [vagrant]
 # $build_run_uid - application user is this uid [1000]
+set -euo pipefail
 
 build_start_dir=$(pwd)
 
@@ -47,7 +50,9 @@ build_clean() {
     trap - EXIT
     build_clean_container
     cd /
-    rm -rf "$build_dir"
+    if [[ ${build_dir:-} ]]; then
+        rm -rf "$build_dir"
+    fi
 }
 
 build_create_run_user() {
@@ -89,7 +94,7 @@ build_err_trap() {
 
 build_fedora_base_image() {
     local version=${1:-27}
-    if [[ $build_is_vagrant ]]; then
+    if [[ ${build_is_vagrant:-} ]]; then
         if (( $version > 21 )); then
             build_image_base=fedora-$version
         else
@@ -210,8 +215,10 @@ build_home_env() {
 
 build_init() {
     set -e -o pipefail
-    if [[ $install_debug ]]; then
+    if [[ ${install_debug:-} ]]; then
         build_debug=1
+    else
+        : ${build_debug:=}
     fi
     if [[ $build_debug ]]; then
         set -x
@@ -236,11 +243,7 @@ build_main_args() {
     build_type=${1:-}
     local d=$(pwd)
     build_script=$d/container-conf/build.sh
-    if ! [[ -f $build_script ]]; then
-        build_main_args_legacy "$@"
-        return
-    fi
-    if [[ ! $build_image_name ]]; then
+    if [[ ! ${build_image_name:-} ]]; then
         local b=$(basename "$d")
         if [[ $b =~ ^container-([-_[:alnum:]]+)$ ]]; then
             b=${BASH_REMATCH[1]}
@@ -249,7 +252,7 @@ build_main_args() {
         build_image_name=$o/$b
     fi
     build_host_conf=$(cd "$(dirname "$build_script")"; pwd)
-    if [[ -z $build_type ]]; then
+    if [[ ! $build_type ]]; then
         build_type=docker
     elif [[ ! $build_type =~ ^(vagrant|docker)$ ]]; then
         build_err 'usage: build [vagrant|docker (default)]'
@@ -257,31 +260,12 @@ build_main_args() {
     install_script_eval "bin/build-$build_type.sh"
 }
 
-build_main_args_legacy() {
-    build_image_name=${2:-}
-    case "${1:-}" in
-        vagrant|docker)
-            install_script_eval "bin/build-$1.sh"
-            ;;
-        *)
-            build_err 'usage: bin/build [vagrant|docker (default)]'
-            ;;
-    esac
-    if ! [[ $build_image_name =~ ^[-_[:alnum:]]+/[-_[:alnum:]]+$ ]]; then
-        build_err "$build_image_name: invalid or missing image/name directory"
-    fi
-    build_script=./$build_image_name/build.sh
-    if [[ ! -f $build_script ]]; then
-        build_err "$build_script: missing config file in current directory."
-    fi
-    build_host_conf=$(cd "$build_image_name"; pwd)
-}
-
 build_main_init() {
     build_init_type
     : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
     : ${build_vagrant_uri:=https://depot.radiasoft.org/foss}
     : ${build_version:=$(date -u +%Y%m%d.%H%M%S)}
+    # POSIT: same as download/installers/container-run/radiasoft-download.sh
     build_run_user=vagrant
     build_run_user_home=/home/$build_run_user
     build_run_uid=1000
@@ -409,6 +393,12 @@ build_run_dir() {
     fi
 }
 
+build_run_user_home_chmod_public() {
+    # Make sure all files in the run_user's home are public
+    # see radiasoft/download/installers/container-run
+    chmod -R a+rX "$build_run_user_home"
+}
+
 build_run_yum() {
     if grep -s -q '^# *yum.update' rpms.txt; then
         # https://bugzilla.redhat.com/show_bug.cgi?format=multiple&id=1171928
@@ -423,7 +413,7 @@ build_run_yum() {
     # git and tar are needed to build home_env
     local -a rpms=()
     local f
-    for f in git tar findutils sudo; do
+    for f in findutils git procps-ng sudo tar; do
         if ! rpm --quiet -q "$f"; then
             rpms+=($f)
         fi
@@ -466,25 +456,28 @@ build_sudo_remove() {
 }
 
 build_yum() {
-    local cmd=yum
+    local cmd=( yum )
     if [[ $(type -t dnf) ]]; then
-        cmd=dnf
+        cmd=( dnf )
     else
         build_sudo rpm --rebuilddb --quiet
     fi
-    build_msg "$cmd $@"
-    build_sudo "$cmd" --color=never -y -q "$@"
-    if [[ $cmd = yum && -n $(type -p package-cleanup) ]]; then
+    build_msg "${cmd[*]} $*"
+    if [[ ! $build_debug ]]; then
+        cmd+=-q
+    fi
+    build_sudo "${cmd[@]}" --color=never -y "$@"
+    if [[ ${cmd[0]} = yum && -n $(type -p package-cleanup) ]]; then
         build_sudo package-cleanup --cleandupes
     fi
 }
 
-if [[ $build_travis_trigger_only ]]; then
+if [[ ${build_travis_trigger_only:-} ]]; then
     install_script_eval bin/build-travis.sh
-    build_travis_trigger_next "${install_extra_args[@]}"
-elif [[ $TRAVIS == true ]]; then
+    build_travis_trigger_next ${install_extra_args[@]+"${install_extra_args[@]}"}
+elif [[ ${TRAVIS:-} == true ]]; then
     install_script_eval bin/build-travis.sh
-    build_travis_main "${install_extra_args[@]}"
+    build_travis_main ${install_extra_args[@]+"${install_extra_args[@]}"}
 else
-    build_main "${install_extra_args[@]}"
+    build_main ${install_extra_args[@]+"${install_extra_args[@]}"}
 fi
