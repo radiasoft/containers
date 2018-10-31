@@ -77,7 +77,13 @@ EOF
 Built: $tag
 Channels: ${channels[*]}
 EOF
-    if [[ ${build_push:-} ]]; then
+    if [[ ! ${tags[@]+1} ]]; then
+        cat <<EOF
+To run it:
+
+    docker run --rm -it ${flags[*]} '$tag'
+EOF
+    elif [[ ${build_push:-} ]]; then
         for t in "${tags[@]}"; do
             echo "Pushing: $t"
             # the tee avoids docker's term escape codes
@@ -89,7 +95,7 @@ EOF
             push="$push${push:+; }docker push '$t'"
         done
         cat <<EOF
-To run it, you can then:
+To run it:
 
     docker run --rm -it ${flags[*]} '$tag'
 
