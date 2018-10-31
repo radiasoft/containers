@@ -8,7 +8,7 @@
 #
 # or see radiasoft/download/README.md
 #
-#     install_server=http://$(dig $(hostname -f) +short):1313 bash -s container-build
+#     install_server=http://$(dig $(hostname -f) +short):2916 bash -s container-build
 #
 # The script "build.sh" must define the following:
 #
