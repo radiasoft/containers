@@ -4,16 +4,16 @@
 #
 
 build_travis_main() {
-    if [[ $TRAVIS_BRANCH != master && $TRAVIS_EVENT_TYPE != push ]]; then
+    if [[ ${TRAVIS_BRANCH:-} != master && ${TRAVIS_EVENT_TYPE:-} != push ]]; then
         build_msg 'Not a master push so skipping'
         return
     fi
-    if [[ -z $RADIASOFT_DOCKER_LOGIN ]]; then
+    if [[ -z ${RADIASOFT_DOCKER_LOGIN:-} ]]; then
         build_err 'RADIASOFT_DOCKER_LOGIN must be defined'
     fi
     build_travis_setup_docker
     build_travis_setup_pypi
-    export build_passenv="TRAVIS $build_passenv"
+    export build_passenv="TRAVIS ${build_passenv:-}"
     export $build_passenv
     local noise_pid
     while true; do
@@ -38,7 +38,7 @@ build_travis_setup_docker() {
 }
 
 build_travis_setup_pypi() {
-    if ! [[ -n $PKSETUP_PYPI_USER && -r setup.py ]]; then
+    if ! [[ ${PKSETUP_PYPI_USER:-} && -r setup.py ]]; then
         return
     fi
     # Make sure some vars are defined that might not be
@@ -58,7 +58,7 @@ build_travis_trigger_next() {
     if [[ $@ ]]; then
         build_travis_trigger_next=( "$@" )
     fi
-    if ! [[ $build_travis_trigger_next && $RADIASOFT_TRAVIS_TOKEN ]]; then
+    if ! [[ ${build_travis_trigger_next:-} && ${RADIASOFT_TRAVIS_TOKEN:-} ]]; then
         return
     fi
     local r
@@ -76,7 +76,7 @@ build_travis_trigger_next() {
         fi
         build_msg "Travis Trigger: $r"
         local m=''
-        if [[ $TRAVIS_REPO_SLUG && $TRAVIS_COMMIT ]]; then
+        if [[ ${TRAVIS_REPO_SLUG:-} && ${TRAVIS_COMMIT:-} ]]; then
             m=$(printf ',"message":"trigger %s@%s"' "$TRAVIS_REPO_SLUG" "$TRAVIS_COMMIT")
         fi
         local out=$(curl -s -S -X POST \
