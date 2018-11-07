@@ -189,9 +189,7 @@ build_home_env() {
     local update=~/bin/_bivio_home_env_update
     if [[ -x $update ]]; then
         # Need proper environment for update
-        set +e
-        . ~/.bashrc
-        set -e
+        install_source_bashrc
         "$update" -f
     else
         # Needs to be two lines to catch error on retrieval; bash doesn't complain
@@ -207,10 +205,7 @@ build_home_env() {
             echo 'export TERM=dumb' >> ~/.pre_bivio_bashrc
         fi
     fi
-    # Can't trust /etc/{bash,profile}* files to work in -e mode
-    set +e
-    . ~/.bashrc
-    set -e
+    install_source_bashrc
 }
 
 build_init() {
@@ -400,7 +395,7 @@ build_run_user_home_chmod_public() {
 }
 
 build_run_yum() {
-    if grep -s -q '^# *yum.update' rpms.txt; then
+    if grep -s -q '^# *yum.update' rpms.txt || [[ ${build_want_yum_update:-} ]]; then
         # https://bugzilla.redhat.com/show_bug.cgi?format=multiple&id=1171928
         # error: unpacking of archive failed on file /sys: cpio: chmod
         # error: filesystem-3.2-28.fc21.x86_64: install failed
@@ -433,7 +428,7 @@ build_sudo() {
     if [[ $UID != 0 ]]; then
         sudo=sudo
     fi
-    $sudo "$@"
+    ${sudo:-} "$@"
 }
 
 build_sudo_install() {
