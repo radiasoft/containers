@@ -333,8 +333,6 @@ build_rsmanifest() {
     cat <<EOF > "$build_rsmanifest"
 {
     "image": {
-        "git_repo": "${build_git_repo:-}",
-        "git_commit": "${build_git_commit:-}",
         "name": "$build_image_name",
         "type": "$build_type",
         "uri": "$build_image_uri",
