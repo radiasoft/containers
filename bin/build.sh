@@ -93,7 +93,7 @@ build_err_trap() {
 }
 
 build_fedora_base_image() {
-    local version=${1:-27}
+    local version=${1:-29}
     if [[ ${build_is_vagrant:-} ]]; then
         if (( $version > 21 )); then
             build_image_base=fedora-$version
