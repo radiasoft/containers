@@ -105,6 +105,13 @@ build_fedora_base_image() {
     fi
 }
 
+build_fedora_version() {
+    if [[ ! $(cat /etc/redhat-release) =~ Fedora.release.([[:digit:]]+) ]]; then
+        build_err 'Not a Fedora release'
+    fi
+    echo "${BASH_REMATCH[1]}"
+}
+
 build_fedora_clean() {
     if [[ ${build_no_clean:-} ]]; then
         return
