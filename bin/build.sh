@@ -117,6 +117,7 @@ build_fedora_clean() {
         return
     fi
     # This avoids "rpmdb: damaged header" when building Fedora 29 on CentOS 7
+    rm -f /var/lib/rpm/__db*
     build_sudo rpm --rebuilddb --quiet
     # Clear caches
     build_yum clean all
