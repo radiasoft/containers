@@ -402,6 +402,10 @@ build_run_user_home_chmod_public() {
 }
 
 build_run_yum() {
+    # Avoid corrupting rpm db
+    # https://github.com/moby/moby/issues/10180#issuecomment-378005800
+    # Tried dnf-plugin-ovl, but that did not work. This definitely works:
+    touch /var/lib/rpm/*
     if grep -s -q '^# *yum.update' rpms.txt || [[ ${build_want_yum_update:-} ]]; then
         # https://bugzilla.redhat.com/show_bug.cgi?format=multiple&id=1171928
         # error: unpacking of archive failed on file /sys: cpio: chmod
