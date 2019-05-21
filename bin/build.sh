@@ -116,9 +116,6 @@ build_fedora_clean() {
     if [[ ${build_no_clean:-} ]]; then
         return
     fi
-    # This avoids "rpmdb: damaged header" when building Fedora 29 on CentOS 7
-    rm -f /var/lib/rpm/__db*
-    build_sudo rpm --rebuilddb --quiet
     # Clear caches
     build_yum clean all
     ls -d /var/cache/*/* | grep -v /var/cache/ldconfig/ | xargs rm -rf
@@ -405,6 +402,9 @@ build_run_user_home_chmod_public() {
 }
 
 build_run_yum() {
+    # Attempt to fix corrupted rpmdb
+    # https://github.com/moby/moby/issues/10180#issuecomment-378005800
+    touch /var/lib/rpm/*
     if grep -s -q '^# *yum.update' rpms.txt || [[ ${build_want_yum_update:-} ]]; then
         # https://bugzilla.redhat.com/show_bug.cgi?format=multiple&id=1171928
         # error: unpacking of archive failed on file /sys: cpio: chmod
