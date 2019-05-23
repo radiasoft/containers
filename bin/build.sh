@@ -403,7 +403,7 @@ build_run_user_home_chmod_public() {
 
 build_run_yum() {
     # if the dnf-plugin-ovl isn't there, touch rpm db
-    if ! rpm -q dnf-plugin-ovl >& /dev/null; then
+    if [[ ! ${build_no_touch_rpmdb:-} ]]; then
         build_msg 'touch /var/lib/rpm/*'
         # Avoid corrupting rpm db
         # https://github.com/moby/moby/issues/10180#issuecomment-378005800
