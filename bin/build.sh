@@ -93,7 +93,7 @@ build_err_trap() {
 }
 
 build_fedora_base_image() {
-    local version=${1:-27}
+    local version=${1:-29}
     if [[ ${build_is_vagrant:-} ]]; then
         if (( $version > 21 )); then
             build_image_base=fedora-$version
@@ -180,7 +180,7 @@ build_fedora_patch() {
     rm -f /etc/localtime
     # Not ideal, but where is the user really?
     ln -s /usr/share/zoneinfo/UCT /etc/localtime
-    if [[ -e /etc/dnf/dnf.conf ]]; then
+    if [[ -e /etc/dnf/dnf.conf ]] && ! grep -s -q 'color=never' /etc/dnf/dnf.conf; then
         echo 'color=never' >> /etc/dnf/dnf.conf
     fi
 }
