@@ -9,9 +9,7 @@ The best way to install is to use our
 to use sirepo:
 
 ```sh
-mkdir sirepo
-cd sirepo
-curl radia.run | bash
+curl https://sirepo.run | bash
 ```
 
 If you are running Windows, you will have to run this command in a VM.
