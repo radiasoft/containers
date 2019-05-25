@@ -4,7 +4,7 @@
 #
 # cd ~/src/radiasoft/container-<name>
 #
-#     curl radia.run | bash -s containers [vagrant]
+#     curl https://radia.run | bash -s container-build [vagrant]
 #
 # or see radiasoft/download/README.md
 #
