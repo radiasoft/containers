@@ -14,7 +14,9 @@ cd sirepo
 curl radia.run | bash
 ```
 
-If you are running Windows, you will have to run this command in a VM.
+If you are running Windows, you will have to run this command in a
+virtual machine or use the
+[Sirepo development install](https://github.com/radiasoft/sirepo/wiki/Development#pc-install).
 
 #### Images
 

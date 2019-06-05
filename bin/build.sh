@@ -93,7 +93,7 @@ build_err_trap() {
 }
 
 build_fedora_base_image() {
-    local version=${1:-27}
+    local version=${1:-29}
     if [[ ${build_is_vagrant:-} ]]; then
         if (( $version > 21 )); then
             build_image_base=fedora-$version
@@ -105,11 +105,18 @@ build_fedora_base_image() {
     fi
 }
 
+build_fedora_version() {
+    if [[ ! $(cat /etc/redhat-release) =~ Fedora.release.([[:digit:]]+) ]]; then
+        build_err 'Not a Fedora release'
+    fi
+    echo "${BASH_REMATCH[1]}"
+}
+
 build_fedora_clean() {
     if [[ ${build_no_clean:-} ]]; then
         return
     fi
-    # Caches
+    # Clear caches
     build_yum clean all
     ls -d /var/cache/*/* | grep -v /var/cache/ldconfig/ | xargs rm -rf
     local systemd=
@@ -395,6 +402,14 @@ build_run_user_home_chmod_public() {
 }
 
 build_run_yum() {
+    # if the dnf-plugin-ovl isn't there, touch rpm db
+    if [[ ! ${build_no_touch_rpmdb:-} ]]; then
+        build_msg 'touch /var/lib/rpm/*'
+        # Avoid corrupting rpm db
+        # https://github.com/moby/moby/issues/10180#issuecomment-378005800
+        # Tried dnf-plugin-ovl, but that did not work. This definitely works:
+        touch /var/lib/rpm/*
+    fi
     if [[ ${build_want_yum_update:-} ]]; then
         # https://bugzilla.redhat.com/show_bug.cgi?format=multiple&id=1171928
         # error: unpacking of archive failed on file /sys: cpio: chmod
