@@ -395,7 +395,7 @@ build_run_user_home_chmod_public() {
 }
 
 build_run_yum() {
-    if grep -s -q '^# *yum.update' rpms.txt || [[ ${build_want_yum_update:-} ]]; then
+    if [[ ${build_want_yum_update:-} ]]; then
         # https://bugzilla.redhat.com/show_bug.cgi?format=multiple&id=1171928
         # error: unpacking of archive failed on file /sys: cpio: chmod
         # error: filesystem-3.2-28.fc21.x86_64: install failed
