@@ -297,6 +297,8 @@ build_main_init() {
     build_guest_conf=/rscontainers
     build_guest_script=$build_guest_conf/$(basename "$build_script")
     build_rsmanifest=/rsmanifest.json
+    build_git_commit=$(git rev-parse HEAD 2>/dev/null || true)
+    build_git_remote_origin_url=$(git config --get remote.origin.url 2>/dev/null || true)
     build_msg "Conf: $build_host_conf"
     build_msg "Build: $build_dir"
 }
@@ -340,12 +342,14 @@ build_rsmanifest() {
     cat <<EOF > "$build_rsmanifest"
 {
     "image": {
+        "git_commit": "$build_git_commit",
+        "git_remote_origin_url": "$build_git_remote_origin_url",
         "name": "$build_image_name",
         "type": "$build_type",
         "uri": "$build_image_uri",
         "version": "$build_version"
     },
-    "version": "20170217.180000"
+    "version": "20190612.150000"
 }
 EOF
     chmod 444 "$build_rsmanifest"
