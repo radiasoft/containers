@@ -199,15 +199,7 @@ build_home_env() {
         install_source_bashrc
         "$update" -f
     else
-        # Needs to be two lines to catch error on retrieval; bash doesn't complain
-        # if an empty file ("false | bash" is true).
-        # Root downloads but user and vagrant execute so need to download
-        # only once.
-        local x=$build_guest_conf/home-env-install.sh
-        if [[ ! -f $x ]]; then
-            build_curl https://raw.githubusercontent.com/biviosoftware/home-env/master/install.sh > "$x"
-        fi
-        bash "$x"
+        install_repo_eval home
         if [[ $build_is_docker ]]; then
             echo 'export TERM=dumb' >> ~/.pre_bivio_bashrc
         fi
@@ -223,6 +215,7 @@ build_init() {
         : ${build_debug:=}
     fi
     if [[ $build_debug ]]; then
+        export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
         set -x
     fi
     # Can happen that libraries access X11. You'll see:
