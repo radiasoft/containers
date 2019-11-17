@@ -49,7 +49,7 @@ EOF
         flags+=( --network=host )
     fi
     local tag=${build_docker_registry:-docker.io}/$build_image_name:$build_version
-    docker build "${flags[@]}" --rm=true --tag="$tag" .
+    docker build --user=root "${flags[@]}" --rm=true --tag="$tag" .
     # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version.
     local channels=( "$build_version" latest dev alpha )
