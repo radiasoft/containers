@@ -37,6 +37,7 @@ MAINTAINER "$build_maintainer"
 ADD . $build_guest_conf
 RUN "$build_run"
 # Reasonable default for CMD so user doesn't have to specify
+USER root
 $cmd
 $build_dockerfile_aux
 EOF
@@ -49,7 +50,7 @@ EOF
         flags+=( --network=host )
     fi
     local tag=${build_docker_registry:-docker.io}/$build_image_name:$build_version
-    docker build --user=root "${flags[@]}" --rm=true --tag="$tag" .
+    docker build "${flags[@]}" --rm=true --tag="$tag" .
     # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version.
     local channels=( "$build_version" latest dev alpha )
