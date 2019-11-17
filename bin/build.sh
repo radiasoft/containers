@@ -42,7 +42,7 @@ build_as_root() {
 }
 
 build_as_run_user() {
-    : Executes as $run_user after root is built and home env setup
+    : Executes as build_run_user after root is built and home env setup
 }
 
 build_clean() {
