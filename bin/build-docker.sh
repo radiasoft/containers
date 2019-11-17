@@ -34,10 +34,10 @@ build_image() {
     cat > Dockerfile <<EOF
 FROM $bi
 MAINTAINER "$build_maintainer"
+USER root
 ADD . $build_guest_conf
 RUN "$build_run"
 # Reasonable default for CMD so user doesn't have to specify
-USER root
 $cmd
 $build_dockerfile_aux
 EOF
