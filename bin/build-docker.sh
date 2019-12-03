@@ -55,7 +55,7 @@ EOF
     # builds if you don't specify a version.
     local channels=( "$build_version" )
     if [[ ! ${build_docker_version_tag_only:-} ]]; then
-        channels=+( latest dev alpha )
+        channels+=( latest dev alpha )
     fi
     local tags=()
     local c t r
