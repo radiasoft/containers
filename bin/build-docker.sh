@@ -53,7 +53,10 @@ EOF
     docker build "${flags[@]}" --rm=true --tag="$tag" .
     # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version.
-    local channels=( "$build_version" latest dev alpha )
+    local channels=( "$build_version" )
+    if [[ ! ${build_docker_version_tag_only:-} ]]; then
+        channels=+( latest dev alpha )
+    fi
     local tags=()
     local c t r
     local force=
