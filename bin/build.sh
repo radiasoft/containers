@@ -392,12 +392,6 @@ build_run_dir() {
     fi
 }
 
-build_run_user_home_chmod_public() {
-    # Make sure all files in the run_user's home are public
-    # see radiasoft/download/installers/container-run
-    chmod -R a+rX "$build_run_user_home"
-}
-
 build_run_yum() {
     # if the dnf-plugin-ovl isn't there, touch rpm db
     if [[ ! ${build_no_touch_rpmdb:-} ]]; then
