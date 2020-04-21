@@ -74,8 +74,8 @@ build_debug() {
 
 build_err() {
     build_msg "$@"
-    if [[ $build_dir && -d $build_dir ]]; then
-        if [[ ! $build_batch_mode ]]; then
+    if [[ ${build_dir:-} && -d $build_dir ]]; then
+        if [[ ! ${build_batch_mode:-} ]]; then
             echo "Directory: $build_dir"
             echo -n 'Type enter to destroy dir and container (or control-C to exit):'
             read
