@@ -258,7 +258,7 @@ build_main_args() {
 build_main_init() {
     build_init_type
     : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
-    : ${build_vagrant_uri:=https://depot.radiasoft.org/foss}
+    : ${build_vagrant_uri:=$(install_foss_server)}
     : ${build_version:=$(date -u +%Y%m%d.%H%M%S)}
     # POSIT: same as download/installers/container-run/radiasoft-download.sh
     build_run_user=vagrant
