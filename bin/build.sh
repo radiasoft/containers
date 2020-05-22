@@ -215,7 +215,9 @@ build_init() {
         : ${build_debug:=}
     fi
     if [[ $build_debug ]]; then
-        export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+        if [[ ${BASH_SOURCE:-} ]]; then
+            export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+        fi
         set -x
     fi
     # Can happen that libraries access X11. You'll see:
