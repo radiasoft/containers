@@ -216,7 +216,7 @@ build_init() {
     fi
     if [[ $build_debug ]]; then
         if [[ ${BASH_SOURCE:-} ]]; then
-            export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+            export PS4='+ [${BASH_SOURCE:+${BASH_SOURCE##*/}}:${LINENO}] '
         fi
         set -x
     fi
