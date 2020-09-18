@@ -55,6 +55,10 @@ build_clean() {
     fi
 }
 
+build_clean_as_root() {
+    : Executes as root after build_as_run_user runs to allow removal of packages
+}
+
 build_create_run_user() {
     if ! id -u $build_run_user >& /dev/null; then
         groupadd -g "$build_run_uid" "$build_run_user"
@@ -126,7 +130,7 @@ build_fedora_clean() {
         systemctl stop systemd-journald || true
     fi
     # Logs
-    rm -f /var/log/{VBoxGuestAdditions,vboxadd}*.log
+    rm -f /var/log/{VBoxGuestAdditions,vboxadd}*.log /radia-run-install.log
     for f in \
         sa \
         journal \
@@ -372,6 +376,7 @@ build_run() {
         build_rsmanifest
         chown -R "$build_run_user:" "$build_guest_conf"
         su "$build_run_user" "$0"
+        build_clean_as_root
         build_sudo_remove
         build_fedora_clean
     fi
