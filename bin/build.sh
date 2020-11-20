@@ -228,6 +228,9 @@ build_init() {
     # X11 connection rejected because of wrong authentication.
     export DISPLAY=
     build_init_type
+    umask "$build_umask"
+    # Modify the umask for home-env
+    export BIVIO_UMASK=$(umask)
 }
 
 build_main() {
@@ -266,6 +269,7 @@ build_main_init() {
     : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
     : ${build_vagrant_uri:=$(install_foss_server)}
     : ${build_version:=$(date -u +%Y%m%d.%H%M%S)}
+    : ${build_umask:=022}
     # POSIT: same as download/installers/container-run/radiasoft-download.sh
     build_run_user=vagrant
     build_run_user_home=/home/$build_run_user
