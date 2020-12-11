@@ -97,7 +97,7 @@ build_err_trap() {
 }
 
 build_fedora_base_image() {
-    local version=${1:-29}
+    local version=${1:-32}
     if [[ ${build_is_vagrant:-} ]]; then
         if (( $version > 21 )); then
             build_image_base=fedora-$version
@@ -110,10 +110,10 @@ build_fedora_base_image() {
 }
 
 build_fedora_version() {
-    if [[ ! $(cat /etc/redhat-release) =~ Fedora.release.([[:digit:]]+) ]]; then
+    if [[ $install_os_release_id != fedora ]]; then
         build_err 'Not a Fedora release'
     fi
-    echo "${BASH_REMATCH[1]}"
+    echo "$install_os_release_version_id"
 }
 
 build_fedora_clean() {
