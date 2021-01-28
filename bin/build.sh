@@ -363,7 +363,9 @@ build_run() {
     build_init
     if [[ $build_simply ]]; then
         build_run_dir
+        build_sudo_install
         build_as_root
+        build_sudo_remove
         build_rsmanifest
     elif (( $UID != 0 )); then
         build_home_env
@@ -449,6 +451,10 @@ build_sudo() {
 }
 
 build_sudo_install() {
+    if [[ ! -e /usr/bin/sudo ]]; then
+        return
+    fi
+    chmod 4111 /usr/bin/sudo
     local x=/etc/sudoers.d/$build_run_user
     if [[ -f $x ]]; then
         # Don't remove if installed in base image,
@@ -462,6 +468,10 @@ build_sudo_install() {
 }
 
 build_sudo_remove() {
+    if [[ ! -e /usr/bin/sudo ]]; then
+        return
+    fi
+    chmod 111 /usr/bin/sudo
     if [[ -n $build_sudo_remove ]]; then
         rm -f "$build_sudo_remove"
     fi
