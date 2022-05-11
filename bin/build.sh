@@ -424,10 +424,10 @@ build_run_yum() {
         # DEBUG: Don't run update so comment this line:
         build_yum update --exclude='filesystem*' --exclude='setup-*'
     fi
-    # git and tar are needed to build home_env
+    # git, diffutils, and tar are needed to build home_env
     local -a rpms=()
     local f
-    for f in findutils git procps-ng sudo tar; do
+    for f in diffutils findutils git procps-ng sudo tar; do
         if ! rpm --quiet -q "$f"; then
             rpms+=($f)
         fi

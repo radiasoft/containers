@@ -4,6 +4,7 @@
 #
 # Must be absolute; see download/installers/container-run/radiasoft-download.sh
 : ${build_docker_cmd:=/bin/bash}
+: ${build_docker_entrypoint:=}
 : ${build_is_public:=}
 : ${build_docker_registry:=}
 : ${build_image_add:='docker pull'}
@@ -24,6 +25,10 @@ build_image() {
     if [[ $build_docker_cmd ]]; then
         cmd="CMD $build_docker_cmd"
     fi
+    local entrypoint=
+    if [[ $build_docker_entrypoint ]]; then
+        entrypoint="ENTRYPOINT $build_docker_entrypoint"
+    fi
     local bi=$build_image_base
     if [[ $build_docker_registry ]]; then
         local x=$build_docker_registry/$bi
@@ -37,8 +42,8 @@ MAINTAINER "$build_maintainer"
 USER root
 ADD . $build_guest_conf
 RUN "$build_run"
-# Reasonable default for CMD so user doesn't have to specify
 $cmd
+$entrypoint
 $build_dockerfile_aux
 EOF
     local flags=()
