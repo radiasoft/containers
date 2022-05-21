@@ -266,7 +266,7 @@ build_main_args() {
 
 build_main_init() {
     build_init_type
-    : ${build_maintainer:="RadiaSoft <$build_type@radiasoft.net>"}
+    : ${build_maintainer:="RadiaSoft <support@radiasoft.net>"}
     : ${build_vagrant_uri:=$(install_foss_server)}
     : ${build_version:=$(date -u +%Y%m%d.%H%M%S)}
     : ${build_umask:=022}
