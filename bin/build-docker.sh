@@ -44,11 +44,14 @@ build_image() {
     cat > Dockerfile <<EOF
 FROM $bi
 MAINTAINER "$build_maintainer"
+# builds run as root at first
+USER root
 ADD . $build_guest_conf
 RUN "$build_run"
-USER $build_docker_user
 $cmd
 $entrypoint
+# switch to actual run user
+USER $build_docker_user
 $build_dockerfile_aux
 EOF
     local flags=()
