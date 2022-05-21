@@ -32,7 +32,7 @@ build_image() {
     fi
     if [[ ! $build_docker_user ]]; then
         # NOTE: has to be in /etc/passwd at build time so this works
-        build_docker_user=$build_run_user_uid
+        build_docker_user=$build_run_uid
     fi
     local bi=$build_image_base
     if [[ $build_docker_registry ]]; then
