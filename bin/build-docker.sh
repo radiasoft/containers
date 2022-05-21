@@ -44,9 +44,9 @@ build_image() {
     cat > Dockerfile <<EOF
 FROM $bi
 MAINTAINER "$build_maintainer"
-USER $build_docker_user
 ADD . $build_guest_conf
 RUN "$build_run"
+USER $build_docker_user
 $cmd
 $entrypoint
 $build_dockerfile_aux
