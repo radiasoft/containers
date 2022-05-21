@@ -30,10 +30,6 @@ build_image() {
     if [[ $build_docker_entrypoint ]]; then
         entrypoint="ENTRYPOINT $build_docker_entrypoint"
     fi
-    local user=
-    if [[ $build_docker_user ]]; then
-        user="USER $build_docker_user"
-    fi
     local bi=$build_image_base
     if [[ $build_docker_registry ]]; then
         local x=$build_docker_registry/$bi
@@ -44,12 +40,13 @@ build_image() {
     cat > Dockerfile <<EOF
 FROM $bi
 MAINTAINER "$build_maintainer"
+USER root
 ADD . $build_guest_conf
 RUN "$build_run"
 $cmd
 $entrypoint
 # run user must be after build_run, because changes user during build
-$user
+USER ${build_docker_user:-$build_run_user}
 $build_dockerfile_aux
 EOF
     local flags=()
