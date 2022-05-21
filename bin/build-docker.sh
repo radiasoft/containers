@@ -9,6 +9,7 @@
 : ${build_docker_registry:=}
 : ${build_image_add:='docker pull'}
 : ${build_dockerfile_aux:=}
+: ${build_docker_user:=$build_run_user}
 
 build_docker_version_is_old=
 if [[ $(docker --version | perl -n -e '/ (\d+\.\d+)/ && print $1') =~ ^1\.[0-9]$ ]]; then
@@ -39,7 +40,7 @@ build_image() {
     cat > Dockerfile <<EOF
 FROM $bi
 MAINTAINER "$build_maintainer"
-USER root
+USER $build_docker_user
 ADD . $build_guest_conf
 RUN "$build_run"
 $cmd
