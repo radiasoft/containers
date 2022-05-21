@@ -9,7 +9,7 @@
 : ${build_docker_registry:=}
 : ${build_image_add:='docker pull'}
 : ${build_dockerfile_aux:=}
-: ${build_docker_user:=$build_run_user}
+: ${build_docker_user:=}
 
 build_docker_version_is_old=
 if [[ $(docker --version | perl -n -e '/ (\d+\.\d+)/ && print $1') =~ ^1\.[0-9]$ ]]; then
@@ -29,6 +29,9 @@ build_image() {
     local entrypoint=
     if [[ $build_docker_entrypoint ]]; then
         entrypoint="ENTRYPOINT $build_docker_entrypoint"
+    fi
+    if [[ ! $build_docker_user ]]; then
+        build_docker_user=$build_run_user
     fi
     local bi=$build_image_base
     if [[ $build_docker_registry ]]; then
