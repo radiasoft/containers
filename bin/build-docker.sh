@@ -30,8 +30,9 @@ build_image() {
     if [[ $build_docker_entrypoint ]]; then
         entrypoint="ENTRYPOINT $build_docker_entrypoint"
     fi
-    if [[ ! $build_docker_user ]]; then
-        build_docker_user=$build_run_user
+    local user=
+    if [[ $build_docker_user ]]; then
+        user="USER $build_docker_user"
     fi
     local bi=$build_image_base
     if [[ $build_docker_registry ]]; then
@@ -43,14 +44,12 @@ build_image() {
     cat > Dockerfile <<EOF
 FROM $bi
 MAINTAINER "$build_maintainer"
-# builds run as root at first
-USER root
 ADD . $build_guest_conf
 RUN "$build_run"
 $cmd
 $entrypoint
-# switch to actual run user
-USER $build_docker_user
+# run user must be after build_run, because changes user during build
+$user
 $build_dockerfile_aux
 EOF
     local flags=()
