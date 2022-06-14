@@ -321,6 +321,7 @@ build_main_conf_dir() {
         done
         cat <<EOF
 set -e
+$(install_vars_export)
 install_init_vars
 source "$build_guest_script"
 build_run
