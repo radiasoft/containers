@@ -97,7 +97,7 @@ build_err_trap() {
 }
 
 build_fedora_base_image() {
-    local version=${1:-$RADIA_CI_VERSION_FEDORA}
+    local version=${1:-$RADIA_RUN_VERSION_FEDORA}
     if [[ ${build_is_vagrant:-} ]]; then
         if (( $version > 21 )); then
             build_image_base=fedora-$version
