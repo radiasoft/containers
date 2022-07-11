@@ -52,7 +52,8 @@ EOF
     local tag=${build_docker_registry:-docker.io}/$build_image_name:$build_version
     docker build "${flags[@]}" --rm=true --tag="$tag" .
     if [[ ${build_docker_post_hook:-} ]]; then
-        ${build_docker_post_hook} "$tag" "${flags[@]}" --rm=true
+        # execute the hook, but unset it so it doesn't infinitely recurse
+        build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}" "--user=$build_run_user" --rm=true
     fi
     # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version.
