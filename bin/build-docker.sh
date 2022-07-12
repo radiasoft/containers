@@ -53,7 +53,7 @@ EOF
     docker build "${flags[@]}" --rm=true --tag="$tag" .
     if [[ ${build_docker_post_hook:-} ]]; then
         # execute the hook, but unset it so it doesn't infinitely recurse
-        build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}" "--user=$build_run_user" --rm=true
+        build_push=$build_push build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}" "--user=$build_run_user" --rm=true
     fi
     # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version.
