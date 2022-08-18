@@ -1,4 +1,4 @@
-#!/bin/bash
+sos_ag#!/bin/bash
 #
 # See ./build for usage
 #
@@ -30,12 +30,20 @@ build_image() {
     if [[ $build_docker_entrypoint ]]; then
         entrypoint="ENTRYPOINT $build_docker_entrypoint"
     fi
+    local -a tags=()
     local bi=$build_image_base
     if [[ $build_docker_registry ]]; then
         local x=$build_docker_registry/$bi
         if build_image_exists "$x"; then
             bi=$x
         fi
+    fi
+    local x=$(build_image_os_tag "$bi")
+    if [[ $x ]]; then
+        # default
+        if it already has a tag do not add one because fedora:32 or centos:7
+        however we need to tag the image so we can cascade the builds
+        bi+=:$x
     fi
     cat > Dockerfile <<EOF
 FROM $bi
@@ -69,7 +77,6 @@ EOF
     if [[ ! ${build_docker_version_tag_only:-} ]]; then
         channels+=( latest dev alpha )
     fi
-    local tags=()
     local c t r
     local force=
     if [[ $build_docker_version_is_old ]]; then
@@ -134,6 +141,18 @@ build_image_exists() {
     fi
     [[ $build_image_exists ]]
 }
+
+build_image_os_tag() {
+    local image=$1
+    local ID VERSION_ID
+    eval "$( docker run "$image" egrep '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
+    if [[ $VERSION_ID ]]
+    echo ${VERSION_ID}
+    docker run --rm=true --tag="$tag" /bin/sh cat /etc/os-release
+ID=fedora
+VERSION_ID=32
+}
+
 
 build_image_prep() {
     build_image_uri=https://${build_docker_registry:-registry.hub.docker.com}/$build_image_name:$build_version
