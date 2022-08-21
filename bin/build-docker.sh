@@ -1,4 +1,4 @@
-sos_ag#!/bin/bash
+#!/bin/bash
 #
 # See ./build for usage
 #
@@ -22,29 +22,23 @@ build_clean_container() {
 
 build_image() {
     rm -f Dockerfile
-    local cmd=
+    declare cmd=
     if [[ $build_docker_cmd ]]; then
         cmd="CMD $build_docker_cmd"
     fi
-    local entrypoint=
+    declare entrypoint=
     if [[ $build_docker_entrypoint ]]; then
         entrypoint="ENTRYPOINT $build_docker_entrypoint"
     fi
-    local -a tags=()
-    local bi=$build_image_base
+    declare -a tags=()
+    declare bi=$build_image_base
     if [[ $build_docker_registry ]]; then
-        local x=$build_docker_registry/$bi
+        declare x=$build_docker_registry/$bi
         if build_image_exists "$x"; then
             bi=$x
         fi
     fi
-    local x=$(build_image_os_tag "$bi")
-    if [[ $x ]]; then
-        # default
-        if it already has a tag do not add one because fedora:32 or centos:7
-        however we need to tag the image so we can cascade the builds
-        bi+=:$x
-    fi
+    tags+=( $(build_image_os_tag "$bi") )
     cat > Dockerfile <<EOF
 FROM $bi
 MAINTAINER "$build_maintainer"
@@ -57,7 +51,7 @@ $entrypoint
 USER ${build_docker_user:-$build_run_user}
 $build_dockerfile_aux
 EOF
-    local flags=()
+    declare flags=()
     #TODO(robnagler) Really want to check for
     #   IPv4 forwarding is disabled. Networking will not work.
     # However, this doesn't work on older versions, since it prints something
@@ -65,7 +59,7 @@ EOF
     if docker build --help 2>&1 | fgrep -q -s -- --network; then
         flags+=( --network=host )
     fi
-    local tag=${build_docker_registry:-docker.io}/$build_image_name:$build_version
+    declare tag=${build_docker_registry:-docker.io}/$build_image_name:$build_version
     docker build "${flags[@]}" --rm=true --tag="$tag" .
     if [[ ${build_docker_post_hook:-} ]]; then
         # execute the hook, but unset it so it doesn't infinitely recurse
@@ -73,12 +67,12 @@ EOF
     fi
     # We have to tag latest, because docker pulls that on
     # builds if you don't specify a version.
-    local channels=( "$build_version" )
+    declare channels=( "$build_version" )
     if [[ ! ${build_docker_version_tag_only:-} ]]; then
         channels+=( latest dev alpha )
     fi
-    local c t r
-    local force=
+    declare c t r
+    declare force=
     if [[ $build_docker_version_is_old ]]; then
         force=-f
     fi
@@ -113,7 +107,7 @@ EOF
             docker push "$t" | tee
         done
     else
-        local push=''
+        declare push=''
         for t in "${tags[@]}"; do
             push="$push${push:+; }docker push '$t'"
         done
@@ -130,7 +124,7 @@ EOF
 }
 
 build_image_exists() {
-    local img=$1
+    declare img=$1
     if [[ $build_docker_version_is_old ]]; then
         if [[ $build_docker_registry ]]; then
             build_err '$build_docker_registry not allowed in old version of Docker'
@@ -143,16 +137,24 @@ build_image_exists() {
 }
 
 build_image_os_tag() {
-    local image=$1
-    local ID VERSION_ID
+    declare image=$1
+    declare ID VERSION_ID
     eval "$( docker run "$image" egrep '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
-    if [[ $VERSION_ID ]]
-    echo ${VERSION_ID}
-    docker run --rm=true --tag="$tag" /bin/sh cat /etc/os-release
-ID=fedora
-VERSION_ID=32
+    declare i=${ID,,}
+    declare v=${VERSION_ID}
+    case $i in
+        centos)
+            v=$install_version_centos
+            ;;
+        fedora)
+            v=$install_version_fedora
+            ;;
+        *)
+            : other cases default
+            ;;
+    esac
+    echo "$i-$v"
 }
-
 
 build_image_prep() {
     build_image_uri=https://${build_docker_registry:-registry.hub.docker.com}/$build_image_name:$build_version
