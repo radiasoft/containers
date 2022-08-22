@@ -276,7 +276,7 @@ build_main_init() {
         build_script_host_init
     fi
     declare v=
-    if [[ ! $build_image_base ]]; then
+    if [[ ! ${build_image_base:-} ]]; then
         build_err "build_image_base: variable must defined in $build_script"
     fi
     if [[ ! $build_version =~ ^[[:digit:]]{8}\.[[:digit:]]{6}$ ]]; then
