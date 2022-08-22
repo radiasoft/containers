@@ -20,7 +20,7 @@ build_clean_container() {
 }
 
 build_image() {
-    declare os_channel=$(build_image_docker_file)
+    declare os_channel=$(_build_image_docker_file)
     #TODO(robnagler) Really want to check for
     #   IPv4 forwarding is disabled. Networking will not work.
     declare flags=( --network=host )
@@ -63,6 +63,7 @@ EOF
     else
         cat <<EOF
 $m
+
 After some testing, push:
 
 $push
@@ -113,7 +114,7 @@ _build_image_docker_file() {
     fi
     # POSIT: if $build_docker_registry then all channels exist (including os channel)
     declare v=$(_build_image_os_tag "$bi")
-    if [[ $bi =~ : ]]; then
+    if [[ ! $bi =~ : ]]; then
         bi+=:$v
     fi
     cat > Dockerfile <<EOF
