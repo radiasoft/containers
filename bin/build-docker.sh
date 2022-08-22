@@ -38,7 +38,7 @@ build_image() {
             bi=$x
         fi
     fi
-    tags+=( $(build_image_os_tag "$bi") )
+    tags+=( "$(build_image_os_tag "$bi")" )
     cat > Dockerfile <<EOF
 FROM $bi
 MAINTAINER "$build_maintainer"
@@ -76,8 +76,9 @@ EOF
     if [[ $build_docker_version_is_old ]]; then
         force=-f
     fi
-    # always tag latest
+    # always tag latest and os tag
     docker tag $force "$tag" "${tag/$build_version/latest}"
+    docker tag $force "$tag" "${tag/$build_version/${tags[0]}}"
     for r in "${build_is_public:+docker.io}" "$build_docker_registry"; do
         if [[ ! $r ]]; then
             continue
@@ -139,7 +140,7 @@ build_image_exists() {
 build_image_os_tag() {
     declare image=$1
     declare ID VERSION_ID
-    eval "$( docker run "$image" egrep '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
+    eval "$( docker run --rm "$image" egrep '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
     declare i=${ID,,}
     declare v=${VERSION_ID}
     case $i in

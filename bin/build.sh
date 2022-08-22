@@ -103,7 +103,7 @@ build_fedora_base_image() {
 #TODO(robnagler) remove vagrant support???
         build_image_base=fedora-$v
     else
-        build_image_base=fedora:$version
+        build_image_base=fedora:$v
     fi
 }
 
