@@ -97,19 +97,18 @@ build_err_trap() {
 }
 
 build_fedora_base_image() {
-    local version=${1:-32}
+    # Run outside the container
+    declare v=${1:-$install_version_fedora}
     if [[ ${build_is_vagrant:-} ]]; then
-        if (( $version > 21 )); then
-            build_image_base=fedora-$version
-        else
-            build_image_base=hansode/fedora-$version-server-x86_64
-        fi
+#TODO(robnagler) remove vagrant support???
+        build_image_base=fedora-$v
     else
-        build_image_base=fedora:$version
+        build_image_base=fedora:$v
     fi
 }
 
 build_fedora_version() {
+    # Only run inside the container
     if [[ $install_os_release_id != fedora ]]; then
         build_err 'Not a Fedora release'
     fi
@@ -123,7 +122,7 @@ build_fedora_clean() {
     # Clear caches
     build_yum clean all
     ls -d /var/cache/*/* | grep -v /var/cache/ldconfig/ | xargs rm -rf
-    local systemd=
+    declare systemd=
     if ps 1 | grep -s -q /systemd/; then
         # journald: stop until everything cleared
         systemd=1
@@ -175,10 +174,6 @@ build_fedora_clean() {
         dd if=/usr/lib/locale/locale-archive of=/usr/lib/locale/locale-archive-
         mv /usr/lib/locale/locale-archive- /usr/lib/locale/locale-archive
         chmod 644 /usr/lib/locale/locale-archive
-        #TODO(robnagler) these should be included
-        #find /usr/share/i18n/locales -type f ! -name en\* | xargs rm -rf
-        #find /usr/share/i18n/charmaps -type f ! -name ISO-8859\* ! -name UTF\* | xargs rm -rf
-        #find /usr/share/locale ! -name locale -type d -prune ! -name en\* | xargs rm -rf
     fi
     # This should recreate the archive, but there are missing charmaps and such
     # User (vagrant) caches and junk
@@ -197,7 +192,7 @@ build_fedora_patch() {
 }
 
 build_home_env() {
-    local update=~/bin/_bivio_home_env_update
+    declare update=~/bin/_bivio_home_env_update
     if [[ -x $update ]]; then
         # Need proper environment for update
         install_source_bashrc
@@ -245,14 +240,14 @@ build_main() {
 
 build_main_args() {
     build_type=${1:-}
-    local d=$(pwd)
+    declare d=$(pwd)
     build_script=$d/container-conf/build.sh
     if [[ ! ${build_image_name:-} ]]; then
-        local b=$(basename "$d")
+        declare b=$(basename "$d")
         if [[ $b =~ ^container-([-_[:alnum:]]+)$ ]]; then
             b=${BASH_REMATCH[1]}
         fi
-        local o=$(basename "$(dirname "$d")")
+        declare o=$(basename "$(dirname "$d")")
         build_image_name=$o/$b
     fi
     build_host_conf=$(cd "$(dirname "$build_script")"; pwd)
@@ -280,8 +275,8 @@ build_main_init() {
     if [[ $(type -t build_script_host_init) == 'function' ]]; then
         build_script_host_init
     fi
-    local v=
-    if [[ ! $build_image_base ]]; then
+    declare v=
+    if [[ ! ${build_image_base:-} ]]; then
         build_err "build_image_base: variable must defined in $build_script"
     fi
     if [[ ! $build_version =~ ^[[:digit:]]{8}\.[[:digit:]]{6}$ ]]; then
@@ -321,6 +316,7 @@ build_main_conf_dir() {
         done
         cat <<EOF
 set -e
+$(install_vars_export)
 install_init_vars
 source "$build_guest_script"
 build_run
@@ -335,8 +331,8 @@ build_msg() {
 }
 
 build_replace_vars() {
-    local src=$1
-    local dst=$2
+    declare src=$1
+    declare dst=$2
     perl -p -e 's/\{(\w+)\}/$ENV{$1} || die("$1: not found")/eg' "$src" > "$dst"
 }
 
@@ -425,8 +421,8 @@ build_run_yum() {
         build_yum update --exclude='filesystem*' --exclude='setup-*'
     fi
     # git, diffutils, and tar are needed to build home_env
-    local -a rpms=()
-    local f
+    declare -a rpms=()
+    declare f
     for f in diffutils findutils git procps-ng sudo tar; do
         if ! rpm --quiet -q "$f"; then
             rpms+=($f)
@@ -443,7 +439,7 @@ build_run_yum() {
 }
 
 build_sudo() {
-    local sudo
+    declare sudo
     if [[ $UID != 0 ]]; then
         sudo=sudo
     fi
@@ -455,7 +451,7 @@ build_sudo_install() {
         return
     fi
     chmod 4111 /usr/bin/sudo
-    local x=/etc/sudoers.d/$build_run_user
+    declare x=/etc/sudoers.d/$build_run_user
     if [[ -f $x ]]; then
         # Don't remove if installed in base image,
         # because likely vagrant.
@@ -478,7 +474,7 @@ build_sudo_remove() {
 }
 
 build_yum() {
-    local cmd=( yum )
+    declare cmd=( yum )
     if [[ $(type -t dnf) ]]; then
         cmd=( dnf )
     else
