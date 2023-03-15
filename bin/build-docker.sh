@@ -5,13 +5,14 @@
 # Must be absolute; see download/installers/container-run/radiasoft-download.sh
 : ${build_docker_cmd:=/bin/bash}
 : ${build_docker_entrypoint:=}
-: ${build_is_public:=}
-: ${build_docker_registry:=}
-: ${build_image_add:='docker pull'}
-: ${build_dockerfile_aux:=}
-: ${build_docker_user:=}
-: ${build_push:=}
 : ${build_docker_post_hook:=}
+: ${build_docker_registry:=}
+: ${build_docker_user:=}
+: ${build_dockerfile_aux:=}
+: ${build_image_add:='docker pull'}
+: ${build_is_private:=}
+: ${build_is_public:=}
+: ${build_push:=}
 # Must be defined by $build_script
 # build_image_base
 
@@ -54,7 +55,7 @@ To run it:
 docker run --rm -it ${flags[*]} '$tag'
 EOF
 )
-    if ! [[ $build_docker_registry || $build_is_public ]]; then
+    if ! [[ $build_docker_registry || $build_is_public || $build_is_private ]]; then
         echo "$m"
         return
     fi
