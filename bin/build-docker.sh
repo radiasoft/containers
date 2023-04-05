@@ -25,7 +25,7 @@ build_image() {
     #   IPv4 forwarding is disabled. Networking will not work.
     declare flags=( --network=host )
     declare tag=${build_docker_registry:+$build_docker_registry/}$build_image_name:$build_version
-    docker build "${flags[@]}" --rm=true --tag="$tag" .
+    docker build "${flags[@]}" --progress=plain --rm=true --tag="$tag" .
     if [[ $build_docker_post_hook ]]; then
         # execute the hook, but unset it so it doesn't infinitely recurse
         build_push=$build_push build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}" "--user=$build_run_user" --rm=true
