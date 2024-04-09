@@ -76,6 +76,10 @@ build_debug() {
     fi
 }
 
+build_dir_hook() {
+    : Executes after build_dir is created, but before changing to directory.
+}
+
 build_err() {
     build_msg "$@"
     if [[ ${build_dir:-} && -d $build_dir ]]; then
@@ -304,6 +308,7 @@ build_main_init() {
 build_main_conf_dir() {
     rm -rf "$build_dir"
     mkdir "$build_dir"
+    build_dir_hook
     cd "$build_dir"
     cp -a "$build_host_conf"/* .
     {
