@@ -495,12 +495,4 @@ build_yum() {
     fi
 }
 
-if [[ ${build_travis_trigger_only:-} ]]; then
-    install_script_eval bin/build-travis.sh
-    build_travis_trigger_next ${install_extra_args[@]+"${install_extra_args[@]}"}
-elif [[ ${TRAVIS:-} == true ]]; then
-    install_script_eval bin/build-travis.sh
-    build_travis_main ${install_extra_args[@]+"${install_extra_args[@]}"}
-else
-    build_main ${install_extra_args[@]+"${install_extra_args[@]}"}
-fi
+build_main ${install_extra_args[@]+"${install_extra_args[@]}"}
