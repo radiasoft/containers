@@ -25,7 +25,7 @@ build_image() {
     #   IPv4 forwarding is disabled. Networking will not work.
     declare flags=( --network=host )
     declare tag=${build_docker_registry:+$build_docker_registry/}$build_image_name:$build_version
-    docker build "${flags[@]}" --progress=plain --rm=true --tag="$tag" .
+    $RADIA_RUN_OCI_CMD build "${flags[@]}" --progress=plain --rm=true --tag="$tag" .
     if [[ $build_docker_post_hook ]]; then
         # execute the hook, but unset it so it doesn't infinitely recurse
         build_push=$build_push build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}" "--user=$build_run_user" --rm=true
@@ -39,9 +39,9 @@ build_image() {
     declare r=${tag%%:*}
     for c in "${channels[@]}"; do
         t=$r:$c
-        push+="docker push '$t'|tee;"$'\n'
+        push+="$RADIA_RUN_OCI_CMD push '$t'|tee;"$'\n'
         if [[ $t != $tag ]]; then
-            docker tag "$tag" "$t"
+            $RADIA_RUN_OCI_CMD tag "$tag" "$t"
         fi
     done
     cat <<EOF
@@ -51,7 +51,7 @@ EOF
     declare m=$(cat <<EOF
 To run it:
 
-docker run --rm -it ${flags[*]} '$tag'
+$RADIA_RUN_OCI_CMD run --rm -it ${flags[*]} '$tag'
 EOF
 )
     if ! [[ $build_docker_registry || $build_is_public ]]; then
@@ -108,7 +108,7 @@ _build_image_docker_file() {
     declare bi=$build_image_base
     if [[ $build_docker_registry ]]; then
         declare x=$build_docker_registry/$bi
-        if [[ $(docker images -q "$x") ]]; then
+        if [[ $($RADIA_RUN_OCI_CMD images -q "$x") ]]; then
             bi=$x
         fi
     fi
@@ -135,7 +135,7 @@ EOF
 _build_image_os_tag() {
     declare image=$1
     declare ID VERSION_ID
-    eval "$( docker run --rm "$image" egrep '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
+    eval "$( $RADIA_RUN_OCI_CMD run --rm "$image" egrep '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
     declare i=${ID,,}
     declare v=$VERSION_ID
     if [[ ! $image =~ : ]]; then
