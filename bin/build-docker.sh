@@ -6,10 +6,10 @@
 : ${build_docker_cmd:=/bin/bash}
 : ${build_docker_entrypoint:=}
 : ${build_docker_post_hook:=}
-: ${build_docker_registry:=}
+: ${build_docker_registry:=${RADIA_RUN_OCI_REGISTRY:-}}
 : ${build_docker_user:=}
 : ${build_dockerfile_aux:=}
-: ${build_image_add:='docker pull'}
+: ${build_image_add:="$RADIA_RUN_OCI_CMD pull"}
 : ${build_is_public:=}
 : ${build_push:=}
 # Must be defined by $build_script
