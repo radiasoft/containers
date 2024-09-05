@@ -407,6 +407,13 @@ build_run_dir() {
 }
 
 build_run_yum() {
+    declare f
+    f=/etc/yum.repos.d/CentOS-Base.repo
+    if install_os_is_centos_7 && ! grep baseurl=https://depot.radiasoft "$f" &> /dev/null; then
+        sed -i.bak -e 's,^mirrorlist=http://mirrorlist,#mirrorlist=http://vault,' \
+              -e 's,^#baseurl=http://mirror.centos.org,baseurl=https://depot.radiasoft.org/yum,' \
+                "$f"
+    fi
     # if the dnf-plugin-ovl isn't there, touch rpm db
     if [[ ! ${build_no_touch_rpmdb:-} ]]; then
         build_msg 'touch /var/lib/rpm/*'
@@ -427,7 +434,6 @@ build_run_yum() {
     fi
     # git, diffutils, and tar are needed to build home_env
     declare -a rpms=()
-    declare f
     for f in diffutils findutils git procps-ng sudo tar; do
         if ! rpm --quiet -q "$f"; then
             rpms+=($f)
