@@ -25,6 +25,10 @@ build_image() {
     #   IPv4 forwarding is disabled. Networking will not work.
     declare flags=( --network=host )
     declare tag=${build_docker_registry:+$build_docker_registry/}$build_image_name:$build_version
+    if [[ ${GITHUB_TOKEN:-} ]]; then
+        # see build_init_type && _build_image_docker_file
+        flags+=( --secret id=GITHUB_TOKEN )
+    fi
     $RADIA_RUN_OCI_CMD build "${flags[@]}" --progress=plain --rm=true --tag="$tag" .
     if [[ $build_docker_post_hook ]]; then
         # execute the hook, but unset it so it doesn't infinitely recurse
@@ -78,6 +82,10 @@ build_image_prep() {
 build_init_type() {
     build_is_docker=1
     build_type=docker
+    # build_image passes GITHUB_TOKEN via --secret which creates this file
+    if [[ -r /run/secrets/GITHUB_TOKEN ]]; then
+        export GITHUB_TOKEN=$( cat /run/secrets/GITHUB_TOKEN )
+    fi
 }
 
 build_root_setup() {
@@ -117,12 +125,17 @@ _build_image_docker_file() {
     if [[ ! $bi =~ : ]]; then
         bi+=:$v
     fi
+    declare secret=
+    if [[ ${GITHUB_TOKEN:-} ]]; then
+        # See build_image for how this is set
+        secret=--mount=type=secret,id=GITHUB_TOKEN
+    fi
     cat > Dockerfile <<EOF
 FROM $bi
 MAINTAINER "$build_maintainer"
 USER root
 COPY . $build_guest_conf
-RUN "$build_run"
+RUN $secret "$build_run"
 $cmd
 $entrypoint
 # run user must be after build_run, because changes user during build

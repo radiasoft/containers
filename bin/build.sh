@@ -312,21 +312,26 @@ build_main_conf_dir() {
     cd "$build_dir"
     cp -a "$build_host_conf"/* .
     {
-        echo '#!/bin/bash'
+        echo '#!/bin/bash
+set -e'
         for f in $(compgen -A function build_) $(compgen -A function install_); do
             declare -f "$f"
         done
-        for f in $(compgen -A variable build_) $(compgen -A variable install_) $build_passenv; do
+        for f in $(compgen -A variable build_) $build_passenv; do
             declare -p "$f"
         done
+        # install_init_vars is necessary (at least for install_verbose)
         cat <<EOF
-set -e
-$(install_vars_export)
+$(install_vars_export_github_token= install_vars_export)
 install_init_vars
 source "$build_guest_script"
 build_run
 EOF
     } > build-run.sh
+    # SECURITY: check for secrets exported by above
+    if egrep -i '^declare .*(token|secret|password)' build-run.sh; then
+        build_err 'secrets cannot be in build.sh'
+    fi
     chmod +x build-run.sh
     build_run="$build_guest_conf/build-run.sh"
 }
