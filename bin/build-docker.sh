@@ -132,7 +132,7 @@ _build_image_docker_file() {
     fi
     cat > Dockerfile <<EOF
 FROM $bi
-MAINTAINER "$build_maintainer"
+LABEL org.opencontainers.image.authors="$build_maintainer"
 USER root
 COPY . $build_guest_conf
 RUN $secret "$build_run"
