@@ -107,7 +107,7 @@ _build_image_docker_file() {
     rm -f Dockerfile
     declare cmd=
     if [[ $build_docker_cmd ]]; then
-        cmd="CMD $build_docker_cmd"
+        cmd="CMD [\"$build_docker_cmd\"]"
     fi
     declare entrypoint=
     if [[ $build_docker_entrypoint ]]; then
