@@ -45,6 +45,18 @@ build_as_run_user() {
     : Executes as build_run_user after root is built and home env setup
 }
 
+build_centos7_patch() {
+    if ! install_os_is_centos_7 || grep -s '^baseurl=https://depot.radiasoft.org/yum' &>/dev/null; then
+        return
+    fi
+    sed -i.bak \
+        -e 's,^mirrorlist=http://mirrorlist,#mirrorlist=http://vault,' \
+        -e 's,^#baseurl=http://mirror.centos.org,baseurl=https://depot.radiasoft.org/yum,' \
+        /etc/yum.repos.d/CentOS-Base.repo
+    install_yum clean all
+    install_yum makecache
+}
+
 build_clean() {
     set +e
     trap - EXIT
@@ -367,6 +379,7 @@ EOF
 build_run() {
     cd "$(dirname "$0")"
     build_init
+    build_centos7_patch
     if [[ $build_simply ]]; then
         build_run_dir
         build_sudo_install
