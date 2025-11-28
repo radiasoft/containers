@@ -367,6 +367,7 @@ EOF
 build_run() {
     cd "$(dirname "$0")"
     build_init
+    install_patch_centos7_mirror
     if [[ $build_simply ]]; then
         build_run_dir
         build_sudo_install
