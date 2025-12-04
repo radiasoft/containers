@@ -125,7 +125,10 @@ build_fedora_clean() {
     fi
     # Clear caches
     build_yum clean all
-    ls -d /var/cache/*/* | grep -v /var/cache/ldconfig/ | xargs rm -rf
+    declare -a f=( $(ls -d /var/cache/*/* | grep -v /var/cache/ldconfig/ || true) )
+    if (( ${#f[@]} > 0 )); then
+         rm -rf "${f[@]}"
+    fi
     declare systemd=
     if ps 1 | grep -s -q /systemd/; then
         # journald: stop until everything cleared
