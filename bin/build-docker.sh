@@ -24,15 +24,16 @@ build_image() {
     #TODO(robnagler) Really want to check for
     #   IPv4 forwarding is disabled. Networking will not work.
     declare flags=( --network=host )
+    declare secret=()
     declare tag=${build_docker_registry:+$build_docker_registry/}$build_image_name:$build_version
     if [[ ${GITHUB_TOKEN:-} ]]; then
         # see build_init_type && _build_image_docker_file
-        flags+=( --secret id=GITHUB_TOKEN )
+        secret+=( --secret id=GITHUB_TOKEN )
     fi
     $RADIA_RUN_OCI_CMD build "${flags[@]}" --progress=plain --rm=true --tag="$tag" .
     if [[ $build_docker_post_hook ]]; then
         # execute the hook, but unset it so it doesn't infinitely recurse
-        build_push=$build_push build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}" "--user=$build_run_user" --rm=true
+        build_push=$build_push build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}" ${secret+${secret[*]}} "--user=$build_run_user" --rm=true
     fi
     declare channels=( "$build_version" )
     if [[ ! ${build_docker_version_tag_only:-} ]]; then
@@ -148,7 +149,7 @@ EOF
 _build_image_os_tag() {
     declare image=$1
     declare ID VERSION_ID
-    eval "$( $RADIA_RUN_OCI_CMD run --rm "$image" egrep '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
+    eval "$( $RADIA_RUN_OCI_CMD run --rm "$image" grep -E '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
     declare i=${ID,,}
     declare v=$VERSION_ID
     if [[ ! $image =~ : ]]; then
