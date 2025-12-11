@@ -332,7 +332,7 @@ build_run
 EOF
     } > build-run.sh
     # SECURITY: check for secrets exported by above
-    if egrep -i '^declare .*(token|secret|password)' build-run.sh; then
+    if grep -E -i '^declare .*(token|secret|password)' build-run.sh; then
         build_err 'secrets cannot be in build.sh'
     fi
     chmod +x build-run.sh
@@ -497,7 +497,7 @@ build_yum() {
     if [[ ! $build_debug ]]; then
         cmd+=( -q )
     fi
-    build_sudo "${cmd[@]}" --color=never -y "$@"
+    install_yum "$@"
     if [[ ${cmd[0]} = yum && -n $(type -p package-cleanup) ]]; then
         build_sudo package-cleanup --cleandupes
     fi
