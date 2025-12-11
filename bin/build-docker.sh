@@ -9,7 +9,6 @@
 : ${build_docker_registry:=${RADIA_RUN_OCI_REGISTRY:-}}
 : ${build_docker_user:=}
 : ${build_dockerfile_aux:=}
-: ${build_image_add:="$RADIA_RUN_OCI_CMD pull"}
 : ${build_is_public:=}
 : ${build_push:=}
 # Must be defined by $build_script
@@ -148,22 +147,23 @@ EOF
 
 _build_image_os_tag() {
     declare image=$1
-    declare ID VERSION_ID
-    eval "$( $RADIA_RUN_OCI_CMD run --rm "$image" grep -E '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
-    declare i=${ID,,}
-    declare v=$VERSION_ID
+    declare -a tags
     if [[ ! $image =~ : ]]; then
-        case $i in
-            centos)
-                v=$install_version_centos
-                ;;
-            fedora)
-                v=$install_version_fedora
-                ;;
-            *)
-                : other cases default to $VERSION_ID
-                ;;
-        esac
+        tags+=( ":fedora-$install_version_fedora" ":centos-$install_version_centos" )
     fi
-    echo "$i-$v"
+    tags+=( '' )
+    declare rv=$(
+        declare t
+        for t in "${tags[@]}"; do
+            eval "$( $RADIA_RUN_OCI_CMD run --rm "$image$t" grep -E '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
+            if [[ $ID && $VERSION_ID ]]; then
+                echo "${ID,,}-$VERSION_ID"
+                return
+            fi
+        done
+    )
+    if [[ ! $rv ]]; then
+        build_err "unable to determine OS; is $image downloaded?"
+    fi
+    echo "$rv"
 }
