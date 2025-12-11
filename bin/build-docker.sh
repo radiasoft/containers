@@ -156,7 +156,7 @@ _build_image_os_tag() {
         declare t
         for t in "${tags[@]}"; do
             eval "$( $RADIA_RUN_OCI_CMD run --rm "$image$t" grep -E '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
-            if [[ $ID && $VERSION_ID ]]; then
+            if [[ ${ID:-} && ${VERSION_ID:-} ]]; then
                 echo "${ID,,}-$VERSION_ID"
                 return
             fi
