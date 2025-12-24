@@ -9,7 +9,6 @@
 : ${build_docker_registry:=${RADIA_RUN_OCI_REGISTRY:-}}
 : ${build_docker_user:=}
 : ${build_dockerfile_aux:=}
-: ${build_image_add:="$RADIA_RUN_OCI_CMD pull"}
 : ${build_is_public:=}
 : ${build_push:=}
 # Must be defined by $build_script
@@ -24,15 +23,16 @@ build_image() {
     #TODO(robnagler) Really want to check for
     #   IPv4 forwarding is disabled. Networking will not work.
     declare flags=( --network=host )
+    declare secret=()
     declare tag=${build_docker_registry:+$build_docker_registry/}$build_image_name:$build_version
     if [[ ${GITHUB_TOKEN:-} ]]; then
         # see build_init_type && _build_image_docker_file
-        flags+=( --secret id=GITHUB_TOKEN )
+        secret+=( --secret id=GITHUB_TOKEN )
     fi
     $RADIA_RUN_OCI_CMD build "${flags[@]}" --progress=plain --rm=true --tag="$tag" .
     if [[ $build_docker_post_hook ]]; then
         # execute the hook, but unset it so it doesn't infinitely recurse
-        build_push=$build_push build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}" "--user=$build_run_user" --rm=true
+        build_push=$build_push build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}" ${secret+${secret[*]}} "--user=$build_run_user" --rm=true
     fi
     declare channels=( "$build_version" )
     if [[ ! ${build_docker_version_tag_only:-} ]]; then
@@ -107,7 +107,7 @@ _build_image_docker_file() {
     rm -f Dockerfile
     declare cmd=
     if [[ $build_docker_cmd ]]; then
-        cmd="CMD $build_docker_cmd"
+        cmd="CMD [\"$build_docker_cmd\"]"
     fi
     declare entrypoint=
     if [[ $build_docker_entrypoint ]]; then
@@ -132,7 +132,7 @@ _build_image_docker_file() {
     fi
     cat > Dockerfile <<EOF
 FROM $bi
-MAINTAINER "$build_maintainer"
+LABEL org.opencontainers.image.authors="$build_maintainer"
 USER root
 COPY . $build_guest_conf
 RUN $secret "$build_run"
@@ -147,22 +147,23 @@ EOF
 
 _build_image_os_tag() {
     declare image=$1
-    declare ID VERSION_ID
-    eval "$( $RADIA_RUN_OCI_CMD run --rm "$image" egrep '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
-    declare i=${ID,,}
-    declare v=$VERSION_ID
+    declare -a tags
     if [[ ! $image =~ : ]]; then
-        case $i in
-            centos)
-                v=$install_version_centos
-                ;;
-            fedora)
-                v=$install_version_fedora
-                ;;
-            *)
-                : other cases default to $VERSION_ID
-                ;;
-        esac
+        tags+=( ":fedora-$install_version_fedora" ":centos-$install_version_centos" )
     fi
-    echo "$i-$v"
+    tags+=( '' )
+    declare rv=$(
+        declare t
+        for t in "${tags[@]}"; do
+            eval "$( $RADIA_RUN_OCI_CMD run --rm "$image$t" grep -E '^(ID|VERSION_ID)=' /etc/os-release 2>/dev/null || true)"
+            if [[ ${ID:-} && ${VERSION_ID:-} ]]; then
+                echo "${ID,,}-$VERSION_ID"
+                return
+            fi
+        done
+    )
+    if [[ ! $rv ]]; then
+        build_err "unable to determine OS; is $image downloaded?"
+    fi
+    echo "$rv"
 }
