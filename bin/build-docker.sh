@@ -20,9 +20,8 @@ build_clean_container() {
 
 build_image() {
     declare os_channel=$(_build_image_docker_file)
-    #TODO(robnagler) Really want to check for
-    #   IPv4 forwarding is disabled. Networking will not work.
-    declare flags=( --network=host )
+    #TODO(robnagler) Check if IPv4 forwarding is disabled, else networking will not work.
+    declare flags=( --network=host  )
     declare secret=()
     declare tag=${build_docker_registry:+$build_docker_registry/}$build_image_name:$build_version
     if [[ ${GITHUB_TOKEN:-} ]]; then
@@ -31,8 +30,10 @@ build_image() {
     fi
     $RADIA_RUN_OCI_CMD build "${flags[@]}" --progress=plain --rm=true --tag="$tag" .
     if [[ $build_docker_post_hook ]]; then
-        # execute the hook, but unset it so it doesn't infinitely recurse
-        build_push=$build_push build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}" ${secret+${secret[*]}} "--user=$build_run_user" --rm=true
+        # WORKAROUND: mpich4 allocates lots of shared memory and leaks (download#842)
+        flags+=( --shm-size=1g ${secret+${secret[*]}} "--user=$build_run_user" --rm=true )
+        # execute the hook; unset $build_docker_post_hook, just in case it recurses
+        build_push=$build_push build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}"
     fi
     declare channels=( "$build_version" )
     if [[ ! ${build_docker_version_tag_only:-} ]]; then
