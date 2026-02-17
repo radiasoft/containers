@@ -22,16 +22,15 @@ build_image() {
     declare os_channel=$(_build_image_docker_file)
     #TODO(robnagler) Check if IPv4 forwarding is disabled, else networking will not work.
     declare flags=( --network=host  )
-    declare secret=()
     declare tag=${build_docker_registry:+$build_docker_registry/}$build_image_name:$build_version
     if [[ ${GITHUB_TOKEN:-} ]]; then
         # see build_init_type && _build_image_docker_file
-        secret+=( --secret id=GITHUB_TOKEN )
+        flags+=( --secret id=GITHUB_TOKEN )
     fi
     $RADIA_RUN_OCI_CMD build "${flags[@]}" --progress=plain --rm=true --tag="$tag" .
     if [[ $build_docker_post_hook ]]; then
         # WORKAROUND: mpich4 allocates lots of shared memory and leaks (download#842)
-        flags+=( --shm-size=1g ${secret+${secret[*]}} "--user=$build_run_user" --rm=true )
+        flags+=( --shm-size=1g "--user=$build_run_user" --rm=true )
         # execute the hook; unset $build_docker_post_hook, just in case it recurses
         build_push=$build_push build_docker_post_hook= "$build_docker_post_hook" "$tag" "${flags[@]}"
     fi
