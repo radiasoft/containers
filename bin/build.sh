@@ -236,6 +236,7 @@ build_init() {
 }
 
 build_main() {
+    echo ${GITHUB_TOKEN:-no-github-token-1}
     trap build_err_trap EXIT
     build_main_args "$@"
     build_main_init
@@ -332,7 +333,7 @@ build_run
 EOF
     } > build-run.sh
     # SECURITY: check for secrets exported by above
-    if grep -E -i '^declare .*(token|secret|password)' build-run.sh; then
+    if grep -E -i '^declare .*(token|secret|password)|\bghp_|\bgithub_pat_' build-run.sh; then
         build_err 'secrets cannot be in build.sh'
     fi
     chmod +x build-run.sh

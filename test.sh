@@ -9,16 +9,15 @@ _err() {
 trap '_err FAIL' ERR
 export install_server=http://127.0.0.1:2916
 if ! timeout 1 bash -c '</dev/tcp/127.0.0.1/2916'; then
-    _err "start download/installers/rpm-code/dev-server.sh or similar"
+    _err "start download/etc/dev-server.sh or similar"
 fi
 # assumes radia_run: curl $install_server/index.sh | bash -s unit-test arg1
 cd ~/src/radiasoft/container-test
 export GITHUB_TOKEN=some-big-secret-xyzzy
-export GITHUB_PASSWORD=secret-pass
-build_passenv=GITHUB_PASSWORD radia_run container-build
+radia_run container-build
 img=radiasoft/test
 ver=$(
-    docker images |
+    docker images --format=table |
         perl -n -e '!$x && m{^'"$img"'\s+(\d+\.\d+)} && print($x=$1)'
 )
 out=$(docker run --rm -u vagrant $img:$ver /home/vagrant/bin/radia-run-testimage 2>&1)
