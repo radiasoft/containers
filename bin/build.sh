@@ -21,7 +21,7 @@
 # Optionally define:
 #
 # $build_batch_mode - defaults to false
-# $build_passenv - variables to pass to containter
+# $build_passenv - variables to pass to containter; unset vars default to empty
 # $build_maintainer - identify author of image [RadiaSoft <(vagrant|docker)@radiasoft.net>]
 # $build_vagrant_uri - for help message on how to install in vagrant hub [https://depot.radiasoft.org/foss]
 # $build_version - defaults to the time now, but can be any chronological version
@@ -320,6 +320,11 @@ build_main_conf_dir() {
 set -e'
         for f in $(compgen -A function build_) $(compgen -A function install_); do
             declare -f "$f"
+        done
+        for f in $build_passenv; do
+            if [[ ! -v $f ]]; then
+                declare "$f="
+            fi
         done
         for f in $(compgen -A variable build_) $build_passenv; do
             declare -p "$f"
