@@ -236,7 +236,6 @@ build_init() {
 }
 
 build_main() {
-    echo ${GITHUB_TOKEN:-no-github-token-1}
     trap build_err_trap EXIT
     build_main_args "$@"
     build_main_init
